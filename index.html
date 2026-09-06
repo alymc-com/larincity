@@ -93,8 +93,9 @@
   .ai .typing i:nth-child(2){animation-delay:.15s}.ai .typing i:nth-child(3){animation-delay:.3s}
   @keyframes tp{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
   /* mobile menu overlay */
-  .mnav{position:fixed;inset:0;z-index:70;background:#fff;display:flex;flex-direction:column;padding:16px 22px 26px;transform:translateY(-102%);transition:transform .55s var(--ease);will-change:transform}
-  .mnav.on{transform:none}
+  .mnav{position:fixed;inset:0;z-index:70;background:#fff;display:flex;flex-direction:column;padding:16px 22px 26px;overflow:auto;transform:translateY(-102%);visibility:hidden;pointer-events:none;transition:transform .55s var(--ease),visibility 0s .55s;will-change:transform}
+  .mnav.on{transform:none;visibility:visible;pointer-events:auto;transition:transform .55s var(--ease),visibility 0s}
+  @media (min-width:981px){.mnav{display:none}}
   .mnav .top{display:flex;align-items:center;justify-content:space-between;height:52px;margin-bottom:22px}
   .mnav .top img{height:36px;width:auto}
   .mnav .x{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:22px;cursor:pointer;display:grid;place-items:center;transition:transform .3s}
@@ -807,9 +808,15 @@ function resetForm(){document.getElementById('form').reset();document.getElement
 
 /* AI assistant: live Claude via the artifact `sample` capability, keyword fallback elsewhere */
 const aiBox=document.getElementById('ai'),aiMsgs=document.getElementById('aimsgs'),aiChips=document.getElementById('aichips');
+const AI_ENDPOINT='';
 let aiOpened=false,SAMPLE=undefined,aiHist=[],aiBusy=false,aiCtl=null;
 async function aiInit(){if(SAMPLE!==undefined)return SAMPLE;try{SAMPLE=(window.claude&&window.claude.use)?await window.claude.use('sample'):null;}catch(e){SAMPLE=null;}aiStat();return SAMPLE;}
-function aiStat(){const s=document.getElementById('aistat');if(!s)return;s.textContent=SAMPLE?L.ai_live:L.ai_local;}
+function aiStat(){const s=document.getElementById('aistat');if(!s)return;s.textContent=(SAMPLE||AI_ENDPOINT)?L.ai_live:L.ai_local;}
+async function aiRemote(bubble){aiCtl=new AbortController();const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lang:LANG,messages:aiHist.slice(-12)}),signal:aiCtl.signal});
+  if(!res.ok||!res.body)throw {code:res.status===429?'rate_limited':'error'};const rd=res.body.getReader(),dec=new TextDecoder();let buf='',text='';
+  while(true){const {value,done}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});const lines=buf.split('\n');buf=lines.pop();
+    for(const ln of lines){if(!ln.startsWith('data: '))continue;const d=ln.slice(6);if(d==='[DONE]')continue;try{const o=JSON.parse(d);if(o.error)throw {code:o.error};if(o.t){text+=o.t;bubble.textContent=text;aiMsgs.scrollTop=aiMsgs.scrollHeight;}}catch(e){if(e&&e.code)throw e;}}}
+  return text;}
 function toggleAI(){aiBox.classList.toggle('on');if(aiBox.classList.contains('on')&&!aiOpened){aiOpened=true;aiReset();aiInit();}}
 function aiReset(){aiMsgs.innerHTML='';aiHist=[];aiChips.innerHTML=L.ai_chips.map(c=>`<button type="button" onclick="aiAsk(this.textContent)">${c}</button>`).join('');aiBot(L.ai_hi,0);}
 function aiPush(txt,cls){const d=document.createElement('div');d.className='m '+cls;d.innerHTML=txt;aiMsgs.appendChild(d);aiMsgs.scrollTop=aiMsgs.scrollHeight;return d;}
@@ -859,8 +866,9 @@ function aiKeyword(q){q=q.toLowerCase();const A=L.ai_a;
   return A.fallback;}
 async function aiAsk(q){if(aiBusy)return;aiPush(q,'me');aiHist.push({role:'user',content:q});
   const s=await aiInit();
-  if(!s){const a=aiKeyword(q);aiHist.push({role:'assistant',content:a});aiBot(a);return;}
+  if(!s&&!AI_ENDPOINT){const a=aiKeyword(q);aiHist.push({role:'assistant',content:a});aiBot(a);return;}
   aiBusy=true;const bubble=aiPush('<span class="typing"><i></i><i></i><i></i></span>','bot');
+  if(!s){try{const text=await aiRemote(bubble);if(!text)throw {code:'error'};aiHist.push({role:'assistant',content:text});}catch(e){const code=e&&e.code;bubble.textContent=code==='rate_limited'?(LANG==='ar'?'الرجاء الانتظار قليلاً ثم إعادة المحاولة.':'Please wait a moment and try again.'):aiKeyword(q);}aiBusy=false;aiMsgs.scrollTop=aiMsgs.scrollHeight;return;}
   const turns=[{role:'user',content:aiKnowledge()+'\n\n'+(LANG==='ar'?'الرسائل التالية هي محادثة مع زبون. رد على آخر رسالة.':'The following is a conversation with a customer. Reply to the last message.')},{role:'assistant',content:LANG==='ar'?'مفهوم، أنا مساعد لارين وسأجيب ضمن هذه المعلومات فقط.':'Understood. I am Larin Assistant and will answer within this information only.'},...aiHist.slice(-12)];
   aiCtl=new AbortController();
   try{const r=await s(turns,{cache:false,modelTier:'quick',signal:aiCtl.signal,onText:({text})=>{bubble.textContent=text;aiMsgs.scrollTop=aiMsgs.scrollHeight;}});

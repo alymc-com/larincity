@@ -301,6 +301,18 @@
   .planlayout{display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start;max-width:1120px;margin:0 auto}
   .mapwrap{position:relative;overflow:hidden;border:1px solid var(--line);background:#fff;border-radius:var(--r);touch-action:pan-y;user-select:none}
   .mapwrap.zoomed{touch-action:none}
+  .modectl{display:flex;align-items:center;gap:4px;margin-inline-start:auto;background:var(--soft);border-radius:999px;padding:3px}
+  .modectl button{border:0;background:transparent;color:var(--ink2);font-family:var(--font);font-weight:700;font-size:13px;padding:8px 14px;border-radius:999px;cursor:pointer;transition:background .25s,color .25s}
+  .modectl button.on{background:var(--ink);color:#fff}
+  .modectl button.home{padding:8px 10px}
+  #map3d{position:absolute;inset:0;display:none;background:#fff;touch-action:pan-y;cursor:grab}
+  #map3d.drag{cursor:grabbing}#map3d.hov{cursor:pointer}
+  #map3d canvas{display:block;width:100%!important;height:100%!important}
+  .mapwrap.m3d #map3d{display:block}.mapwrap.m3d .mapin{visibility:hidden}
+  .tip3{position:absolute;pointer-events:none;background:var(--ink);color:#fff;font-size:12.5px;padding:6px 10px;border-radius:8px;transform:translate(-50%,-140%);white-space:nowrap;display:none;z-index:5;direction:ltr}
+  .hint3{position:absolute;bottom:10px;inset-inline-start:12px;font-size:11.5px;color:var(--mute);background:rgba(255,255,255,.85);padding:5px 10px;border-radius:999px;pointer-events:none;z-index:4;transition:opacity .6s}
+  .mapwrap:not(.m3d) .hint3{display:none}
+  body.screen .modectl button{font-size:15px;padding:11px 18px}
   .mapin{position:relative;width:100%;cursor:crosshair;transform-origin:0 0;transition:transform .35s var(--ease);direction:ltr}
   .mapin.drag{transition:none;cursor:grabbing}
   .mapin img{width:100%;height:auto;display:block;pointer-events:none}
@@ -588,6 +600,7 @@
       <button class="fbtn" data-t="D"><span class="sw" style="background:#3B8DF0"></span>D · 320 <span data-i="m2">م²</span></button>
       <button class="fbtn" data-t="E"><span class="sw" style="background:#F05A5A"></span>E · 600 <span data-i="m2">م²</span></button>
       <div class="zoomctl"><button onclick="zoomMap(1)" aria-label="+">+</button><button onclick="zoomMap(-1)" aria-label="-">−</button></div>
+      <div class="modectl" id="modectl"><button data-m="3d" class="on" onclick="setMode('3d')" data-i="m3d">ثلاثي الأبعاد</button><button data-m="2d" onclick="setMode('2d')" data-i="m2d">مسطح</button><button class="home" onclick="home3D()" aria-label="home" title=""><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg></button></div>
     </div>
     <div class="planlayout">
       <div class="rv">
@@ -597,6 +610,7 @@
             <svg id="units" viewBox="0 0 1000 625" preserveAspectRatio="none"></svg>
             <div class="tip" id="tip"></div>
           </div>
+          <div id="map3d"><div class="tip3" id="tip3"></div></div><div class="hint3" id="hint3" data-i="m_hint">اسحب للتدوير · قرّب بإصبعين أو بعجلة الفأرة · اضغط على أي بيت</div>
         </div>
         <div class="legend">
           <span><i style="background:#F2DE8A"></i>A</span><span><i style="background:#A98FE0"></i>B</span><span><i style="background:#3FD1D1"></i>C</span><span><i style="background:#3B8DF0"></i>D</span><span><i style="background:#F05A5A"></i>E</span>
@@ -730,7 +744,7 @@ ar:{brand:'لارين سيتي',proto:'نموذج أولي · بيانات ال�
  bn_h:'مجمع متكامل في مكان واحد',bn_p:'احجز وحدتك أو رتّب موعداً لزيارة المدينة.',bn_btn:'ابدأ الحجز',
  bk_pill:'الحجز',bk_h:'احجز وحدتك في ثلاث خطوات',st1b:'اختر النموذج أو الوحدة',st1t:'من البطاقات أو من الخريطة.',st2b:'أرسل بياناتك',st2t:'الاسم ورقم الهاتف فقط.',st3b:'يتواصل معك فريق المبيعات',st3t:'خلال يوم عمل لتأكيد الحجز.',
  f_type:'النموذج',f_choose:'اختر النموذج',f_unit:'رقم الوحدة (اختياري)',f_unit_ph:'مثال: S539',f_name:'الاسم الكامل',f_phone:'رقم الهاتف',f_city:'المحافظة',f_city_ph:'بابل',f_kind:'نوع الطلب',kinds:['حجز وحدة','طلب معاينة','استفسار عن الأسعار'],f_note:'ملاحظات',f_note_ph:'أي تفاصيل تود إضافتها',f_send:'إرسال طلب الحجز',f_notice:'نموذج أولي للعرض، الطلب لا يُرسل فعلياً. في النسخة النهائية يصل الطلب إلى فريق المبيعات عبر لوحة التحكم والواتساب.',
- f_notice_live:'يصل طلبك مباشرة إلى فريق المبيعات ويتواصل معك خلال يوم عمل.',f_err:'تعذر إرسال الطلب، تحقق من الاتصال وحاول مرة أخرى.',proto_live:'نسخة تجريبية',sc_title:'شاشة مركز المبيعات',sc_live:'متصل',sc_res:'محجوز',sc_sold:'مباع',sc_avail:'متاح',sc_pin:'أدخل رمز المبيعات',sc_manage:'إدارة الحالة (للموظفين)',sc_note:'تم حجز الوحدة {c} وظهرت محجوزة الآن على الشاشة والموقع.',sc_err:'تعذر الحفظ، تحقق من الاتصال.',d_h:'تم استلام طلبك',d_p:'سيتواصل معك فريق مبيعات لارين سيتي خلال يوم عمل على الرقم الذي أدخلته لتأكيد الحجز وترتيب موعد المعاينة.',d_btn:'طلب جديد',
+ f_notice_live:'يصل طلبك مباشرة إلى فريق المبيعات ويتواصل معك خلال يوم عمل.',f_err:'تعذر إرسال الطلب، تحقق من الاتصال وحاول مرة أخرى.',proto_live:'نسخة تجريبية',m3d:'ثلاثي الأبعاد',m2d:'مسطح',m_home:'عرض كامل',m_hint:'اسحب للتدوير · قرّب بإصبعين أو بعجلة الفأرة · اضغط على أي بيت',sc_title:'شاشة مركز المبيعات',sc_live:'متصل',sc_res:'محجوز',sc_sold:'مباع',sc_avail:'متاح',sc_pin:'أدخل رمز المبيعات',sc_manage:'إدارة الحالة (للموظفين)',sc_note:'تم حجز الوحدة {c} وظهرت محجوزة الآن على الشاشة والموقع.',sc_err:'تعذر الحفظ، تحقق من الاتصال.',d_h:'تم استلام طلبك',d_p:'سيتواصل معك فريق مبيعات لارين سيتي خلال يوم عمل على الرقم الذي أدخلته لتأكيد الحجز وترتيب موعد المعاينة.',d_btn:'طلب جديد',
  ft_p:'مدينة سكنية متكاملة في بابل، مجاور جامعة الحلة.',ft_dev:'بيت العطاء',ft_devt:'الشركة المنفذة للمشروع',ft_sec:'الأقسام',ft_contact:'تواصل معنا',ft_wa:'واتساب المبيعات',ft_addr:'بابل، مجاور جامعة الحلة',ft_follow:'تابعنا',so1:'إنستغرام',so2:'فيسبوك',so3:'تيك توك',so4:'تلغرام',big:'لارين سيتي',copy:'© 2026 لارين سيتي · جميع الحقوق محفوظة',bl:'بابل · العراق',
  ai_name:'مساعد لارين',ai_sub:'الذكاء الاصطناعي الخاص بالمشروع',ai_ph:'اكتب سؤالك',ai_live:'متصل · الذكاء الاصطناعي الخاص بالمشروع',ai_local:'ردود جاهزة · النسخة المحلية بلا اتصال بالذكاء الاصطناعي',ai_hi:'أهلاً بك في لارين سيتي. أنا مساعدك الشخصي الذكي، اسألني أي شيء عن النماذج والمساحات أو الموقع أو المرافق أو طريقة الحجز.',ai_chips:['النماذج والمساحات','الموقع','المرافق','كيف أحجز؟','الأسعار'],
  ai_a:{types:'لدينا خمسة نماذج بطابقين: A بمساحة 160 م² (3 غرف نوم)، B بمساحة 200 م²، C بمساحة 300 م²، D بمساحة 320 م² (4 غرف)، وE بمساحة 600 م² (4 غرف وكراج مزدوج). لكل بيت حديقة وموقف.',loc:'لارين سيتي في محافظة بابل، مجاور جامعة الحلة مباشرة، على شارع رئيسي بعرض 20 متراً.',amen:'داخل المجمع: مدارس ابتدائية ومتوسطة وإعدادية، مركز صحي، دفاع مدني، مراكز تسوق، مسبح ونادٍ رياضي، غاز مركزي، وأمن على مدار الساعة. و60% من المساحة حدائق.',book:'الحجز بسيط: اختر النموذج أو الوحدة من الخريطة، أرسل اسمك ورقم هاتفك، ويتواصل معك فريق المبيعات خلال يوم عمل لتأكيد الحجز.',price:'الأسعار غير معروضة على الموقع. أرسل طلب حجز أو استفسار وسيزودك فريق المبيعات بالأسعار وخطط الدفع.',fallback:'يمكنني مساعدتك بخصوص النماذج والمساحات، الموقع، المرافق، وطريقة الحجز. في النسخة النهائية سأجيب عن أي سؤال وأحجز لك موعد معاينة مباشرة.'},
@@ -752,7 +766,7 @@ en:{brand:'LARIN CITY',proto:'Prototype · booking data is for demo',n_about:'Ab
  bn_h:'A complete community in one place',bn_p:'Reserve your home or book a visit to the city.',bn_btn:'Start booking',
  bk_pill:'Booking',bk_h:'Reserve your home in three steps',st1b:'Choose a type or a home',st1t:'From the cards or the map.',st2b:'Send your details',st2t:'Name and phone only.',st3b:'Our sales team calls you',st3t:'Within one working day.',
  f_type:'Type',f_choose:'Choose a type',f_unit:'Home number (optional)',f_unit_ph:'e.g. S539',f_name:'Full name',f_phone:'Phone',f_city:'Governorate',f_city_ph:'Babil',f_kind:'Request',kinds:['Reserve a home','Book a visit','Ask about prices'],f_note:'Notes',f_note_ph:'Anything you would like to add',f_send:'Send request',f_notice:'Prototype for demonstration; requests are not actually sent. In the final version they reach the sales team via the dashboard and WhatsApp.',
- f_notice_live:'Your request goes straight to the sales team, who will call you within one working day.',f_err:'Could not send the request. Check the connection and try again.',proto_live:'Beta',sc_title:'Sales centre screen',sc_live:'Connected',sc_res:'Reserved',sc_sold:'Sold',sc_avail:'Available',sc_pin:'Enter the sales PIN',sc_manage:'Manage status (staff)',sc_note:'Home {c} is reserved and now shows as reserved on the screen and the website.',sc_err:'Could not save. Check the connection.',d_h:'Request received',d_p:'The Larin City sales team will call you within one working day to confirm and arrange a visit.',d_btn:'New request',
+ f_notice_live:'Your request goes straight to the sales team, who will call you within one working day.',f_err:'Could not send the request. Check the connection and try again.',proto_live:'Beta',m3d:'3D',m2d:'Flat',m_home:'Full view',m_hint:'Drag to rotate · pinch or scroll to zoom · tap any home',sc_title:'Sales centre screen',sc_live:'Connected',sc_res:'Reserved',sc_sold:'Sold',sc_avail:'Available',sc_pin:'Enter the sales PIN',sc_manage:'Manage status (staff)',sc_note:'Home {c} is reserved and now shows as reserved on the screen and the website.',sc_err:'Could not save. Check the connection.',d_h:'Request received',d_p:'The Larin City sales team will call you within one working day to confirm and arrange a visit.',d_btn:'New request',
  ft_p:'An integrated residential city in Babil, next to Al-Hilla University.',ft_dev:'Bait Al-Ataa',ft_devt:'Project developer',ft_sec:'Sections',ft_contact:'Contact',ft_wa:'Sales WhatsApp',ft_addr:'Babil, next to Al-Hilla University',ft_follow:'Follow us',so1:'Instagram',so2:'Facebook',so3:'TikTok',so4:'Telegram',big:'LARIN CITY',copy:'© 2026 Larin City · All rights reserved',bl:'BABIL · IRAQ',
  ai_name:'Larin Assistant',ai_sub:'The project\'s own AI',ai_ph:'Type your question',ai_live:'Connected · the official Larin City AI',ai_local:'Canned replies · local copy, no AI connection',ai_hi:'Welcome to Larin City. I am your personal AI assistant. Ask me anything about home types and sizes, the location, facilities, or how to reserve.',ai_chips:['Home types & sizes','Location','Facilities','How do I reserve?','Prices'],
  ai_a:{types:'Five two-storey types: A at 160 m² (3 bedrooms), B at 200 m², C at 300 m², D at 320 m² (4 bedrooms), and E at 600 m² (4 bedrooms, double garage). Every home has a garden and parking.',loc:'Larin City is in Babil governorate, right next to Al-Hilla University, on a 20 m main boulevard.',amen:'Inside the gates: primary, middle and secondary schools, a health centre, civil defence, shopping centres, a pool and sports club, central gas, and 24/7 security. 60% of the land is green space.',book:'Reserving is simple: pick a type or a home on the map, send your name and phone, and the sales team calls you within one working day to confirm.',price:'Prices are not published on the site. Send a reservation or enquiry and the sales team will share prices and payment plans.',fallback:'I can help with home types and sizes, the location, facilities, and how to reserve. In the final version I will answer any question and book a viewing for you directly.'},
@@ -781,7 +795,7 @@ else{UNITS.forEach(u=>{const h=hash(u.code);u.status=h%23===0?'sold':(h%8===0?'r
 let UV=null;
 function paintDot(u){if(!u.el)return;u.el.classList.remove('reserved','sold');if(u.status!=='available')u.el.classList.add(u.status);}
 function applyStatus(map){let changed=false;UNITS.forEach(u=>{const ns=map[u.code]||'available';if(ns!==u.status){u.status=ns;paintDot(u);changed=true;}});
-  if(changed){renderAvail();if(selU)select(selU);}}
+  if(changed){renderAvail();if(selU)select(selU);if(M3.ready)refresh3D();}}
 async function syncUnits(force){if(!API)return;try{const r=await fetch(API+'/units',{cache:'no-store'});const j=await r.json();if(force||j.v!==UV){UV=j.v;applyStatus(j.units||{});}}catch(e){}}
 async function staffSet(code,status){const p=prompt(L.sc_pin);if(p===null)return;if(!needPin()||p.trim()!==PIN){alert(L.sc_pin);return;}
   try{const r=await fetch(API+'/units/set',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:PIN,code,status})});const j=await r.json();if(!r.ok||!j.ok)throw j;await syncUnits(true);}catch(e){alert(L.sc_err);}}
@@ -797,17 +811,18 @@ UNITS.forEach(u=>{const c=document.createElementNS('http://www.w3.org/2000/svg',
   c.addEventListener('mousemove',e=>{const r=mapin.getBoundingClientRect();tip.style.left=((e.clientX-r.left)/Z)+'px';tip.style.top=((e.clientY-r.top)/Z)+'px';});
   c.addEventListener('mouseleave',()=>tip.style.display='none');
   u.el=c;svg.appendChild(c);});
-mapwrap.addEventListener('click',e=>{if(dragged)return;const r=mapin.getBoundingClientRect();const px=(e.clientX-r.left)/r.width*1000,py=(e.clientY-r.top)/r.height*625;let best=null,bd=1e9;
+mapwrap.addEventListener('click',e=>{if(M3.on||dragged)return;const r=mapin.getBoundingClientRect();const px=(e.clientX-r.left)/r.width*1000,py=(e.clientY-r.top)/r.height*625;let best=null,bd=1e9;
   UNITS.forEach(u=>{const d=Math.hypot(u.nx*1000-px,u.ny*625-py);if(d<bd){bd=d;best=u}});if(best&&bd<10)select(best);});
 function applyZ(){const w=mapwrap.clientWidth,h=mapwrap.clientHeight;TX=Math.min(0,Math.max(w-w*Z,TX));TY=Math.min(0,Math.max(h-h*Z,TY));mapin.style.transform=`translate(${TX}px,${TY}px) scale(${Z})`;mapwrap.classList.toggle('zoomed',Z>1);}
-function zoomMap(d){const w=mapwrap.clientWidth,h=mapwrap.clientHeight,old=Z;Z=Math.min(4,Math.max(1,+(Z+d*.5).toFixed(2)));const cx=w/2,cy=h/2;TX=cx-(cx-TX)*Z/old;TY=cy-(cy-TY)*Z/old;applyZ();}
+function zoomMap(d){if(M3.on){zoom3D(d);return;}const w=mapwrap.clientWidth,h=mapwrap.clientHeight,old=Z;Z=Math.min(4,Math.max(1,+(Z+d*.5).toFixed(2)));const cx=w/2,cy=h/2;TX=cx-(cx-TX)*Z/old;TY=cy-(cy-TY)*Z/old;applyZ();}
 let pd=null;
-mapwrap.addEventListener('pointerdown',e=>{if(Z===1||e.target.closest('button'))return;pd={x:e.clientX,y:e.clientY,tx:TX,ty:TY};dragged=false;mapin.classList.add('drag');mapwrap.setPointerCapture(e.pointerId);});
+mapwrap.addEventListener('pointerdown',e=>{if(M3.on||Z===1||e.target.closest('button'))return;pd={x:e.clientX,y:e.clientY,tx:TX,ty:TY};dragged=false;mapin.classList.add('drag');mapwrap.setPointerCapture(e.pointerId);});
 mapwrap.addEventListener('pointermove',e=>{if(!pd)return;const dx=e.clientX-pd.x,dy=e.clientY-pd.y;if(Math.hypot(dx,dy)>4)dragged=true;TX=pd.tx+dx;TY=pd.ty+dy;applyZ();});
 mapwrap.addEventListener('pointerup',()=>{pd=null;mapin.classList.remove('drag');setTimeout(()=>dragged=false,50);});
-mapwrap.addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();zoomMap(e.deltaY<0?1:-1);},{passive:false});
+mapwrap.addEventListener('wheel',e=>{if(M3.on||!e.ctrlKey)return;e.preventDefault();zoomMap(e.deltaY<0?1:-1);},{passive:false});
 function select(u){if(sel)sel.classList.remove('sel');sel=u.el;selU=u;sel.classList.add('sel');
   if(ring)ring.remove();ring=document.createElementNS('http://www.w3.org/2000/svg','circle');ring.setAttribute('cx',u.el.getAttribute('cx'));ring.setAttribute('cy',u.el.getAttribute('cy'));ring.setAttribute('r',6);ring.setAttribute('class','ring');svg.appendChild(ring);
+  if(M3.ready)mark3D(u);
   const t=TYPES.find(x=>x.code===u.type);panel.classList.add('live');
   panel.innerHTML=`<h3>${u.code}</h3><span class="status ${u.status}">${L[u.status]}</span>
   <div class="kv"><span>${L.k_type}</span><b>${u.type} · ${L.tn[u.type]}</b><span>${L.k_land}</span><b>${t.plot} ${L.m2} (${t.dims} ${L.m})</b><span>${L.k_built}</span><b>${t.built} ${L.m2}</b><span>${L.k_bed}</span><b>${t.bed}</b><span>${L.k_bath}</span><b>${t.bath}</b><span>${L.k_block}</span><b>${u.block}</b></div>
@@ -815,7 +830,7 @@ function select(u){if(sel)sel.classList.remove('sel');sel=u.el;selU=u;sel.classL
   ${u.status==='available'?`<a class="btn" href="#book" onclick="prefill('${u.type}','${u.code}')">${L.res_unit} ${u.code} <svg viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></svg></a>`:`<button class="btn ghost" disabled style="opacity:.5">${L.na}</button>`}
   <button class="btn ghost" style="margin-top:8px" onclick="openModal('${u.type}')">${L.plan_of} ${u.type}</button>
   ${(SCREEN&&API)?`<div class="staff"><span>${L.sc_manage}</span><div><button class="${u.status==='available'?'on':''}" onclick="staffSet('${u.code}','available')">${L.sc_avail}</button><button class="${u.status==='reserved'?'on':''}" onclick="staffSet('${u.code}','reserved')">${L.sc_res}</button><button class="${u.status==='sold'?'on':''}" onclick="staffSet('${u.code}','sold')">${L.sc_sold}</button></div></div>`:''}`;}
-function setFilter(t){filter=t;document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('on',b.dataset.t===t));UNITS.forEach(u=>u.el.classList.toggle('dim',t!=='all'&&u.type!==t));}
+function setFilter(t){filter=t;document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('on',b.dataset.t===t));UNITS.forEach(u=>u.el.classList.toggle('dim',t!=='all'&&u.type!==t));if(M3.ready)refresh3D();}
 document.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',()=>setFilter(b.dataset.t)));
 
 /* language */
@@ -873,6 +888,92 @@ async function submitForm(e){e.preventDefault();const f=id=>document.getElementB
   document.getElementById('ref').textContent=ref;const dp=document.querySelector('#done p');if(dp)dp.textContent=fromScreen?L.sc_note.replace('{c}',data.code):L.d_p;
   document.getElementById('form').style.display='none';const d=document.getElementById('done');d.style.display='block';d.scrollIntoView({behavior:'smooth',block:'center'});return false;}
 function resetForm(){document.getElementById('form').reset();document.getElementById('form').style.display='grid';document.getElementById('done').style.display='none';}
+
+
+/* ---------- 3D master plan (three.js, lazy-loaded) ---------- */
+const M3={on:false,ready:false,failed:false,loading:false};
+const PLOT={A:[8,20],B:[10,20],C:[15,20],D:[16,20],E:[20,30]};
+const TCOL={A:0xF2DE8A,B:0xA98FE0,C:0x3FD1D1,D:0x3B8DF0,E:0xF05A5A,reserved:0x9AA3B2,sold:0x2B2F36};
+const MPU=1.15; /* map units per metre, measured from unit spacing */
+let T3=null;
+function setMode(m){const want=m==='3d';if(want&&(M3.failed))m='2d';M3.on=(m==='3d');mapwrap.classList.toggle('m3d',M3.on);
+  document.querySelectorAll('#modectl button[data-m]').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+  try{localStorage.setItem('lc-map',m);}catch(e){}
+  if(M3.on){if(!M3.ready)load3D();else{T3.resize();T3.dirty=true;}}}
+function load3D(){if(M3.ready||M3.failed||M3.loading)return;M3.loading=true;
+  const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+  s.onload=()=>{try{init3D();}catch(e){console.error(e);M3.failed=true;setMode('2d');}};s.onerror=()=>{M3.failed=true;setMode('2d');};document.head.appendChild(s);}
+function unitFrame(u){/* row direction from the nearest neighbour in the same block */
+  let best=1e9,n=null;for(const v of UNITS){if(v===u||v.block!==u.block)continue;const d=Math.hypot((v.nx-u.nx)*1000,(v.ny-u.ny)*625);if(d<best){best=d;n=v;}}
+  if(!n)return 0;return Math.atan2((n.ny-u.ny)*625,(n.nx-u.nx)*1000);}
+function init3D(){const box=document.getElementById('map3d');const W=box.clientWidth||mapwrap.clientWidth,H=box.clientHeight||mapwrap.clientHeight;
+  let renderer;try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});}catch(e){M3.failed=true;setMode('2d');return;}
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(W,H);renderer.setClearColor(0xffffff,1);renderer.outputEncoding=THREE.sRGBEncoding;box.appendChild(renderer.domElement);
+  const scene=new THREE.Scene();scene.fog=new THREE.Fog(0xffffff,1400,2600);
+  const cam=new THREE.PerspectiveCamera(40,W/H,2,6000);
+  scene.add(new THREE.HemisphereLight(0xffffff,0xd9d4c7,1.0));const sun=new THREE.DirectionalLight(0xffffff,0.75);sun.position.set(-350,600,300);scene.add(sun);
+  const tex=new THREE.TextureLoader().load(document.querySelector('#mapin img').src,()=>{T3.dirty=true;});tex.encoding=THREE.sRGBEncoding;tex.anisotropy=renderer.capabilities.getMaxAnisotropy();
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(1000,625),new THREE.MeshBasicMaterial({map:tex}));ground.rotation.x=-Math.PI/2;scene.add(ground);
+  const under=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000),new THREE.MeshBasicMaterial({color:0xffffff}));under.rotation.x=-Math.PI/2;under.position.y=-0.5;scene.add(under);
+  const N=UNITS.length;const geo=new THREE.BoxGeometry(1,1,1);geo.translate(0,0.5,0);
+  const mat=new THREE.MeshLambertMaterial({color:0xffffff});const inst=new THREE.InstancedMesh(geo,mat,N);inst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);scene.add(inst);
+  const dummy=new THREE.Object3D();const frames=[];
+  UNITS.forEach((u,i)=>{const [pw,pd]=PLOT[u.type]||[8,20];const a=unitFrame(u);const w=pw*MPU*0.9,d=pd*MPU*0.82,h=7*MPU;
+    frames[i]={x:u.nx*1000-500,z:u.ny*625-312.5,a:-a,w,d,h};});
+  function place(k){UNITS.forEach((u,i)=>{const f=frames[i];dummy.position.set(f.x,0,f.z);dummy.rotation.set(0,f.a,0);dummy.scale.set(f.w,Math.max(0.01,f.h*k),f.d);dummy.updateMatrix();inst.setMatrixAt(i,dummy.matrix);});inst.instanceMatrix.needsUpdate=true;}
+  place(0.01);
+  /* selection outline + ring */
+  const gold=new THREE.Color(0xC9A45C).convertSRGBToLinear();
+  const outline=new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:0x0F1115}));outline.visible=false;scene.add(outline);
+  const ring=new THREE.Mesh(new THREE.RingGeometry(1,1.18,48),new THREE.MeshBasicMaterial({color:gold,transparent:true,opacity:.95,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=0.6;ring.visible=false;scene.add(ring);
+  /* camera state */
+  const st={theta:-0.32,phi:0.92,r:980,tx:-10,tz:20};const home={...st};let anim=null;
+  function applyCam(){const y=st.r*Math.cos(st.phi),rr=st.r*Math.sin(st.phi);cam.position.set(st.tx+rr*Math.sin(st.theta),y,st.tz+rr*Math.cos(st.theta));cam.lookAt(st.tx,0,st.tz);}
+  function flyTo(to,ms){const from={...st};const t0=performance.now();anim={from,to,t0,ms};T3.dirty=true;}
+  function tick(now){if(anim){let p=Math.min(1,(now-anim.t0)/anim.ms);const e=1-Math.pow(1-p,3);for(const k in anim.to)st[k]=anim.from[k]+(anim.to[k]-anim.from[k])*e;if(p>=1)anim=null;T3.dirty=true;}
+    if(rise<1){rise=Math.min(1,rise+(now-riseT)/1400);riseT=now;place(1-Math.pow(1-rise,3));T3.dirty=true;}
+    if(T3.dirty&&visible){applyCam();renderer.render(scene,cam);T3.dirty=false;}requestAnimationFrame(tick);}
+  let rise=0,riseT=performance.now(),visible=true;
+  /* gestures */
+  const el=renderer.domElement;const ptrs=new Map();let moved=0,pinch0=0,r0=0,rot0=null;
+  el.addEventListener('pointerdown',e=>{ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});el.setPointerCapture(e.pointerId);moved=0;anim=null;box.classList.add('drag');
+    if(ptrs.size===2){const a=[...ptrs.values()];pinch0=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);r0=st.r;}});
+  el.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId)){hover(e);return;}const prev=ptrs.get(e.pointerId);const dx=e.clientX-prev.x,dy=e.clientY-prev.y;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved+=Math.abs(dx)+Math.abs(dy);
+    if(ptrs.size===1){st.theta-=dx*0.006;st.phi=Math.min(1.32,Math.max(0.28,st.phi-dy*0.005));T3.dirty=true;}
+    else if(ptrs.size===2){const a=[...ptrs.values()];const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(pinch0>0){st.r=Math.min(1700,Math.max(120,r0*pinch0/d));}
+      /* two-finger drag pans */
+      const mx=dx/2,my=dy/2;pan(mx,my);T3.dirty=true;}});
+  function pan(dx,dy){const k=st.r*0.0016;const sx=Math.cos(st.theta),sz=-Math.sin(st.theta);st.tx-=(dx*sx-dy*sz)*k;st.tz-=(dx*sz+dy*sx)*k;st.tx=Math.max(-520,Math.min(520,st.tx));st.tz=Math.max(-340,Math.min(340,st.tz));}
+  const up=e=>{if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);try{el.releasePointerCapture(e.pointerId);}catch(x){}if(ptrs.size===0){box.classList.remove('drag');if(moved<6)pick(e,true);}pinch0=0;};
+  el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+  el.addEventListener('wheel',e=>{e.preventDefault();anim=null;st.r=Math.min(1700,Math.max(120,st.r*(e.deltaY>0?1.12:0.89)));T3.dirty=true;},{passive:false});
+  el.addEventListener('dblclick',()=>home3D());
+  /* picking */
+  const ray=new THREE.Raycaster();const mouse=new THREE.Vector2();const tip=document.getElementById('tip3');let hov=-1;
+  function cast(e){const r=el.getBoundingClientRect();mouse.x=((e.clientX-r.left)/r.width)*2-1;mouse.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(mouse,cam);const hit=ray.intersectObject(inst,false)[0];return hit?hit.instanceId:-1;}
+  function hover(e){if(e.pointerType==='touch')return;const i=cast(e);if(i===hov)return;hov=i;box.classList.toggle('hov',i>=0);
+    if(i<0){tip.style.display='none';return;}const u=UNITS[i];if(filter!=='all'&&u.type!==filter){tip.style.display='none';return;}
+    const r=el.getBoundingClientRect();tip.style.display='block';tip.style.left=(e.clientX-r.left)+'px';tip.style.top=(e.clientY-r.top)+'px';tip.textContent=`${u.code} · ${L.type} ${u.type} · ${L[u.status]}`;}
+  el.addEventListener('pointerleave',()=>{tip.style.display='none';hov=-1;box.classList.remove('hov');});
+  function pick(e,fly){const i=cast(e);if(i<0)return;const u=UNITS[i];if(filter!=='all'&&u.type!==filter)return;select(u);
+    if(fly){const f=frames[i];flyTo({tx:f.x,tz:f.z,r:Math.min(st.r,380),phi:Math.max(st.phi,0.8)},900);}}
+  /* colours */
+  const cA=new THREE.Color(),white=new THREE.Color(0xffffff);
+  function colourOf(u){const base=u.status==='available'?TCOL[u.type]:TCOL[u.status];cA.setHex(base);if(filter!=='all'&&u.type!==filter)cA.lerp(white,0.86);return cA.convertSRGBToLinear();}
+  function refresh(){UNITS.forEach((u,i)=>inst.setColorAt(i,colourOf(u)));inst.instanceColor.needsUpdate=true;T3.dirty=true;}
+  function mark(u){const i=UNITS.indexOf(u);const f=frames[i];outline.position.set(f.x,0,f.z);outline.rotation.set(0,f.a,0);outline.scale.set(f.w+0.6,f.h+0.4,f.d+0.6);outline.visible=true;
+    ring.position.set(f.x,0.6,f.z);const rr=Math.max(f.w,f.d)*0.85;ring.scale.set(rr,rr,1);ring.visible=true;T3.dirty=true;}
+  function resize(){const w=box.clientWidth,h=box.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();T3.dirty=true;}
+  new ResizeObserver(resize).observe(box);
+  new IntersectionObserver(es=>{visible=es[0].isIntersecting;if(visible)T3.dirty=true;},{threshold:0}).observe(box);
+  T3={dirty:true,resize,refresh,mark,zoom:d=>{anim=null;st.r=Math.min(1700,Math.max(120,st.r*(d>0?0.72:1.38)));T3.dirty=true;},home:()=>{flyTo({...home},900);outline.visible=false;ring.visible=false;}};
+  M3.ready=true;M3.loading=false;refresh();if(selU)mark(selU);applyCam();requestAnimationFrame(tick);
+  const hint=document.getElementById('hint3');setTimeout(()=>{if(hint)hint.style.opacity='0';},9000);}
+function refresh3D(){if(T3)T3.refresh();}
+function mark3D(u){if(T3)T3.mark(u);}
+function zoom3D(d){if(T3)T3.zoom(d);}
+function home3D(){if(T3)T3.home();}
+(function(){let m='3d';try{m=localStorage.getItem('lc-map')||'3d';}catch(e){}if(!window.WebGLRenderingContext)m='2d';setMode(m);})();
 
 /* live status sync */
 syncUnits(true);setInterval(syncUnits,SCREEN?8000:30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncUnits(true);});

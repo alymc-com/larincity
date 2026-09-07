@@ -1132,9 +1132,9 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   const gold=new THREE.Color(0xC9A45C).convertSRGBToLinear();
   const geoBox=new THREE.BoxGeometry(1,1,1);geoBox.translate(0,0.5,0);const outline=new THREE.LineSegments(new THREE.EdgesGeometry(geoBox),new THREE.LineBasicMaterial({color:0x0F1115}));outline.visible=false;scene.add(outline);
   const ring=new THREE.Group();ring.visible=false;scene.add(ring);
-  const pinDot=new THREE.Mesh(new THREE.SphereGeometry(1.0*U,16,12),new THREE.MeshBasicMaterial({color:gold}));ring.add(pinDot);
-  const pinHalo=new THREE.Mesh(new THREE.SphereGeometry(1.0*U,16,12),new THREE.MeshBasicMaterial({color:gold,transparent:true,opacity:0.5,depthWrite:false}));ring.add(pinHalo);
-  const pinLine=new THREE.Mesh(new THREE.CylinderGeometry(0.06*U,0.06*U,1,6),new THREE.MeshBasicMaterial({color:gold,transparent:true,opacity:0.8}));ring.add(pinLine);
+  const pinRed=new THREE.Color(0xE0322B).convertSRGBToLinear(),pinGrey=new THREE.Color(0x8A8D93).convertSRGBToLinear();const pinDot=new THREE.Mesh(new THREE.SphereGeometry(1.0*U,16,12),new THREE.MeshBasicMaterial({color:pinRed}));ring.add(pinDot);
+  const pinHalo=new THREE.Mesh(new THREE.SphereGeometry(1.0*U,16,12),new THREE.MeshBasicMaterial({color:pinGrey,transparent:true,opacity:0.5,depthWrite:false}));ring.add(pinHalo);
+  const pinLine=new THREE.Mesh(new THREE.CylinderGeometry(0.06*U,0.06*U,1,6),new THREE.MeshBasicMaterial({color:pinGrey,transparent:true,opacity:0.85}));ring.add(pinLine);
   let pinT0=0;
   /* camera state */
   const st={theta:-0.30,phi:0.86,r:980,tx:0,tz:0};let home={...st};let anim=null,touched=false;

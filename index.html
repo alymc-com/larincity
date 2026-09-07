@@ -92,6 +92,8 @@
   .ai .msgs{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--soft)}
   .ai .m{max-width:86%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.6;animation:rise .4s var(--ease)}
   .ai .m.bot{background:#fff;border:1px solid var(--line);align-self:flex-start;border-start-start-radius:4px}
+  .ai .m.bot p{margin:0 0 6px}.ai .m.bot p:last-child{margin:0}
+  .ai .m.bot ul{margin:4px 0 6px;padding-inline-start:18px}.ai .m.bot li{margin:3px 0}.ai .m.bot b{font-weight:800}
   .ai .m.me{background:var(--ink);color:#fff;align-self:flex-end;border-start-end-radius:4px}
   .ai .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px;background:var(--soft)}
   .ai .chips button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-family:var(--font);font-size:12.5px;font-weight:700;cursor:pointer;transition:all .2s}
@@ -828,12 +830,19 @@ function aiStat(){const s=document.getElementById('aistat');if(!s)return;s.textC
 async function aiRemote(bubble){aiCtl=new AbortController();const res=await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lang:LANG,messages:aiHist.slice(-12)}),signal:aiCtl.signal});
   if(!res.ok||!res.body)throw {code:res.status===429?'rate_limited':'error'};const rd=res.body.getReader(),dec=new TextDecoder();let buf='',text='';
   while(true){const {value,done}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});const lines=buf.split('\n');buf=lines.pop();
-    for(const ln of lines){if(!ln.startsWith('data: '))continue;const d=ln.slice(6);if(d==='[DONE]')continue;try{const o=JSON.parse(d);if(o.error)throw {code:o.error};if(o.t){text+=o.t;bubble.textContent=text;aiMsgs.scrollTop=aiMsgs.scrollHeight;}}catch(e){if(e&&e.code)throw e;}}}
+    for(const ln of lines){if(!ln.startsWith('data: '))continue;const d=ln.slice(6);if(d==='[DONE]')continue;try{const o=JSON.parse(d);if(o.error)throw {code:o.error};if(o.t){text+=o.t;bubble.innerHTML=aiFmt(text);aiMsgs.scrollTop=aiMsgs.scrollHeight;}}catch(e){if(e&&e.code)throw e;}}}
   return text;}
 function toggleAI(){aiBox.classList.toggle('on');if(aiBox.classList.contains('on')&&!aiOpened){aiOpened=true;aiReset();aiInit();}}
 function aiReset(){aiMsgs.innerHTML='';aiHist=[];aiChips.innerHTML=L.ai_chips.map(c=>`<button type="button" onclick="aiAsk(this.textContent)">${c}</button>`).join('');aiBot(L.ai_hi,0);}
+function aiEsc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function aiFmt(t){const lines=aiEsc(t).replace(/\r/g,'').split('\n');let html='',para=[],list=[];
+  const flushP=()=>{if(para.length){html+='<p>'+para.join('<br>')+'</p>';para=[];}};
+  const flushL=()=>{if(list.length){html+='<ul>'+list.map(x=>'<li>'+x+'</li>').join('')+'</ul>';list=[];}};
+  for(const raw of lines){const ln=raw.trim();const m=ln.match(/^(?:[-•*]|\d+[.)])\s+(.*)$/);
+    if(m){flushP();list.push(m[1]);}else if(!ln){flushP();flushL();}else{flushL();para.push(ln);}}
+  flushP();flushL();return html.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/(^|[^*])\*(?!\*)/g,'$1');}
 function aiPush(txt,cls){const d=document.createElement('div');d.className='m '+cls;d.innerHTML=txt;aiMsgs.appendChild(d);aiMsgs.scrollTop=aiMsgs.scrollHeight;return d;}
-function aiBot(txt,delay){const t=aiPush('<span class="typing"><i></i><i></i><i></i></span>','bot');setTimeout(()=>{t.textContent=txt;aiMsgs.scrollTop=aiMsgs.scrollHeight;},delay==null?700:delay);}
+function aiBot(txt,delay){const t=aiPush('<span class="typing"><i></i><i></i><i></i></span>','bot');setTimeout(()=>{t.innerHTML=aiFmt(txt);aiMsgs.scrollTop=aiMsgs.scrollHeight;},delay==null?700:delay);}
 function aiKnowledge(){const ar=LANG==='ar';
   const types=TYPES.map(t=>`${t.code}: ${ar?'أرض':'plot'} ${t.plot} m² (${t.dims} m), ${ar?'بناء':'built'} ${t.built} m², ${t.bed} ${ar?'غرف نوم':'bedrooms'}, ${t.bath} ${ar?'حمامات':'bathrooms'}, ${t.park} ${ar?'موقف':'parking'}, ${t.count} ${ar?'وحدة':'units'}. ${ar?'الأرضي':'Ground'}: ${t.rooms.ground.map(room).join(', ')}. ${ar?'الأول':'First'}: ${t.rooms.first.map(room).join(', ')}.`).join('\n');
   const feats=L.am.map(a=>`- ${a[0]}: ${a[1]}`).join('\n');
@@ -877,20 +886,20 @@ function aiKeyword(q){q=q.toLowerCase();const A=L.ai_a;
   if(/مرافق|مدرس|مسبح|نادي|صحي|أمن|خدم|facilit|school|pool|clinic|secur|servic/.test(q))return A.amen;
   if(/حجز|احجز|موعد|معاينة|reserv|book|visit/.test(q))return A.book;
   return A.fallback;}
-async function aiAsk(q){if(aiBusy)return;aiPush(q,'me');aiHist.push({role:'user',content:q});
+async function aiAsk(q){if(aiBusy)return;aiPush(aiEsc(q),'me');aiHist.push({role:'user',content:q});
   const s=await aiInit();
   if(!s&&!AI_ENDPOINT){const a=aiKeyword(q);aiHist.push({role:'assistant',content:a});aiBot(a);return;}
   aiBusy=true;const bubble=aiPush('<span class="typing"><i></i><i></i><i></i></span>','bot');
   if(!s){try{const text=await aiRemote(bubble);if(!text)throw {code:'error'};aiHist.push({role:'assistant',content:text});}catch(e){const code=e&&e.code;bubble.textContent=code==='rate_limited'?(LANG==='ar'?'الرجاء الانتظار قليلاً ثم إعادة المحاولة.':'Please wait a moment and try again.'):aiKeyword(q);}aiBusy=false;aiMsgs.scrollTop=aiMsgs.scrollHeight;return;}
   const turns=[{role:'user',content:aiKnowledge()+'\n\n'+(LANG==='ar'?'الرسائل التالية هي محادثة مع زبون. رد على آخر رسالة.':'The following is a conversation with a customer. Reply to the last message.')},{role:'assistant',content:LANG==='ar'?'مفهوم، أنا مساعد لارين وسأجيب ضمن هذه المعلومات فقط.':'Understood. I am Larin Assistant and will answer within this information only.'},...aiHist.slice(-12)];
   aiCtl=new AbortController();
-  try{const r=await s(turns,{cache:false,modelTier:'quick',signal:aiCtl.signal,onText:({text})=>{bubble.textContent=text;aiMsgs.scrollTop=aiMsgs.scrollHeight;}});
-    bubble.textContent=r.text;aiHist.push({role:'assistant',content:r.text});}
+  try{const r=await s(turns,{cache:false,modelTier:'quick',signal:aiCtl.signal,onText:({text})=>{bubble.innerHTML=aiFmt(text);aiMsgs.scrollTop=aiMsgs.scrollHeight;}});
+    bubble.innerHTML=aiFmt(r.text);aiHist.push({role:'assistant',content:r.text});}
   catch(e){const code=e&&e.code;
-    if(code==='not_granted'){SAMPLE=null;const a=aiKeyword(q);bubble.textContent=a;aiHist.push({role:'assistant',content:a});}
+    if(code==='not_granted'){SAMPLE=null;const a=aiKeyword(q);bubble.innerHTML=aiFmt(a);aiHist.push({role:'assistant',content:a});}
     else if(code==='rate_limited'){bubble.textContent=LANG==='ar'?'الرجاء الانتظار قليلاً ثم إعادة المحاولة.':'Please wait a moment and try again.';}
     else if(code==='cancelled'){bubble.textContent=e.text||'';}
-    else{const a=aiKeyword(q);bubble.textContent=a;aiHist.push({role:'assistant',content:a});}}
+    else{const a=aiKeyword(q);bubble.innerHTML=aiFmt(a);aiHist.push({role:'assistant',content:a});}}
   aiBusy=false;aiMsgs.scrollTop=aiMsgs.scrollHeight;}
 function aiSend(e){e.preventDefault();const i=document.getElementById('aiin'),q=i.value.trim();if(!q)return false;i.value='';aiAsk(q);return false;}
 function toggleMenu(on){const m=document.getElementById('mnav');m.classList.toggle('on',on);m.setAttribute('aria-hidden',!on);document.body.classList.toggle('menu-open',on);}

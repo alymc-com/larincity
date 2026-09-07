@@ -73,8 +73,21 @@
   .intro .il{animation:ilout .6s 1.1s ease forwards}
   @keyframes ilout{to{opacity:0;transform:scaleX(.2)}}
   .progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--gold);z-index:60;transition:width .15s linear}
-  body.screen nav,body.screen .mnav,body.screen footer,body.screen .proto{display:none!important}
-  body.screen .hero{min-height:72vh}
+  body.screen nav,body.screen .mnav,body.screen footer,body.screen .proto,body.screen .intro,body.screen .hero,body.screen .wordband,body.screen .stats,body.screen .about,body.screen .wide,body.screen .marq,body.screen #amenities{display:none!important}
+  body.screen{display:flex;flex-direction:column}
+  body.screen #plan{order:1;padding-top:104px} body.screen #types{order:2} body.screen #book{order:3} body.screen #gallery{order:4} body.screen .ai,body.screen .modal,body.screen .ai-fab{order:9}
+  body.screen section.sec{border-radius:0;margin-top:0;padding-top:72px}
+  body.screen #plan .shead h2{font-size:clamp(30px,3.6vw,48px)}
+  .sbar{display:none;position:fixed;top:0;inset-inline:0;z-index:50;height:66px;background:var(--ink);color:#fff;align-items:center;gap:14px;padding:0 22px}
+  .sbar img{height:34px;width:auto}
+  .sbar b{font-size:16px;font-weight:800}
+  .sbar .live{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:rgba(255,255,255,.75);margin-inline-start:6px}
+  .sbar .live i{width:8px;height:8px;border-radius:50%;background:#3DD68C;box-shadow:0 0 0 0 rgba(61,214,140,.5);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,214,140,.5)}70%{box-shadow:0 0 0 8px rgba(61,214,140,0)}100%{box-shadow:0 0 0 0 rgba(61,214,140,0)}}
+  .sbar .clock{margin-inline-start:auto;font-family:var(--la);font-weight:700;font-size:15px;color:rgba(255,255,255,.85);direction:ltr}
+  .sbar .lang{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:8px 14px;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer}
+  body.screen .sbar{display:flex}
+  @media (max-width:640px){.sbar{height:58px;padding:0 14px;gap:10px}.sbar .live{display:none}.sbar b{font-size:14px}}
   body.screen .fbtn{padding:12px 20px;font-size:16px}
   body.screen .zoomctl button{width:46px;height:46px;font-size:22px}
   .staff{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
@@ -484,6 +497,8 @@
   </div>
 </div>
 
+<div class="sbar" id="sbar"><img src="assets/mark-gold.png" alt=""><b data-i="sc_title">شاشة مركز المبيعات</b><span class="live"><i></i><span data-i="sc_live">متصل</span></span><span class="clock" id="sclock"></span><button class="lang" id="langbtn3" onclick="setLang(LANG==='ar'?'en':'ar')">EN</button></div>
+
 <header class="hero" id="top">
   <div class="bg"></div><div class="shade"></div>
   <div class="bubble b1"><b>638</b><span data-i="bub1">وحدة سكنية بطابقين، لكل منها حديقة وموقف</span></div>
@@ -714,7 +729,7 @@ ar:{brand:'لارين سيتي',proto:'نموذج أولي · بيانات ال�
  bn_h:'مجمع متكامل في مكان واحد',bn_p:'احجز وحدتك أو رتّب موعداً لزيارة المدينة.',bn_btn:'ابدأ الحجز',
  bk_pill:'الحجز',bk_h:'احجز وحدتك في ثلاث خطوات',st1b:'اختر النموذج أو الوحدة',st1t:'من البطاقات أو من الخريطة.',st2b:'أرسل بياناتك',st2t:'الاسم ورقم الهاتف فقط.',st3b:'يتواصل معك فريق المبيعات',st3t:'خلال يوم عمل لتأكيد الحجز.',
  f_type:'النموذج',f_choose:'اختر النموذج',f_unit:'رقم الوحدة (اختياري)',f_unit_ph:'مثال: S539',f_name:'الاسم الكامل',f_phone:'رقم الهاتف',f_city:'المحافظة',f_city_ph:'بابل',f_kind:'نوع الطلب',kinds:['حجز وحدة','طلب معاينة','استفسار عن الأسعار'],f_note:'ملاحظات',f_note_ph:'أي تفاصيل تود إضافتها',f_send:'إرسال طلب الحجز',f_notice:'نموذج أولي للعرض، الطلب لا يُرسل فعلياً. في النسخة النهائية يصل الطلب إلى فريق المبيعات عبر لوحة التحكم والواتساب.',
- f_notice_live:'يصل طلبك مباشرة إلى فريق المبيعات ويتواصل معك خلال يوم عمل.',f_err:'تعذر إرسال الطلب، تحقق من الاتصال وحاول مرة أخرى.',proto_live:'نسخة تجريبية',sc_res:'محجوز',sc_sold:'مباع',sc_avail:'متاح',sc_pin:'أدخل رمز المبيعات',sc_manage:'إدارة الحالة (للموظفين)',sc_note:'تم حجز الوحدة {c} وظهرت محجوزة الآن على الشاشة والموقع.',sc_err:'تعذر الحفظ، تحقق من الاتصال.',d_h:'تم استلام طلبك',d_p:'سيتواصل معك فريق مبيعات لارين سيتي خلال يوم عمل على الرقم الذي أدخلته لتأكيد الحجز وترتيب موعد المعاينة.',d_btn:'طلب جديد',
+ f_notice_live:'يصل طلبك مباشرة إلى فريق المبيعات ويتواصل معك خلال يوم عمل.',f_err:'تعذر إرسال الطلب، تحقق من الاتصال وحاول مرة أخرى.',proto_live:'نسخة تجريبية',sc_title:'شاشة مركز المبيعات',sc_live:'متصل',sc_res:'محجوز',sc_sold:'مباع',sc_avail:'متاح',sc_pin:'أدخل رمز المبيعات',sc_manage:'إدارة الحالة (للموظفين)',sc_note:'تم حجز الوحدة {c} وظهرت محجوزة الآن على الشاشة والموقع.',sc_err:'تعذر الحفظ، تحقق من الاتصال.',d_h:'تم استلام طلبك',d_p:'سيتواصل معك فريق مبيعات لارين سيتي خلال يوم عمل على الرقم الذي أدخلته لتأكيد الحجز وترتيب موعد المعاينة.',d_btn:'طلب جديد',
  ft_p:'مدينة سكنية متكاملة في بابل، مجاور جامعة الحلة.',ft_dev:'بيت العطاء',ft_devt:'الشركة المنفذة للمشروع',ft_sec:'الأقسام',ft_contact:'تواصل معنا',ft_wa:'واتساب المبيعات',ft_addr:'بابل، مجاور جامعة الحلة',ft_follow:'تابعنا',so1:'إنستغرام',so2:'فيسبوك',so3:'تيك توك',so4:'تلغرام',big:'لارين سيتي',copy:'© 2026 لارين سيتي · جميع الحقوق محفوظة',bl:'بابل · العراق',
  ai_name:'مساعد لارين',ai_sub:'الذكاء الاصطناعي الخاص بالمشروع',ai_ph:'اكتب سؤالك',ai_live:'متصل · الذكاء الاصطناعي الخاص بالمشروع',ai_local:'ردود جاهزة · النسخة المحلية بلا اتصال بالذكاء الاصطناعي',ai_hi:'أهلاً بك في لارين سيتي. أنا مساعدك الشخصي الذكي، اسألني أي شيء عن النماذج والمساحات أو الموقع أو المرافق أو طريقة الحجز.',ai_chips:['النماذج والمساحات','الموقع','المرافق','كيف أحجز؟','الأسعار'],
  ai_a:{types:'لدينا خمسة نماذج بطابقين: A بمساحة 160 م² (3 غرف نوم)، B بمساحة 200 م²، C بمساحة 300 م²، D بمساحة 320 م² (4 غرف)، وE بمساحة 600 م² (4 غرف وكراج مزدوج). لكل بيت حديقة وموقف.',loc:'لارين سيتي في محافظة بابل، مجاور جامعة الحلة مباشرة، على شارع رئيسي بعرض 20 متراً.',amen:'داخل المجمع: مدارس ابتدائية ومتوسطة وإعدادية، مركز صحي، دفاع مدني، مراكز تسوق، مسبح ونادٍ رياضي، غاز مركزي، وأمن على مدار الساعة. و60% من المساحة حدائق.',book:'الحجز بسيط: اختر النموذج أو الوحدة من الخريطة، أرسل اسمك ورقم هاتفك، ويتواصل معك فريق المبيعات خلال يوم عمل لتأكيد الحجز.',price:'الأسعار غير معروضة على الموقع. أرسل طلب حجز أو استفسار وسيزودك فريق المبيعات بالأسعار وخطط الدفع.',fallback:'يمكنني مساعدتك بخصوص النماذج والمساحات، الموقع، المرافق، وطريقة الحجز. في النسخة النهائية سأجيب عن أي سؤال وأحجز لك موعد معاينة مباشرة.'},
@@ -736,7 +751,7 @@ en:{brand:'LARIN CITY',proto:'Prototype · booking data is for demo',n_about:'Ab
  bn_h:'A complete community in one place',bn_p:'Reserve your home or book a visit to the city.',bn_btn:'Start booking',
  bk_pill:'Booking',bk_h:'Reserve your home in three steps',st1b:'Choose a type or a home',st1t:'From the cards or the map.',st2b:'Send your details',st2t:'Name and phone only.',st3b:'Our sales team calls you',st3t:'Within one working day.',
  f_type:'Type',f_choose:'Choose a type',f_unit:'Home number (optional)',f_unit_ph:'e.g. S539',f_name:'Full name',f_phone:'Phone',f_city:'Governorate',f_city_ph:'Babil',f_kind:'Request',kinds:['Reserve a home','Book a visit','Ask about prices'],f_note:'Notes',f_note_ph:'Anything you would like to add',f_send:'Send request',f_notice:'Prototype for demonstration; requests are not actually sent. In the final version they reach the sales team via the dashboard and WhatsApp.',
- f_notice_live:'Your request goes straight to the sales team, who will call you within one working day.',f_err:'Could not send the request. Check the connection and try again.',proto_live:'Beta',sc_res:'Reserved',sc_sold:'Sold',sc_avail:'Available',sc_pin:'Enter the sales PIN',sc_manage:'Manage status (staff)',sc_note:'Home {c} is reserved and now shows as reserved on the screen and the website.',sc_err:'Could not save. Check the connection.',d_h:'Request received',d_p:'The Larin City sales team will call you within one working day to confirm and arrange a visit.',d_btn:'New request',
+ f_notice_live:'Your request goes straight to the sales team, who will call you within one working day.',f_err:'Could not send the request. Check the connection and try again.',proto_live:'Beta',sc_title:'Sales centre screen',sc_live:'Connected',sc_res:'Reserved',sc_sold:'Sold',sc_avail:'Available',sc_pin:'Enter the sales PIN',sc_manage:'Manage status (staff)',sc_note:'Home {c} is reserved and now shows as reserved on the screen and the website.',sc_err:'Could not save. Check the connection.',d_h:'Request received',d_p:'The Larin City sales team will call you within one working day to confirm and arrange a visit.',d_btn:'New request',
  ft_p:'An integrated residential city in Babil, next to Al-Hilla University.',ft_dev:'Bait Al-Ataa',ft_devt:'Project developer',ft_sec:'Sections',ft_contact:'Contact',ft_wa:'Sales WhatsApp',ft_addr:'Babil, next to Al-Hilla University',ft_follow:'Follow us',so1:'Instagram',so2:'Facebook',so3:'TikTok',so4:'Telegram',big:'LARIN CITY',copy:'© 2026 Larin City · All rights reserved',bl:'BABIL · IRAQ',
  ai_name:'Larin Assistant',ai_sub:'The project\'s own AI',ai_ph:'Type your question',ai_live:'Connected · the official Larin City AI',ai_local:'Canned replies · local copy, no AI connection',ai_hi:'Welcome to Larin City. I am your personal AI assistant. Ask me anything about home types and sizes, the location, facilities, or how to reserve.',ai_chips:['Home types & sizes','Location','Facilities','How do I reserve?','Prices'],
  ai_a:{types:'Five two-storey types: A at 160 m² (3 bedrooms), B at 200 m², C at 300 m², D at 320 m² (4 bedrooms), and E at 600 m² (4 bedrooms, double garage). Every home has a garden and parking.',loc:'Larin City is in Babil governorate, right next to Al-Hilla University, on a 20 m main boulevard.',amen:'Inside the gates: primary, middle and secondary schools, a health centre, civil defence, shopping centres, a pool and sports club, central gas, and 24/7 security. 60% of the land is green space.',book:'Reserving is simple: pick a type or a home on the map, send your name and phone, and the sales team calls you within one working day to confirm.',price:'Prices are not published on the site. Send a reservation or enquiry and the sales team will share prices and payment plans.',fallback:'I can help with home types and sizes, the location, facilities, and how to reserve. In the final version I will answer any question and book a viewing for you directly.'},
@@ -815,7 +830,7 @@ function renderStatic(){
   document.getElementById('f-type').innerHTML=`<option value="">${L.f_choose}</option>`+TYPES.map(t=>`<option value="${t.code}">${t.code} · ${t.plot} ${L.m2}</option>`).join('');
   document.getElementById('f-kind').innerHTML=L.kinds.map(k=>`<option>${k}</option>`).join('');
   document.getElementById('f-phone').style.textAlign=LANG==='ar'?'right':'left';
-  document.getElementById('langbtn').textContent=LANG==='ar'?'EN':'عربي';document.getElementById('langbtn2').textContent=LANG==='ar'?'EN':'عربي';
+  document.getElementById('langbtn').textContent=LANG==='ar'?'EN':'عربي';document.getElementById('langbtn2').textContent=LANG==='ar'?'EN':'عربي';const lb3=document.getElementById('langbtn3');if(lb3)lb3.textContent=LANG==='ar'?'EN':'عربي';
   if(API){const pb=document.querySelector('.proto');if(pb)pb.textContent=L.proto_live;const fn=document.querySelector('[data-i=f_notice]');if(fn)fn.textContent=L.f_notice_live;}
   renderTypes();renderAvail();
   if(selU)select(selU);else panel.innerHTML=`<div class="empty">${L.p_empty}</div>`;
@@ -859,7 +874,7 @@ function resetForm(){document.getElementById('form').reset();document.getElement
 
 /* live status sync */
 syncUnits(true);setInterval(syncUnits,SCREEN?8000:30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncUnits(true);});
-if(SCREEN){let idleT;const kick=()=>{clearTimeout(idleT);idleT=setTimeout(()=>{closeModal();resetForm();window.scrollTo({top:0,behavior:'smooth'});},150000);};['pointerdown','keydown','touchstart','scroll'].forEach(ev=>addEventListener(ev,kick,{passive:true}));kick();}
+if(SCREEN){const ck=()=>{const c=document.getElementById('sclock');if(c)c.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});};ck();setInterval(ck,15000);let idleT;const kick=()=>{clearTimeout(idleT);idleT=setTimeout(()=>{closeModal();resetForm();window.scrollTo({top:0,behavior:'smooth'});},150000);};['pointerdown','keydown','touchstart','scroll'].forEach(ev=>addEventListener(ev,kick,{passive:true}));kick();}
 
 /* AI assistant: live Claude via the artifact `sample` capability, keyword fallback elsewhere */
 const aiBox=document.getElementById('ai'),aiMsgs=document.getElementById('aimsgs'),aiChips=document.getElementById('aichips');

@@ -962,7 +962,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     /* rear garden */
     addBox(gb,0,0,-pd/2+ (pd/2-hd-set+ (pd-hd-set)*0)/2*0+ (pd-set-hd)/2,pw*0.8,0.12*U,Math.max(0.5,(pd-set-hd)*0.7),C.green);
     return finish(gb);}
-  const mat=new THREE.MeshLambertMaterial({vertexColors:true});
+  const mat=new THREE.MeshLambertMaterial({vertexColors:true});const matS=new THREE.MeshLambertMaterial({vertexColors:true});
   const byType={};UNITS.forEach((u,i)=>{(byType[u.type]=byType[u.type]||[]).push(i);});
   const meshes=[],instOf=[];/* instOf[i] = {mesh, k} */
   const frames=[];
@@ -980,9 +980,9 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   (function(){const gb=GB();addCyl(gb,0,0,0,0.22*U,0.36*U,6.5*U,C.trunk,7);
     for(let i=0;i<9;i++){const g=new THREE.BoxGeometry(0.55*U,0.1*U,3.4*U);g.translate(0,0,1.7*U);g.rotateX(-0.55);g.rotateY(i*Math.PI*2/9);g.translate(0,6.5*U,0);addGeo(gb,g,i%2?C.green2:0x4C8B3F);}
     addSphere(gb,0,6.5*U,0,0.5*U,C.green2);
-    const geo=finish(gb);const trees=SCENE.trees||[];const im=new THREE.InstancedMesh(geo,mat,trees.length);
+    const geo=finish(gb);const trees=SCENE.trees||[];const im=new THREE.InstancedMesh(geo,matS,trees.length);
     trees.forEach((t,i)=>{const sc=0.85+((i*7)%5)*0.08;dummy.position.set(t[0]-500,0,t[1]-312.5);dummy.rotation.set(0,i*1.3,0);dummy.scale.set(sc,sc,sc);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);});
-    im.instanceMatrix.needsUpdate=true;scene.add(im);})();
+    im.instanceMatrix.needsUpdate=true;trees.forEach((t,i)=>im.setColorAt(i,new THREE.Color(1,1,1)));scene.add(im);})();
   /* ---- facility buildings (schools, mosque, commercial, services) ---- */
   (function(){const gb=GB();const dm=new THREE.Object3D();
     function put(f,build){const g=GB();build(g,f.w,f.d);const geo=finish(g);geo.rotateY(-f.a*Math.PI/180);geo.translate(f.x-500,0,f.y-312.5);mergeGeo(gb,geo);}
@@ -996,7 +996,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
         addBox(g,0,0,d*0.3,w*0.8,0.12*U,d*0.3,C.green);});
       else if(f.kind==='gas')put(f,(g,w,d)=>{addBox(g,0,5*U,0,w*0.55,0.5*U,d*0.5,C.slab);for(const sx of [-1,1])for(const sz of [-1,1])addCyl(g,sx*w*0.2,0,sz*d*0.18,0.25*U,0.25*U,5*U,C.frame,6);addBox(g,-w*0.3,0,-d*0.3,w*0.25,3.6*U,d*0.25,C.wall);});
       else put(f,(g,w,d)=>{addBox(g,0,0,0,w*0.7,(f.kind==='health'?7.2:4.5)*U,d*0.7,C.wall);addBox(g,0,(f.kind==='health'?7.2:4.5)*U,0,w*0.7+0.3*U,0.35*U,d*0.7+0.3*U,C.slab);addBox(g,0,1.0*U,d*0.35+0.05*U,w*0.5,1.6*U,0.1*U,C.glass);});}
-    const m=new THREE.Mesh(finish(gb),mat);scene.add(m);})();
+    const m=new THREE.Mesh(finish(gb),matS);scene.add(m);})();
   /* selection outline + ring */
   const gold=new THREE.Color(0xC9A45C).convertSRGBToLinear();
   const geoBox=new THREE.BoxGeometry(1,1,1);geoBox.translate(0,0.5,0);const outline=new THREE.LineSegments(new THREE.EdgesGeometry(geoBox),new THREE.LineBasicMaterial({color:0x0F1115}));outline.visible=false;scene.add(outline);

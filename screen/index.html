@@ -1190,7 +1190,8 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     const r=el.getBoundingClientRect();tip.style.display='block';tip.style.left=(e.clientX-r.left)+'px';tip.style.top=(e.clientY-r.top)+'px';tip.textContent=`${u.code} · ${L.type} ${u.type} · ${L[u.status]}`;}
   el.addEventListener('pointerleave',()=>{tip.style.display='none';hov=-1;box.classList.remove('hov');});
   function pick(e,fly){const i=cast(e);if(i<0)return;const u=UNITS[i];if(filter!=='all'&&u.type!==filter)return;select(u);
-    if(fly){const f=frames[i];flyTo({tx:f.x,tz:f.z,r:Math.min(st.r,SCREEN?300:380),phi:Math.max(st.phi,0.8)},900);}}
+    if(fly)flyFacade(i);}
+  function flyFacade(i){const f=frames[i];let th=f.a;while(th-st.theta>Math.PI)th-=Math.PI*2;while(th-st.theta<-Math.PI)th+=Math.PI*2;const fd=f.d*0.25;flyTo({tx:f.x+Math.sin(f.a)*fd,tz:f.z+Math.cos(f.a)*fd,r:Math.max(48,f.w*4.2),phi:1.12,theta:th},1100);}
   /* colours */
   const cA=new THREE.Color(),white=new THREE.Color(0xffffff);
   function colourOf(u){if(u.status==='reserved')cA.setRGB(0.66,0.64,0.62);else if(u.status==='sold')cA.setRGB(0.32,0.32,0.34);else cA.setRGB(1,1,1);if(filter!=='all'&&u.type!==filter)cA.multiplyScalar(0.55);return cA;}
@@ -1200,7 +1201,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   function resize(){const w=box.clientWidth,h=box.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();if(!touched&&M3.ready)fit();T3.dirty=true;}
   new ResizeObserver(resize).observe(box);
   new IntersectionObserver(es=>{visible=es[0].isIntersecting;if(visible)T3.dirty=true;},{threshold:0}).observe(box);
-  T3={dirty:true,snap:null,resize,refresh,mark,at:(x,z,r,ph)=>{st.tx=x-500;st.tz=z-312.5;st.r=r||220;st.phi=ph||0.9;anim=null;touched=true;T3.dirty=true;},st:()=>({theta:st.theta,phi:st.phi,r:st.r,tx:st.tx,tz:st.tz,anim:!!anim,auto:autoOrbit,touched}),unmark:()=>{outline.visible=false;ring.visible=false;T3.dirty=true;},fly:u=>{const f=frames[UNITS.indexOf(u)];if(f)flyTo({tx:f.x,tz:f.z,r:Math.min(st.r,380),phi:Math.max(st.phi,0.8)},900);},zoom:d=>{anim=null;st.r=Math.min(3200,Math.max(45,st.r*(d>0?0.72:1.38)));T3.dirty=true;},home:()=>{flyTo({...home},900);outline.visible=false;ring.visible=false;}};
+  T3={dirty:true,snap:null,resize,refresh,mark,at:(x,z,r,ph)=>{st.tx=x-500;st.tz=z-312.5;st.r=r||220;st.phi=ph||0.9;anim=null;touched=true;T3.dirty=true;},st:()=>({theta:st.theta,phi:st.phi,r:st.r,tx:st.tx,tz:st.tz,anim:!!anim,auto:autoOrbit,touched}),unmark:()=>{outline.visible=false;ring.visible=false;T3.dirty=true;},fly:u=>{const i=UNITS.indexOf(u);if(frames[i])flyFacade(i);},zoom:d=>{anim=null;st.r=Math.min(3200,Math.max(45,st.r*(d>0?0.72:1.38)));T3.dirty=true;},home:()=>{flyTo({...home},900);outline.visible=false;ring.visible=false;}};
   function setNight(on){NIGHT.on=on;document.body.classList.toggle('night',on);renderer.setClearColor(on?0x070E1F:0xE9F1F8,1);setSky(on?0x070E1F:0x7FB3E6,on?0x1A2540:0xEEF3F7);
     hemi.color.setHex(on?0x243354:0xdfeeff);hemi.groundColor.setHex(on?0x101218:0xb9ad98);hemi.intensity=on?0.32:0.75;
     sun.color.setHex(on?0x9FB6E0:0xfff1dc);sun.intensity=on?0.22:1.35;sun.position.set(on?380:-420,on?560:760,on?-260:360);fill.intensity=on?0.06:0.22;renderer.toneMappingExposure=on?0.82:1.05;

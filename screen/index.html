@@ -929,7 +929,8 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   /* camera state */
   const st={theta:-0.30,phi:0.86,r:980,tx:0,tz:0};let home={...st};let anim=null,touched=false;
   const gplane=new THREE.Plane(new THREE.Vector3(0,1,0),0);const fitRay=new THREE.Raycaster();const v3=new THREE.Vector3();
-  function ndcBox(){const pts=[];for(const x of [-500,500])for(const z of [-312,312])for(const y of [0,9]){v3.set(x,y,z).project(cam);pts.push([v3.x,v3.y]);}
+  const BB={x0:Math.min(...frames.map(f=>f.x))-40,x1:Math.max(...frames.map(f=>f.x))+40,z0:Math.min(...frames.map(f=>f.z))-40,z1:Math.max(...frames.map(f=>f.z))+40};
+  function ndcBox(){const pts=[];for(const x of [BB.x0,BB.x1])for(const z of [BB.z0,BB.z1])for(const y of [0,9]){v3.set(x,y,z).project(cam);pts.push([v3.x,v3.y]);}
     return {minx:Math.min(...pts.map(p=>p[0])),maxx:Math.max(...pts.map(p=>p[0])),miny:Math.min(...pts.map(p=>p[1])),maxy:Math.max(...pts.map(p=>p[1]))};}
   function groundAt(nx,ny){fitRay.setFromCamera({x:nx,y:ny},cam);const o=new THREE.Vector3();return fitRay.ray.intersectPlane(gplane,o)?o:null;}
   function fit(){const M=0.94;for(let k=0;k<3;k++){let lo=250,hi=2400;for(let i=0;i<22;i++){st.r=(lo+hi)/2;applyCam();const b=ndcBox();if(b.maxx-b.minx>2*M||b.maxy-b.miny>2*M)lo=st.r;else hi=st.r;}st.r=hi;applyCam();

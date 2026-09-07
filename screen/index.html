@@ -353,6 +353,9 @@
   body.screen .modectl button{font-size:12px;padding:7px 11px}
   body.screen .modectl .lang2{display:inline-block}
   .modectl .lang2{display:none;border:1px solid var(--line);background:#fff}
+  .modectl .nightbtn{border:1px solid var(--line);background:#fff}
+  body.night .modectl .nightbtn{background:#1B2440;color:#FFD48A;border-color:#1B2440}
+  body.night .modectl{background:rgba(255,255,255,.9)}
   @media (max-width:640px){.mapwrap.m3d{aspect-ratio:5/4}.mapwrap.m3d .mapin{position:absolute;inset:0}.hint3{font-size:10.5px}}
   .mapin{position:relative;width:100%;cursor:crosshair;transform-origin:0 0;transition:transform .35s var(--ease);direction:ltr}
   .mapin.drag{transition:none;cursor:grabbing}
@@ -641,7 +644,7 @@
       <button class="fbtn" data-t="D"><span class="sw" style="background:#3B8DF0"></span>D · 320 <span data-i="m2">م²</span></button>
       <button class="fbtn" data-t="E"><span class="sw" style="background:#F05A5A"></span>E · 600 <span data-i="m2">م²</span></button>
       <div class="zoomctl"><button onclick="zoomMap(1)" aria-label="+">+</button><button onclick="zoomMap(-1)" aria-label="-">−</button></div>
-      <div class="modectl" id="modectl"><button data-m="3d" class="on" onclick="setMode('3d')" data-i="m3d">ثلاثي الأبعاد</button><button data-m="2d" onclick="setMode('2d')" data-i="m2d">مسطح</button><button class="lang2" id="langbtn4" onclick="setLang(LANG==='ar'?'en':'ar')">EN</button><button class="home" onclick="home3D()" aria-label="home" title=""><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg></button></div>
+      <div class="modectl" id="modectl"><button data-m="3d" class="on" onclick="setMode('3d')" data-i="m3d">ثلاثي الأبعاد</button><button data-m="2d" onclick="setMode('2d')" data-i="m2d">مسطح</button><button class="nightbtn" id="nightbtn" onclick="toggleNight()" data-i="m_night">ليلي</button><button class="lang2" id="langbtn4" onclick="setLang(LANG==='ar'?'en':'ar')">EN</button><button class="home" onclick="home3D()" aria-label="home" title=""><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg></button></div>
     </div>
     <div class="planlayout">
       <div class="rv">
@@ -785,7 +788,7 @@ ar:{brand:'لارين سيتي',proto:'نموذج أولي · بيانات ال�
  bn_h:'مجمع متكامل في مكان واحد',bn_p:'احجز وحدتك أو رتّب موعداً لزيارة المدينة.',bn_btn:'ابدأ الحجز',
  bk_pill:'الحجز',bk_h:'احجز وحدتك في ثلاث خطوات',st1b:'اختر النموذج أو الوحدة',st1t:'من البطاقات أو من الخريطة.',st2b:'أرسل بياناتك',st2t:'الاسم ورقم الهاتف فقط.',st3b:'يتواصل معك فريق المبيعات',st3t:'خلال يوم عمل لتأكيد الحجز.',
  f_type:'النموذج',f_choose:'اختر النموذج',f_unit:'رقم الوحدة (اختياري)',f_unit_ph:'مثال: S539',f_name:'الاسم الكامل',f_phone:'رقم الهاتف',f_city:'المحافظة',f_city_ph:'بابل',f_kind:'نوع الطلب',kinds:['حجز وحدة','طلب معاينة','استفسار عن الأسعار'],f_note:'ملاحظات',f_note_ph:'أي تفاصيل تود إضافتها',f_send:'إرسال طلب الحجز',f_notice:'نموذج أولي للعرض، الطلب لا يُرسل فعلياً. في النسخة النهائية يصل الطلب إلى فريق المبيعات عبر لوحة التحكم والواتساب.',
- f_notice_live:'يصل طلبك مباشرة إلى فريق المبيعات ويتواصل معك خلال يوم عمل.',f_err:'تعذر إرسال الطلب، تحقق من الاتصال وحاول مرة أخرى.',proto_live:'نسخة تجريبية',sc_close:'إغلاق',sc_types:'النماذج',m3d:'ثلاثي الأبعاد',m2d:'مسطح',m_home:'عرض كامل',m_hint:'اسحب للتدوير · قرّب بإصبعين أو بعجلة الفأرة · اضغط على أي بيت',sc_title:'شاشة مركز المبيعات',sc_live:'متصل',sc_res:'محجوز',sc_sold:'مباع',sc_avail:'متاح',sc_pin:'أدخل رمز المبيعات',sc_manage:'إدارة الحالة (للموظفين)',sc_note:'تم حجز الوحدة {c} وظهرت محجوزة الآن على الشاشة والموقع.',sc_err:'تعذر الحفظ، تحقق من الاتصال.',d_h:'تم استلام طلبك',d_p:'سيتواصل معك فريق مبيعات لارين سيتي خلال يوم عمل على الرقم الذي أدخلته لتأكيد الحجز وترتيب موعد المعاينة.',d_btn:'طلب جديد',
+ f_notice_live:'يصل طلبك مباشرة إلى فريق المبيعات ويتواصل معك خلال يوم عمل.',f_err:'تعذر إرسال الطلب، تحقق من الاتصال وحاول مرة أخرى.',proto_live:'نسخة تجريبية',sc_close:'إغلاق',sc_types:'النماذج',m_night:'ليلي',m_day:'نهاري',m3d:'ثلاثي الأبعاد',m2d:'مسطح',m_home:'عرض كامل',m_hint:'اسحب للتدوير · قرّب بإصبعين أو بعجلة الفأرة · اضغط على أي بيت',sc_title:'شاشة مركز المبيعات',sc_live:'متصل',sc_res:'محجوز',sc_sold:'مباع',sc_avail:'متاح',sc_pin:'أدخل رمز المبيعات',sc_manage:'إدارة الحالة (للموظفين)',sc_note:'تم حجز الوحدة {c} وظهرت محجوزة الآن على الشاشة والموقع.',sc_err:'تعذر الحفظ، تحقق من الاتصال.',d_h:'تم استلام طلبك',d_p:'سيتواصل معك فريق مبيعات لارين سيتي خلال يوم عمل على الرقم الذي أدخلته لتأكيد الحجز وترتيب موعد المعاينة.',d_btn:'طلب جديد',
  ft_p:'مدينة سكنية متكاملة في بابل، مجاور جامعة الحلة.',ft_dev:'بيت العطاء',ft_devt:'الشركة المنفذة للمشروع',ft_sec:'الأقسام',ft_contact:'تواصل معنا',ft_wa:'واتساب المبيعات',ft_addr:'بابل، مجاور جامعة الحلة',ft_follow:'تابعنا',so1:'إنستغرام',so2:'فيسبوك',so3:'تيك توك',so4:'تلغرام',big:'لارين سيتي',copy:'© 2026 لارين سيتي · جميع الحقوق محفوظة',bl:'بابل · العراق',
  ai_name:'مساعد لارين',ai_sub:'الذكاء الاصطناعي الخاص بالمشروع',ai_ph:'اكتب سؤالك',ai_live:'متصل · الذكاء الاصطناعي الخاص بالمشروع',ai_local:'ردود جاهزة · النسخة المحلية بلا اتصال بالذكاء الاصطناعي',ai_hi:'أهلاً بك في لارين سيتي. أنا مساعدك الشخصي الذكي، اسألني أي شيء عن النماذج والمساحات أو الموقع أو المرافق أو طريقة الحجز.',ai_chips:['النماذج والمساحات','الموقع','المرافق','كيف أحجز؟','الأسعار'],
  ai_a:{types:'لدينا خمسة نماذج بطابقين: A بمساحة 160 م² (3 غرف نوم)، B بمساحة 200 م²، C بمساحة 300 م²، D بمساحة 320 م² (4 غرف)، وE بمساحة 600 م² (4 غرف وكراج مزدوج). لكل بيت حديقة وموقف.',loc:'لارين سيتي في محافظة بابل، مجاور جامعة الحلة مباشرة، على شارع رئيسي بعرض 20 متراً.',amen:'داخل المجمع: مدارس ابتدائية ومتوسطة وإعدادية، مركز صحي، دفاع مدني، مراكز تسوق، مسبح ونادٍ رياضي، غاز مركزي، وأمن على مدار الساعة. و60% من المساحة حدائق.',book:'الحجز بسيط: اختر النموذج أو الوحدة من الخريطة، أرسل اسمك ورقم هاتفك، ويتواصل معك فريق المبيعات خلال يوم عمل لتأكيد الحجز.',price:'الأسعار غير معروضة على الموقع. أرسل طلب حجز أو استفسار وسيزودك فريق المبيعات بالأسعار وخطط الدفع.',fallback:'يمكنني مساعدتك بخصوص النماذج والمساحات، الموقع، المرافق، وطريقة الحجز. في النسخة النهائية سأجيب عن أي سؤال وأحجز لك موعد معاينة مباشرة.'},
@@ -807,7 +810,7 @@ en:{brand:'LARIN CITY',proto:'Prototype · booking data is for demo',n_about:'Ab
  bn_h:'A complete community in one place',bn_p:'Reserve your home or book a visit to the city.',bn_btn:'Start booking',
  bk_pill:'Booking',bk_h:'Reserve your home in three steps',st1b:'Choose a type or a home',st1t:'From the cards or the map.',st2b:'Send your details',st2t:'Name and phone only.',st3b:'Our sales team calls you',st3t:'Within one working day.',
  f_type:'Type',f_choose:'Choose a type',f_unit:'Home number (optional)',f_unit_ph:'e.g. S539',f_name:'Full name',f_phone:'Phone',f_city:'Governorate',f_city_ph:'Babil',f_kind:'Request',kinds:['Reserve a home','Book a visit','Ask about prices'],f_note:'Notes',f_note_ph:'Anything you would like to add',f_send:'Send request',f_notice:'Prototype for demonstration; requests are not actually sent. In the final version they reach the sales team via the dashboard and WhatsApp.',
- f_notice_live:'Your request goes straight to the sales team, who will call you within one working day.',f_err:'Could not send the request. Check the connection and try again.',proto_live:'Beta',sc_close:'Close',sc_types:'Homes',m3d:'3D',m2d:'Flat',m_home:'Full view',m_hint:'Drag to rotate · pinch or scroll to zoom · tap any home',sc_title:'Sales centre screen',sc_live:'Connected',sc_res:'Reserved',sc_sold:'Sold',sc_avail:'Available',sc_pin:'Enter the sales PIN',sc_manage:'Manage status (staff)',sc_note:'Home {c} is reserved and now shows as reserved on the screen and the website.',sc_err:'Could not save. Check the connection.',d_h:'Request received',d_p:'The Larin City sales team will call you within one working day to confirm and arrange a visit.',d_btn:'New request',
+ f_notice_live:'Your request goes straight to the sales team, who will call you within one working day.',f_err:'Could not send the request. Check the connection and try again.',proto_live:'Beta',sc_close:'Close',sc_types:'Homes',m_night:'Night',m_day:'Day',m3d:'3D',m2d:'Flat',m_home:'Full view',m_hint:'Drag to rotate · pinch or scroll to zoom · tap any home',sc_title:'Sales centre screen',sc_live:'Connected',sc_res:'Reserved',sc_sold:'Sold',sc_avail:'Available',sc_pin:'Enter the sales PIN',sc_manage:'Manage status (staff)',sc_note:'Home {c} is reserved and now shows as reserved on the screen and the website.',sc_err:'Could not save. Check the connection.',d_h:'Request received',d_p:'The Larin City sales team will call you within one working day to confirm and arrange a visit.',d_btn:'New request',
  ft_p:'An integrated residential city in Babil, next to Al-Hilla University.',ft_dev:'Bait Al-Ataa',ft_devt:'Project developer',ft_sec:'Sections',ft_contact:'Contact',ft_wa:'Sales WhatsApp',ft_addr:'Babil, next to Al-Hilla University',ft_follow:'Follow us',so1:'Instagram',so2:'Facebook',so3:'TikTok',so4:'Telegram',big:'LARIN CITY',copy:'© 2026 Larin City · All rights reserved',bl:'BABIL · IRAQ',
  ai_name:'Larin Assistant',ai_sub:'The project\'s own AI',ai_ph:'Type your question',ai_live:'Connected · the official Larin City AI',ai_local:'Canned replies · local copy, no AI connection',ai_hi:'Welcome to Larin City. I am your personal AI assistant. Ask me anything about home types and sizes, the location, facilities, or how to reserve.',ai_chips:['Home types & sizes','Location','Facilities','How do I reserve?','Prices'],
  ai_a:{types:'Five two-storey types: A at 160 m² (3 bedrooms), B at 200 m², C at 300 m², D at 320 m² (4 bedrooms), and E at 600 m² (4 bedrooms, double garage). Every home has a garden and parking.',loc:'Larin City is in Babil governorate, right next to Al-Hilla University, on a 20 m main boulevard.',amen:'Inside the gates: primary, middle and secondary schools, a health centre, civil defence, shopping centres, a pool and sports club, central gas, and 24/7 security. 60% of the land is green space.',book:'Reserving is simple: pick a type or a home on the map, send your name and phone, and the sales team calls you within one working day to confirm.',price:'Prices are not published on the site. Send a reservation or enquiry and the sales team will share prices and payment plans.',fallback:'I can help with home types and sizes, the location, facilities, and how to reserve. In the final version I will answer any question and book a viewing for you directly.'},
@@ -888,7 +891,7 @@ function renderStatic(){
   document.getElementById('f-type').innerHTML=`<option value="">${L.f_choose}</option>`+TYPES.map(t=>`<option value="${t.code}">${t.code} · ${t.plot} ${L.m2}</option>`).join('');
   document.getElementById('f-kind').innerHTML=L.kinds.map(k=>`<option>${k}</option>`).join('');
   document.getElementById('f-phone').style.textAlign=LANG==='ar'?'right':'left';
-  document.getElementById('langbtn').textContent=LANG==='ar'?'EN':'عربي';document.getElementById('langbtn2').textContent=LANG==='ar'?'EN':'عربي';const lb3=document.getElementById('langbtn3');if(lb3)lb3.textContent=LANG==='ar'?'EN':'عربي';const lb4=document.getElementById('langbtn4');if(lb4)lb4.textContent=LANG==='ar'?'EN':'عربي';
+  document.getElementById('langbtn').textContent=LANG==='ar'?'EN':'عربي';document.getElementById('langbtn2').textContent=LANG==='ar'?'EN':'عربي';const lb3=document.getElementById('langbtn3');if(lb3)lb3.textContent=LANG==='ar'?'EN':'عربي';const lb4=document.getElementById('langbtn4');if(lb4)lb4.textContent=LANG==='ar'?'EN':'عربي';const nb=document.getElementById('nightbtn');if(nb)nb.textContent=document.body.classList.contains('night')?L.m_day:L.m_night;
   if(API){const pb=document.querySelector('.proto');if(pb)pb.textContent=L.proto_live;const fn=document.querySelector('[data-i=f_notice]');if(fn)fn.textContent=L.f_notice_live;}
   renderTypes();renderAvail();
   if(selU)select(selU);else panel.innerHTML=`<div class="empty">${L.p_empty}</div>`;
@@ -950,14 +953,26 @@ function unitFrame(u){/* row direction from the nearest neighbour in the same bl
   if(!n)return 0;return Math.atan2((n.ny-u.ny)*625,(n.nx-u.nx)*1000);}
 function init3D(){const box=document.getElementById('map3d');const W=box.clientWidth||mapwrap.clientWidth,H=box.clientHeight||mapwrap.clientHeight;
   let renderer;try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:true,powerPreference:'high-performance'});}catch(e){M3.failed=true;setMode('2d');return;}
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(W,H);renderer.setClearColor(0xffffff,1);renderer.outputEncoding=THREE.sRGBEncoding;box.appendChild(renderer.domElement);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(W,H);renderer.setClearColor(0xE9F1F8,1);renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;const HQ=!/Mobi|Android/i.test(navigator.userAgent)&&(box.clientWidth||400)>700;renderer.shadowMap.enabled=HQ;renderer.shadowMap.type=THREE.PCFSoftShadowMap;box.appendChild(renderer.domElement);
   const scene=new THREE.Scene();
   const cam=new THREE.PerspectiveCamera(40,W/H,2,9000);
-  scene.add(new THREE.HemisphereLight(0xffffff,0xcfc9bd,0.95));const sun=new THREE.DirectionalLight(0xfff4e0,0.85);sun.position.set(-300,700,380);scene.add(sun);const fill=new THREE.DirectionalLight(0xdfe8ff,0.25);fill.position.set(400,300,-500);scene.add(fill);
-  const tex=new THREE.TextureLoader().load(document.querySelector('#mapin img').src,()=>{T3.dirty=true;});tex.encoding=THREE.sRGBEncoding;tex.anisotropy=renderer.capabilities.getMaxAnisotropy();
-  const ground=new THREE.Mesh(new THREE.PlaneGeometry(1000,625),new THREE.MeshBasicMaterial({map:tex}));ground.rotation.x=-Math.PI/2;scene.add(ground);
-  const under=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000),new THREE.MeshBasicMaterial({color:0xffffff}));under.rotation.x=-Math.PI/2;under.position.y=-0.5;scene.add(under);
-  const N=UNITS.length;
+  /* sky dome: vertex-coloured gradient */
+  const skyG=new THREE.SphereGeometry(5200,24,12);
+  function setSky(topHex,horHex){const pos=skyG.attributes.position;const col=[];const top=new THREE.Color(topHex).convertSRGBToLinear(),hor=new THREE.Color(horHex).convertSRGBToLinear(),c=new THREE.Color();
+    for(let i=0;i<pos.count;i++){const t=Math.max(0,Math.min(1,pos.getY(i)/5200));c.copy(hor).lerp(top,Math.pow(t,0.6));col.push(c.r,c.g,c.b);}skyG.setAttribute('color',new THREE.Float32BufferAttribute(col,3));}
+  setSky(0x7FB3E6,0xEEF3F7);scene.add(new THREE.Mesh(skyG,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,fog:false})));
+  const hemi=new THREE.HemisphereLight(0xdfeeff,0xb9ad98,0.75);scene.add(hemi);
+  const sun=new THREE.DirectionalLight(0xfff1dc,1.35);sun.position.set(-420,760,360);sun.target.position.set(0,0,0);scene.add(sun);scene.add(sun.target);
+  if(HQ){sun.castShadow=true;sun.shadow.mapSize.set(4096,4096);const sc=sun.shadow.camera;sc.left=-720;sc.right=720;sc.top=520;sc.bottom=-520;sc.near=100;sc.far=1800;sun.shadow.bias=-0.0006;sun.shadow.normalBias=0.6;}
+  const fill=new THREE.DirectionalLight(0xdfe8ff,0.22);fill.position.set(400,300,-500);scene.add(fill);
+  function grainTex(base,amt,size){const cv=document.createElement('canvas');cv.width=cv.height=size||256;const cx=cv.getContext('2d');cx.fillStyle=base;cx.fillRect(0,0,cv.width,cv.height);const id=cx.getImageData(0,0,cv.width,cv.height);const d=id.data;
+    for(let i=0;i<d.length;i+=4){const n=(Math.random()-0.5)*amt;d[i]+=n;d[i+1]+=n;d[i+2]+=n;}cx.putImageData(id,0,0);const t=new THREE.CanvasTexture(cv);t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=renderer.capabilities.getMaxAnisotropy();return t;}
+  const sandT=grainTex('#D9CDB2',34);sandT.repeat.set(160,160);
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(9000,9000),new THREE.MeshStandardMaterial({map:sandT,roughness:1,metalness:0}));ground.rotation.x=-Math.PI/2;ground.position.y=-0.2;ground.receiveShadow=true;scene.add(ground);
+  /* the site itself: a slightly lighter, finer sand */
+  const siteT=grainTex('#E3D9C2',26);siteT.repeat.set(40,25);
+  const site=new THREE.Mesh(new THREE.PlaneGeometry(1000,625),new THREE.MeshStandardMaterial({map:siteT,roughness:1,metalness:0}));site.rotation.x=-Math.PI/2;site.position.y=0.02;site.receiveShadow=true;scene.add(site);
+  const N=UNITS.length;const NIGHT={on:false,glow:null,pool:null};
   /* ---- geometry builder: merged boxes/spheres/cylinders with vertex colours ---- */
   const GB=()=>({pos:[],nor:[],col:[]});
   const tmpC=new THREE.Color();
@@ -971,7 +986,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   const C={wall:0xF3EFE7,wall2:0xE6E1D6,frame:0x3C3C3E,wood:0x4B3F35,glass:0x1F2A36,stone:0xB8B0A2,slab:0xD6D2C9,green:0x74A85C,green2:0x5B8F46,trunk:0x6E5240,gate:0x2B2B2E,bwall:0xE9E5DD,gold:0xC9A45C,minaret:0xEDE8DE,dark:0x2E3136};
   const HOUSE={A:[0.94,0.62],B:[0.94,0.62],C:[0.82,0.55],D:[0.86,0.6],E:[0.72,0.45]}; /* house width / depth as a share of the plot */
   /* one house model per type, built in plot proportions (local x = width, z = depth, front at +z) */
-  function houseGeo(t,pw,pd){const gb=GB();const [kw,kd]=HOUSE[t]||HOUSE.A;const hw=pw*kw,hd=pd*kd;const set=Math.min(4*U,pd*0.2);const fz=pd/2-set;const hz=fz-hd/2;const front=fz;
+  function houseGeo(t,pw,pd){const gb=GB(),gbL=GB();const glass=(x,y,z,w,h,d)=>{addBox(gb,x,y,z,w,h,d,C.glass);addBox(gbL,x,y+0.05*U,z+0.06*U,w*0.96,h*0.9,d,0xFFD79A);};const [kw,kd]=HOUSE[t]||HOUSE.A;const hw=pw*kw,hd=pd*kd;const set=Math.min(4*U,pd*0.2);const fz=pd/2-set;const hz=fz-hd/2;const front=fz;
     const H1=3.3*U,H2=6.6*U;
     /* boundary walls + gate */
     addBox(gb,0,0,pd/2-0.15*U,pw*0.98,1.9*U,0.28*U,C.bwall);
@@ -982,27 +997,29 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     addBox(gb,0,0,hz,hw,H2,hd,C.wall);
     /* first-floor front bay: dark frame with balcony + glass */
     const bw=hw*0.46;addBox(gb,-hw*0.22,H1,front+0.55*U,bw,H1-0.2*U,1.1*U,C.frame);
-    addBox(gb,-hw*0.22,H1+0.25*U,front+0.62*U,bw*0.8,H1-0.9*U,0.6*U,C.glass);
+    glass(-hw*0.22,H1+0.25*U,front+0.62*U,bw*0.8,H1-0.9*U,0.6*U);
     addBox(gb,-hw*0.22,H1+0.1*U,front+1.05*U,bw*0.86,1.0*U,0.12*U,C.frame);
     /* vertical wood slats */
     addBox(gb,hw*0.36,0.2*U,front+0.14*U,hw*0.13,H2-0.4*U,0.28*U,C.wood);
     /* stone band beside the slats */
     addBox(gb,hw*0.12,0,front+0.05*U,hw*0.3,H2,0.1*U,C.stone);
     /* ground floor door + windows, first floor window */
-    addBox(gb,-hw*0.24,0,front+0.1*U,1.3*U,2.5*U,0.2*U,C.glass);
-    addBox(gb,hw*0.12,1.0*U,front+0.12*U,hw*0.22,1.6*U,0.16*U,C.glass);
-    addBox(gb,hw*0.12,H1+1.0*U,front+0.12*U,hw*0.22,1.6*U,0.16*U,C.glass);
+    glass(-hw*0.24,0,front+0.1*U,1.3*U,2.5*U,0.2*U);
+    glass(hw*0.12,1.0*U,front+0.12*U,hw*0.22,1.6*U,0.16*U);
+    glass(hw*0.12,H1+1.0*U,front+0.12*U,hw*0.22,1.6*U,0.16*U);
     /* roof slab edge + stair bulkhead */
     addBox(gb,0,H2,hz,hw+0.3*U,0.3*U,hd+0.3*U,C.slab);addBox(gb,0,H2+0.3*U,hz,hw-0.5*U,0.06*U,hd-0.5*U,0xEEEAE2);
     addBox(gb,hw*0.12,H2+0.3*U,hz-hd*0.22,hw*0.5,1.1*U,hd*0.4,C.wall2);
+    addBox(gb,pw*0.22,0,front+set*0.5,Math.min(2.8*U,pw*0.34),0.1*U,set*0.95,0xCFCBC2);
     /* front garden: lawn, tree, shrubs */
     addBox(gb,-pw*0.05,0,front+set*0.5,pw*0.7,0.12*U,set*0.55,C.green);
     addCyl(gb,-pw*0.28,0,front+set*0.5,0.14*U,0.2*U,2.2*U,C.trunk,6);addSphere(gb,-pw*0.28,2.9*U,front+set*0.5,Math.min(1.5*U,pw*0.16),C.green2);
     addSphere(gb,pw*0.05,0.5*U,front+set*0.72,0.5*U,C.green);
     /* rear garden */
     addBox(gb,0,0,-pd/2+ (pd/2-hd-set+ (pd-hd-set)*0)/2*0+ (pd-set-hd)/2,pw*0.8,0.12*U,Math.max(0.5,(pd-set-hd)*0.7),C.green);
-    return finish(gb);}
-  const mat=new THREE.MeshLambertMaterial({vertexColors:true});const matS=new THREE.MeshLambertMaterial({vertexColors:true});
+    return {body:finish(gb),lights:finish(gbL)};}
+  const matL=new THREE.MeshBasicMaterial({vertexColors:true});const LIGHTS=[];
+  const mat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.86,metalness:0});const matS=new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.9,metalness:0});
   const byType={};UNITS.forEach((u,i)=>{(byType[u.type]=byType[u.type]||[]).push(i);});
   const meshes=[],instOf=[];/* instOf[i] = {mesh, k} */
   const frames=[];
@@ -1011,32 +1028,50 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   for(const t in byType){const idx=byType[t];const sample=frames[idx[0]];
     /* median plot size of the type so one model fits all its plots */
     const ws=idx.map(i=>frames[i].w).sort((a,b)=>a-b),ds=idx.map(i=>frames[i].d).sort((a,b)=>a-b);const pw=ws[ws.length>>1],pd=ds[ds.length>>1];
-    const g=houseGeo(t,pw,pd);const im=new THREE.InstancedMesh(g,mat,idx.length);im.instanceMatrix.setUsage(THREE.DynamicDrawUsage);im.userData={type:t,pw,pd};scene.add(im);meshes.push(im);
-    idx.forEach((i,k)=>{instOf[i]={mesh:im,k};});}
+    const gg=houseGeo(t,pw,pd);const g=gg.body;const im=new THREE.InstancedMesh(g,mat,idx.length);im.castShadow=HQ;im.receiveShadow=HQ;im.instanceMatrix.setUsage(THREE.DynamicDrawUsage);im.userData={type:t,pw,pd};scene.add(im);meshes.push(im);
+    const lm=new THREE.InstancedMesh(gg.lights,matL,idx.length);lm.visible=false;lm.userData={type:t,pw,pd};scene.add(lm);LIGHTS.push(lm);
+    idx.forEach((i,k)=>{instOf[i]={mesh:im,lm,k};});}
   const dummy=new THREE.Object3D();
-  function place(k){UNITS.forEach((u,i)=>{const f=frames[i],o=instOf[i],ud=o.mesh.userData;dummy.position.set(f.x,0,f.z);dummy.rotation.set(0,f.a,0);dummy.scale.set(f.w/ud.pw,Math.max(0.01,k),f.d/ud.pd);dummy.updateMatrix();o.mesh.setMatrixAt(o.k,dummy.matrix);});meshes.forEach(m=>m.instanceMatrix.needsUpdate=true);}
+  function place(k){UNITS.forEach((u,i)=>{const f=frames[i],o=instOf[i],ud=o.mesh.userData;dummy.position.set(f.x,0,f.z);dummy.rotation.set(0,f.a,0);dummy.scale.set(f.w/ud.pw,Math.max(0.01,k),f.d/ud.pd);dummy.updateMatrix();o.mesh.setMatrixAt(o.k,dummy.matrix);o.lm.setMatrixAt(o.k,dummy.matrix);});meshes.forEach(m=>m.instanceMatrix.needsUpdate=true);LIGHTS.forEach(m=>m.instanceMatrix.needsUpdate=true);}
   place(0.01);
   /* ---- roads, pavements and parks (polygons extracted from the plan) ---- */
+  function inPoly(x,y,ring){let c=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c;}return c;}
   function polyMesh(list,hex,y){if(!list||!list.length)return null;const shapes=[];
     for(const p of list){if(!p.ring||p.ring.length<3)continue;const sh=new THREE.Shape(p.ring.map(q=>new THREE.Vector2(q[0]-500,-(q[1]-312.5))));
       for(const h of (p.holes||[])){if(h.length>2)sh.holes.push(new THREE.Path(h.map(q=>new THREE.Vector2(q[0]-500,-(q[1]-312.5)))));}shapes.push(sh);}
-    const g=new THREE.ShapeGeometry(shapes);g.rotateX(-Math.PI/2);g.translate(0,y,0);const m=new THREE.Mesh(g,new THREE.MeshLambertMaterial({color:new THREE.Color(hex).convertSRGBToLinear()}));m.userData.ground=true;return m;}
-  const mPave=polyMesh(SCENE.pavements,0xDDD9D0,0.06),mRoad=polyMesh(SCENE.roads,0x6C6D72,0.1),mPark=polyMesh(SCENE.parks,0x79B25D,0.12);
+    const g=(y>0.3)?new THREE.ExtrudeGeometry(shapes,{depth:y,bevelEnabled:false}):new THREE.ShapeGeometry(shapes);g.rotateX(-Math.PI/2);if(y<=0.3)g.translate(0,y,0);
+    const matP=new THREE.MeshStandardMaterial({color:new THREE.Color(hex).convertSRGBToLinear(),roughness:0.95,metalness:0});if(polyMesh.tex)matP.map=polyMesh.tex;const m=new THREE.Mesh(g,matP);m.receiveShadow=HQ;m.castShadow=HQ&&y>0.3;m.userData.ground=true;return m;}
+  /* grass and asphalt grain (UVs of shape geometry are in world units, so repeat via a tiny scale) */
+  const grassT=grainTex('#7FB35E',40,128);grassT.repeat.set(0.25,0.25);const asphT=grainTex('#6E6F74',22,128);asphT.repeat.set(0.15,0.15);const paveT=grainTex('#DDD8CE',16,128);paveT.repeat.set(0.2,0.2);
+  polyMesh.tex=paveT;const mPave=polyMesh(SCENE.pavements,0xFFFFFF,0.45);
+  polyMesh.tex=asphT;const mRoad=polyMesh(SCENE.roads,0xFFFFFF,0.1);
+  polyMesh.tex=grassT;const mPark=polyMesh(SCENE.parks,0xFFFFFF,0.4);polyMesh.tex=null;
   [mPave,mRoad,mPark].forEach(m=>{if(m)scene.add(m);});
+  /* ---- street trees and lamp posts along the pavements ---- */
+  const STREET=[];const LAMPS=[];(SCENE.pavements||[]).forEach((p,pi)=>{const xs=p.ring.map(q=>q[0]),ys=p.ring.map(q=>q[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);if((x1-x0)*(y1-y0)<40)return;let n=0;
+    for(let y=y0+3;y<y1-3;y+=13)for(let x=x0+3;x<x1-3;x+=13){const jx=x+((x*11+y*3)%7)-3,jy=y+((x*5+y*7)%7)-3;if(!inPoly(jx,jy,p.ring))continue;if(((pi*3+n)%6)===0)LAMPS.push([jx,jy]);else STREET.push([jx,jy]);n++;if(STREET.length>900)return;}});
+  (function(){if(!STREET.length)return;const gb=GB();addCyl(gb,0,0,0,0.14*U,0.2*U,2.4*U,C.trunk,6);addSphere(gb,0,3.2*U,0,1.35*U,C.green2);addSphere(gb,0.6*U,2.8*U,0.3*U,0.9*U,0x5FA24C);
+    const im=new THREE.InstancedMesh(finish(gb),matS,STREET.length);im.castShadow=HQ;STREET.forEach((t,i)=>{const sc=0.85+((i*5)%4)*0.1;dummy.position.set(t[0]-500,0.4,t[1]-312.5);dummy.rotation.set(0,i*0.7,0);dummy.scale.set(sc,sc,sc);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);im.setColorAt(i,new THREE.Color(1,1,1));});im.instanceMatrix.needsUpdate=true;scene.add(im);
+    if(!LAMPS.length)return;const lg=GB();addCyl(lg,0,0,0,0.09*U,0.12*U,7*U,0x3A3A3E,6);addBox(lg,0,7*U,0,0.9*U,0.25*U,0.25*U,0x3A3A3E);addSphere(lg,0.4*U,6.9*U,0,0.22*U,0xFFF2C6);
+    const lm=new THREE.InstancedMesh(finish(lg),matS,LAMPS.length);lm.castShadow=HQ;LAMPS.forEach((t,i)=>{dummy.position.set(t[0]-500,0.4,t[1]-312.5);dummy.rotation.set(0,i*1.1,0);dummy.scale.set(1,1,1);dummy.updateMatrix();lm.setMatrixAt(i,dummy.matrix);lm.setColorAt(i,new THREE.Color(1,1,1));});lm.instanceMatrix.needsUpdate=true;scene.add(lm);
+    /* night: glowing heads + warm pools of light on the ground */
+    const gg=GB();addSphere(gg,0.4*U,6.9*U,0,0.34*U,0xFFE9B8);const glow=new THREE.InstancedMesh(finish(gg),new THREE.MeshBasicMaterial({vertexColors:true}),LAMPS.length);
+    const pool=new THREE.InstancedMesh(new THREE.CircleGeometry(7*U,20),new THREE.MeshBasicMaterial({color:new THREE.Color(0xFFD48A).convertSRGBToLinear(),transparent:true,opacity:0.22,depthWrite:false}),LAMPS.length);
+    LAMPS.forEach((t,i)=>{dummy.position.set(t[0]-500,0.4,t[1]-312.5);dummy.rotation.set(0,i*1.1,0);dummy.scale.set(1,1,1);dummy.updateMatrix();glow.setMatrixAt(i,dummy.matrix);dummy.position.set(t[0]-500+Math.cos(i*1.1)*0.4*U,0.55,t[1]-312.5-Math.sin(i*1.1)*0.4*U);dummy.rotation.set(-Math.PI/2,0,0);dummy.updateMatrix();pool.setMatrixAt(i,dummy.matrix);});
+    glow.instanceMatrix.needsUpdate=true;pool.instanceMatrix.needsUpdate=true;glow.visible=false;pool.visible=false;scene.add(glow);scene.add(pool);NIGHT.glow=glow;NIGHT.pool=pool;})();
   /* kerb line: a slightly larger, lighter copy of the road under it reads as a pavement edge */
   /* lane markings: dashed centre line for the main boulevards is skipped for now */
-  function inPoly(x,y,ring){let c=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c;}return c;}
   const PARK_TREES=[];(SCENE.parks||[]).forEach((p,pi)=>{const xs=p.ring.map(q=>q[0]),ys=p.ring.map(q=>q[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);let n=0;
     for(let y=y0+6;y<y1-6&&n<40;y+=9)for(let x=x0+6;x<x1-6&&n<40;x+=9){const jx=x+((x*7+y*3)%5)-2,jy=y+((x*3+y*5)%5)-2;if(!inPoly(jx,jy,p.ring))continue;
       if((SCENE.trees||[]).some(t=>Math.hypot(t[0]-jx,t[1]-jy)<9))continue;if(((x*13+y*7)%10)<6)continue;PARK_TREES.push([jx,jy]);n++;}});
   (function(){if(!PARK_TREES.length)return;const gb=GB();addCyl(gb,0,0,0,0.18*U,0.26*U,2.6*U,C.trunk,6);addSphere(gb,0,3.6*U,0,1.9*U,C.green2);addSphere(gb,0.9*U,3.0*U,0.4*U,1.2*U,0x5FA24C);addSphere(gb,-0.8*U,3.2*U,-0.5*U,1.1*U,0x4F8C3E);
-    const im=new THREE.InstancedMesh(finish(gb),matS,PARK_TREES.length);PARK_TREES.forEach((t,i)=>{const sc=0.8+((i*5)%4)*0.12;dummy.position.set(t[0]-500,0,t[1]-312.5);dummy.rotation.set(0,i*0.9,0);dummy.scale.set(sc,sc,sc);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);});
+    const im=new THREE.InstancedMesh(finish(gb),matS,PARK_TREES.length);im.castShadow=HQ;PARK_TREES.forEach((t,i)=>{const sc=0.8+((i*5)%4)*0.12;dummy.position.set(t[0]-500,0.35,t[1]-312.5);dummy.rotation.set(0,i*0.9,0);dummy.scale.set(sc,sc,sc);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);});
     im.instanceMatrix.needsUpdate=true;PARK_TREES.forEach((t,i)=>im.setColorAt(i,new THREE.Color(1,1,1)));scene.add(im);})();
   /* ---- palms on the plan's tree symbols ---- */
   (function(){const gb=GB();addCyl(gb,0,0,0,0.22*U,0.36*U,6.5*U,C.trunk,7);
     for(let i=0;i<9;i++){const g=new THREE.BoxGeometry(0.55*U,0.1*U,3.4*U);g.translate(0,0,1.7*U);g.rotateX(-0.55);g.rotateY(i*Math.PI*2/9);g.translate(0,6.5*U,0);addGeo(gb,g,i%2?C.green2:0x4C8B3F);}
     addSphere(gb,0,6.5*U,0,0.5*U,C.green2);
-    const geo=finish(gb);const trees=SCENE.trees||[];const im=new THREE.InstancedMesh(geo,matS,trees.length);
+    const geo=finish(gb);const trees=SCENE.trees||[];const im=new THREE.InstancedMesh(geo,matS,trees.length);im.castShadow=HQ;
     trees.forEach((t,i)=>{const sc=0.85+((i*7)%5)*0.08;dummy.position.set(t[0]-500,0,t[1]-312.5);dummy.rotation.set(0,i*1.3,0);dummy.scale.set(sc,sc,sc);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);});
     im.instanceMatrix.needsUpdate=true;trees.forEach((t,i)=>im.setColorAt(i,new THREE.Color(1,1,1)));scene.add(im);})();
   /* ---- facility buildings (schools, mosque, commercial, services) ---- */
@@ -1052,7 +1087,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
         addBox(g,0,0,d*0.3,w*0.8,0.12*U,d*0.3,C.green);});
       else if(f.kind==='gas')put(f,(g,w,d)=>{addBox(g,0,5*U,0,w*0.55,0.5*U,d*0.5,C.slab);for(const sx of [-1,1])for(const sz of [-1,1])addCyl(g,sx*w*0.2,0,sz*d*0.18,0.25*U,0.25*U,5*U,C.frame,6);addBox(g,-w*0.3,0,-d*0.3,w*0.25,3.6*U,d*0.25,C.wall);});
       else put(f,(g,w,d)=>{addBox(g,0,0,0,w*0.7,(f.kind==='health'?7.2:4.5)*U,d*0.7,C.wall);addBox(g,0,(f.kind==='health'?7.2:4.5)*U,0,w*0.7+0.3*U,0.35*U,d*0.7+0.3*U,C.slab);addBox(g,0,1.0*U,d*0.35+0.05*U,w*0.5,1.6*U,0.1*U,C.glass);});}
-    const m=new THREE.Mesh(finish(gb),matS);scene.add(m);})();
+    const m=new THREE.Mesh(finish(gb),matS);m.castShadow=HQ;m.receiveShadow=HQ;scene.add(m);})();
   /* selection outline + ring */
   const gold=new THREE.Color(0xC9A45C).convertSRGBToLinear();
   const geoBox=new THREE.BoxGeometry(1,1,1);geoBox.translate(0,0.5,0);const outline=new THREE.LineSegments(new THREE.EdgesGeometry(geoBox),new THREE.LineBasicMaterial({color:0x0F1115}));outline.visible=false;scene.add(outline);
@@ -1114,6 +1149,11 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   new ResizeObserver(resize).observe(box);
   new IntersectionObserver(es=>{visible=es[0].isIntersecting;if(visible)T3.dirty=true;},{threshold:0}).observe(box);
   T3={dirty:true,snap:null,resize,refresh,mark,st:()=>({theta:st.theta,phi:st.phi,r:st.r,tx:st.tx,tz:st.tz,anim:!!anim,auto:autoOrbit,touched}),unmark:()=>{outline.visible=false;ring.visible=false;T3.dirty=true;},fly:u=>{const f=frames[UNITS.indexOf(u)];if(f)flyTo({tx:f.x,tz:f.z,r:Math.min(st.r,380),phi:Math.max(st.phi,0.8)},900);},zoom:d=>{anim=null;st.r=Math.min(3200,Math.max(45,st.r*(d>0?0.72:1.38)));T3.dirty=true;},home:()=>{flyTo({...home},900);outline.visible=false;ring.visible=false;}};
+  function setNight(on){NIGHT.on=on;document.body.classList.toggle('night',on);renderer.setClearColor(on?0x0B1220:0xE9F1F8,1);setSky(on?0x0A1530:0x7FB3E6,on?0x2A3A58:0xEEF3F7);
+    hemi.color.setHex(on?0x2B3B5C:0xdfeeff);hemi.groundColor.setHex(on?0x15171E:0xb9ad98);hemi.intensity=on?0.55:0.75;
+    sun.color.setHex(on?0x9FB6E0:0xfff1dc);sun.intensity=on?0.32:1.35;sun.position.set(on?380:-420,on?560:760,on?-260:360);fill.intensity=on?0.06:0.22;renderer.toneMappingExposure=on?0.9:1.05;
+    LIGHTS.forEach(m=>m.visible=on);if(NIGHT.glow){NIGHT.glow.visible=on;NIGHT.pool.visible=on;}const nb=document.getElementById('nightbtn');if(nb)nb.textContent=on?L.m_day:L.m_night;try{localStorage.setItem('lc-night',on?'1':'');}catch(e){}T3.dirty=true;}
+  T3.night=setNight;try{if(localStorage.getItem('lc-night')==='1')setNight(true);}catch(e){}
   T3.snap=()=>renderer.domElement.toDataURL('image/jpeg',0.85);
   M3.ready=true;M3.loading=false;fit();refresh();if(selU)mark(selU);applyCam();requestAnimationFrame(tick);
   const hint=document.getElementById('hint3');setTimeout(()=>{if(hint)hint.style.opacity='0';},9000);}
@@ -1121,6 +1161,7 @@ function refresh3D(){if(T3)T3.refresh();}
 function mark3D(u){if(T3)T3.mark(u);}
 function zoom3D(d){if(T3)T3.zoom(d);}
 function home3D(){if(T3)T3.home();}
+function toggleNight(){if(T3)T3.night(!document.body.classList.contains('night'));else{setMode('3d');}}
 (function(){let m='3d';try{m=localStorage.getItem('lc-map')||'3d';}catch(e){}if(!window.WebGLRenderingContext)m='2d';setMode(m);})();
 
 /* sales-centre screen helpers */

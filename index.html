@@ -973,52 +973,71 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
 
   const N=UNITS.length;const NIGHT={on:false,glow:null,pool:null};
   /* ---- geometry builder: merged boxes/spheres/cylinders with vertex colours ---- */
-  const GB=()=>({pos:[],nor:[],col:[]});
+  const GB=()=>({pos:[],nor:[],col:[],uv:[]});
   const tmpC=new THREE.Color();
-  function addGeo(gb,g,hex){const ng=g.index?g.toNonIndexed():g;const P=ng.attributes.position.array,Nn=ng.attributes.normal.array;tmpC.setHex(hex).convertSRGBToLinear();
-    for(let i=0;i<P.length;i+=3){gb.pos.push(P[i],P[i+1],P[i+2]);gb.nor.push(Nn[i],Nn[i+1],Nn[i+2]);gb.col.push(tmpC.r,tmpC.g,tmpC.b);}}
+  function addGeo(gb,g,hex){const ng=g.index?g.toNonIndexed():g;const P=ng.attributes.position.array,Nn=ng.attributes.normal.array,UV=ng.attributes.uv?ng.attributes.uv.array:null;tmpC.setHex(hex).convertSRGBToLinear();
+    for(let i=0,j=0;i<P.length;i+=3,j+=2){gb.pos.push(P[i],P[i+1],P[i+2]);gb.nor.push(Nn[i],Nn[i+1],Nn[i+2]);gb.col.push(tmpC.r,tmpC.g,tmpC.b);gb.uv.push(UV?UV[j]:0,UV?UV[j+1]:0);}}
   function addBox(gb,x,y,z,w,h,d,hex,ry){const g=new THREE.BoxGeometry(w,h,d);if(ry)g.rotateY(ry);g.translate(x,y+h/2,z);addGeo(gb,g,hex);}
   function addSphere(gb,x,y,z,r,hex,half){const g=new THREE.SphereGeometry(r,10,7,0,Math.PI*2,0,half?Math.PI/2:Math.PI);g.translate(x,y,z);addGeo(gb,g,hex);}
   function addCyl(gb,x,y,z,rt,rb,h,hex,seg){const g=new THREE.CylinderGeometry(rt,rb,h,seg||8);g.translate(x,y+h/2,z);addGeo(gb,g,hex);}
-  function mergeGeo(gb,g){const P=g.attributes.position.array,Nn=g.attributes.normal.array,Cc=g.attributes.color.array;for(let i=0;i<P.length;i++){gb.pos.push(P[i]);gb.nor.push(Nn[i]);gb.col.push(Cc[i]);}}
-  function finish(gb){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(gb.pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(gb.nor,3));g.setAttribute('color',new THREE.Float32BufferAttribute(gb.col,3));return g;}
-  const C={wall:0xF3EFE7,wall2:0xE6E1D6,frame:0x3C3C3E,wood:0x4B3F35,glass:0x1F2A36,stone:0xB8B0A2,slab:0xD6D2C9,green:0x74A85C,green2:0x5B8F46,trunk:0x6E5240,gate:0x2B2B2E,bwall:0xE9E5DD,gold:0xC9A45C,minaret:0xEDE8DE,dark:0x2E3136};
+  function mergeGeo(gb,g){const P=g.attributes.position.array,Nn=g.attributes.normal.array,Cc=g.attributes.color.array,UV=g.attributes.uv?g.attributes.uv.array:null;for(let i=0;i<P.length;i++){gb.pos.push(P[i]);gb.nor.push(Nn[i]);gb.col.push(Cc[i]);}for(let i=0;i<P.length/3*2;i++)gb.uv.push(UV?UV[i]:0);}
+  function finish(gb){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(gb.pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(gb.nor,3));g.setAttribute('color',new THREE.Float32BufferAttribute(gb.col,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(gb.uv,2));return g;}
+  const C={wall:0xF2EEE6,wall2:0xE9E4DA,frame:0x34363A,wood:0x5A4636,glass:0x1E2A38,stone:0xC4BDB0,slab:0xD3CFC6,green:0x74A85C,green2:0x5B8F46,trunk:0x6E5240,gate:0x2B2B2E,bwall:0xE9E5DD,gold:0xC9A45C,minaret:0xEDE8DE,dark:0x2E3136};
   const HOUSE={A:[0.94,0.62],B:[0.94,0.62],C:[0.82,0.55],D:[0.86,0.6],E:[0.72,0.45]}; /* house width / depth as a share of the plot */
   /* one house model per type, built in plot proportions (local x = width, z = depth, front at +z) */
-  function houseGeo(t,pw,pd){const gb=GB(),gbL=GB();const glass=(x,y,z,w,h,d)=>{addBox(gb,x,y,z,w,h,d,C.glass);addBox(gbL,x,y+0.05*U,z+0.06*U,w*0.96,h*0.9,d,0xFFD79A);};const [kw,kd]=HOUSE[t]||HOUSE.A;const hw=pw*kw,hd=pd*kd;const set=Math.min(4*U,pd*0.2);const fz=pd/2-set;const hz=fz-hd/2;const front=fz;
-    const H1=3.3*U,H2=6.6*U;
-    /* boundary walls + gate */
-    addBox(gb,0,0,pd/2-0.15*U,pw*0.98,1.9*U,0.28*U,C.bwall);
-    addBox(gb,pw*0.22,0,pd/2-0.14*U,Math.min(2.8*U,pw*0.34),2.0*U,0.34*U,C.gate);
-    addBox(gb,-pw*0.49,0,0,0.22*U,1.5*U,pd*0.98,C.bwall);addBox(gb,pw*0.49,0,0,0.22*U,1.5*U,pd*0.98,C.bwall);
-    addBox(gb,0,0,-pd/2+0.12*U,pw*0.98,1.6*U,0.24*U,C.bwall);
-    /* main body */
-    addBox(gb,0,0,hz,hw,H2,hd,C.wall);
-    /* first-floor front bay: dark frame with balcony + glass */
-    const bw=hw*0.46;addBox(gb,-hw*0.22,H1,front+0.55*U,bw,H1-0.2*U,1.1*U,C.frame);
-    glass(-hw*0.22,H1+0.25*U,front+0.62*U,bw*0.8,H1-0.9*U,0.6*U);
-    addBox(gb,-hw*0.22,H1+0.1*U,front+1.05*U,bw*0.86,1.0*U,0.12*U,C.frame);
-    /* vertical wood slats */
-    addBox(gb,hw*0.36,0.2*U,front+0.14*U,hw*0.13,H2-0.4*U,0.28*U,C.wood);
-    /* stone band beside the slats */
-    addBox(gb,hw*0.12,0,front+0.05*U,hw*0.3,H2,0.1*U,C.stone);
-    /* ground floor door + windows, first floor window */
-    glass(-hw*0.24,0,front+0.1*U,1.3*U,2.5*U,0.2*U);
-    glass(hw*0.12,1.0*U,front+0.12*U,hw*0.22,1.6*U,0.16*U);
-    glass(hw*0.12,H1+1.0*U,front+0.12*U,hw*0.22,1.6*U,0.16*U);
-    /* roof slab edge + stair bulkhead */
-    addBox(gb,0,H2,hz,hw+0.3*U,0.3*U,hd+0.3*U,C.slab);addBox(gb,0,H2+0.3*U,hz,hw-0.5*U,0.06*U,hd-0.5*U,0xEEEAE2);
-    addBox(gb,hw*0.12,H2+0.3*U,hz-hd*0.22,hw*0.5,1.1*U,hd*0.4,C.wall2);
-    addBox(gb,pw*0.22,0,front+set*0.5,Math.min(2.8*U,pw*0.34),0.1*U,set*0.95,0xCFCBC2);
-    /* front garden: lawn, tree, shrubs */
-    addBox(gb,-pw*0.05,0,front+set*0.5,pw*0.7,0.12*U,set*0.55,C.green);
-    addCyl(gb,-pw*0.28,0,front+set*0.5,0.14*U,0.2*U,2.2*U,C.trunk,6);addSphere(gb,-pw*0.28,2.9*U,front+set*0.5,Math.min(1.5*U,pw*0.16),C.green2);
-    addSphere(gb,pw*0.05,0.5*U,front+set*0.72,0.5*U,C.green);
-    /* rear garden */
-    addBox(gb,0,0,-pd/2+ (pd/2-hd-set+ (pd-hd-set)*0)/2*0+ (pd-set-hd)/2,pw*0.8,0.12*U,Math.max(0.5,(pd-set-hd)*0.7),C.green);
+  function houseGeo(t,pw,pd){const gb=GB(),gbL=GB();
+    const glass=(x,y,z,w,h,d,ry)=>{addBox(gb,x,y,z,w,h,d,C.glass,ry);addBox(gbL,x,y+0.04*U,z,w*0.94,h*0.9,d+0.1*U,0xFFD79A,ry);};
+    /* framed window: dark frame slightly larger than the glass, both flush on the wall plane */
+    const win=(x,y,z,w,h,ry)=>{addBox(gb,x,y-0.06*U,z,w+0.14*U,h+0.12*U,0.14*U,C.frame,ry);glass(x,y,z,w,h,0.2*U,ry);};
+    const [kw,kd]=HOUSE[t]||HOUSE.A;const hw=pw*kw,hd=pd*kd;const set=Math.min(4*U,pd*0.2);const front=pd/2-set;const hz=front-hd/2;
+    const H1=3.3*U,H2=6.6*U,PAR=0.85*U;const T=0.22*U;
+    /* ---- boundary: cream wall on a stone base, pillars, barred gate, wall lamp ---- */
+    const wz=pd/2-0.15*U;
+    addBox(gb,0,0,wz,pw*0.98,0.55*U,0.34*U,C.stone);addBox(gb,0,0.55*U,wz,pw*0.98,1.35*U,0.28*U,C.bwall);addBox(gb,0,1.85*U,wz,pw*0.98,0.1*U,0.4*U,C.stone);
+    const gw=Math.min(2.9*U,pw*0.34),gx=pw*0.22;
+    addBox(gb,gx-gw/2-0.25*U,0,wz,0.5*U,2.15*U,0.5*U,C.bwall);addBox(gb,gx+gw/2+0.25*U,0,wz,0.5*U,2.15*U,0.5*U,C.bwall);
+    addBox(gb,gx,1.9*U,wz,gw,0.12*U,0.12*U,C.gate);for(let i=0;i<7;i++){addBox(gb,gx-gw/2+gw*(i+0.5)/7,0.05*U,wz,0.09*U,1.85*U,0.09*U,C.gate);}addBox(gb,gx,0.05*U,wz,gw,0.08*U,0.08*U,C.gate);
+    addSphere(gb,gx-gw/2-0.25*U,2.25*U,wz,0.12*U,0xFFF0CC);addSphere(gbL,gx-gw/2-0.25*U,2.25*U,wz,0.2*U,0xFFE2A8);
+    addBox(gb,-pw*0.49,0,0,T,1.5*U,pd*0.98,C.bwall);addBox(gb,pw*0.49,0,0,T,1.5*U,pd*0.98,C.bwall);addBox(gb,0,0,-pd/2+0.12*U,pw*0.98,1.6*U,0.24*U,C.bwall);
+    /* ---- volumes: lower front block, taller rear block, parapets ---- */
+    const fd=hd*0.46,rd=hd*0.54;const fz=front-fd/2,rz=front-fd-rd/2;
+    addBox(gb,0,0,fz,hw,H2,fd,C.wall);addBox(gb,0,0,rz,hw,H2+0.9*U,rd,C.wall2);
+    const par=(cx,cz,w,d,y)=>{addBox(gb,cx,y,cz+d/2-T/2,w,PAR,T,C.wall);addBox(gb,cx,y,cz-d/2+T/2,w,PAR,T,C.wall);addBox(gb,cx-w/2+T/2,y,cz,T,PAR,d,C.wall);addBox(gb,cx+w/2-T/2,y,cz,T,PAR,d,C.wall);addBox(gb,cx,y+PAR,cz,w+0.1*U,0.08*U,d+0.1*U,C.stone);};
+    par(0,fz,hw,fd,H2);par(0,rz,hw,rd,H2+0.9*U);
+    addBox(gb,0,H2,fz,hw-0.3*U,0.04*U,fd-0.3*U,0xE4E0D8);addBox(gb,0,H2+0.9*U,rz,hw-0.3*U,0.04*U,rd-0.3*U,0xE4E0D8);
+    /* roof: stair bulkhead, water tank, AC units */
+    addBox(gb,hw*0.2,H2+0.9*U,rz-rd*0.1,hw*0.36,1.4*U,rd*0.42,C.wall);addCyl(gb,-hw*0.26,H2+0.9*U,rz+rd*0.05,0.55*U,0.55*U,0.9*U,0xC9C6BE,10);
+    addBox(gb,-hw*0.3,H2,fz-fd*0.2,0.7*U,0.5*U,0.6*U,0xB8B8BA);addBox(gb,hw*0.3,H2,fz+fd*0.1,0.7*U,0.5*U,0.6*U,0xB8B8BA);
+    /* ---- front elevation ---- */
+    const bw=hw*0.5,bx=-hw*0.2;
+    /* two-storey dark frame around the bay */
+    addBox(gb,bx-bw/2-0.18*U,0,front+0.3*U,0.36*U,H2+0.25*U,0.9*U,C.frame);addBox(gb,bx+bw/2+0.18*U,0,front+0.3*U,0.36*U,H2+0.25*U,0.9*U,C.frame);
+    addBox(gb,bx,H2-0.05*U,front+0.3*U,bw+0.72*U,0.3*U,0.9*U,C.frame);
+    /* ground floor: porch shade, door, side light */
+    addBox(gb,bx,0,front-0.02*U,bw,H1-0.2*U,0.06*U,0xD9D4CA);
+    addBox(gb,bx-bw*0.18,0,front+0.04*U,1.1*U,2.4*U,0.1*U,C.frame);glass(bx-bw*0.18,0.05*U,front+0.06*U,0.9*U,2.25*U,0.12*U);
+    win(bx+bw*0.24,0.9*U,front+0.05*U,bw*0.36,1.5*U);
+    addBox(gb,bx,H1-0.2*U,front+0.65*U,bw+0.3*U,0.24*U,1.3*U,C.slab);
+    /* first floor balcony: railing bars + sliding glass */
+    for(let i=0;i<=8;i++){addBox(gb,bx-bw/2+bw*i/8,H1+0.04*U,front+1.2*U,0.06*U,1.0*U,0.06*U,C.frame);}addBox(gb,bx,H1+1.04*U,front+1.2*U,bw+0.06*U,0.07*U,0.1*U,C.frame);
+    win(bx,H1+0.2*U,front+0.05*U,bw*0.86,2.3*U);
+    /* right side: stone cladding, slats, windows */
+    addBox(gb,hw*0.14,0,front+0.03*U,hw*0.3,H2,0.07*U,C.stone);
+    for(let i=0;i<6;i++){addBox(gb,hw*0.33+hw*0.14*i/6,0.15*U,front+0.12*U,0.07*U,H2-0.3*U,0.24*U,C.wood);}
+    win(hw*0.14,0.95*U,front+0.08*U,hw*0.2,1.5*U);win(hw*0.14,H1+0.95*U,front+0.08*U,hw*0.2,1.5*U);
+    /* ---- side and rear windows ---- */
+    const sw=hw*0.5>2.2*U?1.4*U:1.0*U;
+    [[-hw/2-0.02*U,Math.PI/2],[hw/2+0.02*U,Math.PI/2]].forEach(([sx,ry])=>{[fz+fd*0.15,rz-rd*0.15].forEach(sz=>{win(sx,1.1*U,sz,sw,1.2*U,ry);win(sx,H1+1.1*U,sz,sw,1.2*U,ry);});});
+    const back=rz-rd/2-0.02*U;win(-hw*0.22,0.1*U,back,1.0*U,2.2*U,Math.PI);win(hw*0.2,1.0*U,back,hw*0.26,1.4*U,Math.PI);win(0,H1+1.0*U,back,hw*0.4,1.4*U,Math.PI);
+    /* ---- gardens ---- */
+    addBox(gb,-pw*0.08,0,front+set*0.5,pw*0.62,0.12*U,set*0.6,C.green);
+    addBox(gb,gx,0,front+set*0.5,gw,0.1*U,set*0.98,0xCFCBC2);addBox(gb,bx-bw*0.18,0,front+set*0.5,1.1*U,0.11*U,set*0.98,0xD9D5CC);
+    addCyl(gb,-pw*0.3,0,front+set*0.55,0.12*U,0.18*U,2.4*U,C.trunk,6);addSphere(gb,-pw*0.3,3.2*U,front+set*0.55,Math.min(1.5*U,pw*0.15),C.green2);addSphere(gb,-pw*0.3+0.6*U,2.7*U,front+set*0.55+0.3*U,Math.min(1.0*U,pw*0.1),0x5FA24C);
+    addSphere(gb,-pw*0.1,0.45*U,front+set*0.8,0.45*U,C.green);addSphere(gb,pw*0.02,0.4*U,front+set*0.82,0.38*U,0x4F8C3E);
+    const rearD=pd-set-hd;if(rearD>1.5){addBox(gb,0,0,-pd/2+rearD/2,pw*0.8,0.12*U,rearD*0.75,C.green);addCyl(gb,pw*0.2,0,-pd/2+rearD/2,0.12*U,0.16*U,2.0*U,C.trunk,6);addSphere(gb,pw*0.2,2.7*U,-pd/2+rearD/2,Math.min(1.3*U,pw*0.14),C.green2);}
     return {body:finish(gb),lights:finish(gbL)};}
   const matL=new THREE.MeshBasicMaterial({vertexColors:true});const LIGHTS=[];
-  const mat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.86,metalness:0});const matS=new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.9,metalness:0});
+  const plasterT=grainTex('#ffffff',14,64);const mat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.88,metalness:0,map:plasterT});const matS=new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.9,metalness:0});
   const byType={};UNITS.forEach((u,i)=>{(byType[u.type]=byType[u.type]||[]).push(i);});
   const meshes=[],instOf=[];/* instOf[i] = {mesh, k} */
   const frames=[];

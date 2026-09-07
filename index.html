@@ -1283,6 +1283,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     hemi.color.setHex(on?0x243354:0xd6e6f7);hemi.groundColor.setHex(on?0x101218:0xa89c86);hemi.intensity=on?0.32:0.58;
     sun.color.setHex(on?0x9FB6E0:0xfff1dc);sun.intensity=on?0.22:1.25;sun.position.set(on?380:-420,on?560:760,on?-260:360);fill.intensity=on?0.06:0.22;renderer.toneMappingExposure=on?0.82:0.86;
     LIGHTS.forEach(m=>m.visible=on);if(NIGHT.glow){NIGHT.glow.visible=on;NIGHT.pool.visible=on;}const nb=document.getElementById('nightbtn');if(nb)nb.textContent=on?L.m_day:L.m_night;try{localStorage.setItem('lc-night',on?'1':'');}catch(e){}T3.dirty=true;}
+  T3.env=v=>{scene.environment=v?dayEnv:null;envIntensity(v?0.25:0);T3.dirty=true;};T3.shadows=v=>{renderer.shadowMap.enabled=!!v;renderer.shadowMap.needsUpdate=true;scene.traverse(o=>{if(o.material)o.material.needsUpdate=true;});T3.dirty=true;};
   T3.night=setNight;try{if(localStorage.getItem('lc-night')==='1')setNight(true);}catch(e){}
   /* deep links: ?u=CODE selects a home and flies to its façade, ?night=1 night mode, ?book=1 opens the booking form */
   try{const q=new URLSearchParams(window.__q0||location.search);if(q.get('night')==='1')setNight(true);else if(q.get('night')==='0')setNight(false);

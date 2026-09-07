@@ -963,7 +963,7 @@ function unitFrame(u){/* row direction from the nearest neighbour in the same bl
   if(!n)return 0;return Math.atan2((n.ny-u.ny)*625,(n.nx-u.nx)*1000);}
 function init3D(){const box=document.getElementById('map3d');const W=box.clientWidth||mapwrap.clientWidth,H=box.clientHeight||mapwrap.clientHeight;
   let renderer;try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:true,powerPreference:'high-performance'});}catch(e){M3.failed=true;setMode('2d');return;}
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(W,H);renderer.setClearColor(0xE9F1F8,1);renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;const HQ=!/Mobi|Android/i.test(navigator.userAgent)&&(box.clientWidth||400)>700;renderer.shadowMap.enabled=HQ;renderer.shadowMap.type=THREE.PCFSoftShadowMap;box.appendChild(renderer.domElement);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(W,H);renderer.setClearColor(0xE9F1F8,1);renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=0.98;const HQ=!/Mobi|Android/i.test(navigator.userAgent)&&(box.clientWidth||400)>700;renderer.shadowMap.enabled=HQ;renderer.shadowMap.type=THREE.PCFSoftShadowMap;box.appendChild(renderer.domElement);
   const scene=new THREE.Scene();
   const cam=new THREE.PerspectiveCamera(40,W/H,2,9000);
   /* sky dome: vertex-coloured gradient */
@@ -971,7 +971,8 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   function setSky(topHex,horHex){const pos=skyG.attributes.position;const col=[];const top=new THREE.Color(topHex).convertSRGBToLinear(),hor=new THREE.Color(horHex).convertSRGBToLinear(),c=new THREE.Color();
     for(let i=0;i<pos.count;i++){const t=Math.max(0,Math.min(1,pos.getY(i)/5200));c.copy(hor).lerp(top,Math.pow(t,0.6));col.push(c.r,c.g,c.b);}skyG.setAttribute('color',new THREE.Float32BufferAttribute(col,3));}
   setSky(0x7FB3E6,0xEEF3F7);const skyMesh=new THREE.Mesh(skyG,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,fog:false}));scene.add(skyMesh);
-  try{const pm=new THREE.PMREMGenerator(renderer);const es=new THREE.Scene();es.add(skyMesh.clone());scene.environment=pm.fromScene(es,0.04).texture;pm.dispose();}catch(e){}
+  let dayEnv=null;try{const pm=new THREE.PMREMGenerator(renderer);const es=new THREE.Scene();es.add(skyMesh.clone());dayEnv=pm.fromScene(es,0.04).texture;scene.environment=dayEnv;pm.dispose();}catch(e){}
+  function envIntensity(v){scene.traverse(o=>{if(o.material&&('envMapIntensity' in o.material)){o.material.envMapIntensity=v;o.material.needsUpdate=false;}});}
   const hemi=new THREE.HemisphereLight(0xdfeeff,0xb9ad98,0.75);scene.add(hemi);
   const sun=new THREE.DirectionalLight(0xfff1dc,1.35);sun.position.set(-420,760,360);sun.target.position.set(0,0,0);scene.add(sun);scene.add(sun.target);
   if(HQ){sun.castShadow=true;sun.shadow.mapSize.set(4096,4096);const sc=sun.shadow.camera;sc.left=-720;sc.right=720;sc.top=520;sc.bottom=-520;sc.near=100;sc.far=1800;sun.shadow.bias=-0.0006;sun.shadow.normalBias=0.6;}
@@ -1258,9 +1259,9 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   new ResizeObserver(resize).observe(box);
   new IntersectionObserver(es=>{visible=es[0].isIntersecting;if(visible)T3.dirty=true;},{threshold:0}).observe(box);
   T3={dirty:true,snap:null,resize,refresh,mark,at:(x,z,r,ph)=>{st.tx=x-500;st.tz=z-312.5;st.r=r||220;st.phi=ph||0.9;anim=null;touched=true;T3.dirty=true;},st:()=>({theta:st.theta,phi:st.phi,r:st.r,tx:st.tx,tz:st.tz,anim:!!anim,auto:autoOrbit,touched}),unmark:()=>{outline.visible=false;ring.visible=false;T3.dirty=true;},fly:u=>{const i=UNITS.indexOf(u);if(frames[i])flyFacade(i);},zoom:d=>{anim=null;st.r=Math.min(3200,Math.max(45,st.r*(d>0?0.72:1.38)));T3.dirty=true;},home:()=>{flyTo({...home},900);outline.visible=false;ring.visible=false;}};
-  function setNight(on){NIGHT.on=on;document.body.classList.toggle('night',on);renderer.setClearColor(on?0x070E1F:0xE9F1F8,1);setSky(on?0x070E1F:0x7FB3E6,on?0x1A2540:0xEEF3F7);
+  function setNight(on){NIGHT.on=on;document.body.classList.toggle('night',on);scene.environment=on?null:dayEnv;envIntensity(on?0:0.35);renderer.setClearColor(on?0x070E1F:0xE9F1F8,1);setSky(on?0x070E1F:0x7FB3E6,on?0x1A2540:0xEEF3F7);
     hemi.color.setHex(on?0x243354:0xdfeeff);hemi.groundColor.setHex(on?0x101218:0xb9ad98);hemi.intensity=on?0.32:0.75;
-    sun.color.setHex(on?0x9FB6E0:0xfff1dc);sun.intensity=on?0.22:1.35;sun.position.set(on?380:-420,on?560:760,on?-260:360);fill.intensity=on?0.06:0.22;renderer.toneMappingExposure=on?0.82:1.05;
+    sun.color.setHex(on?0x9FB6E0:0xfff1dc);sun.intensity=on?0.22:1.35;sun.position.set(on?380:-420,on?560:760,on?-260:360);fill.intensity=on?0.06:0.22;renderer.toneMappingExposure=on?0.82:0.98;
     LIGHTS.forEach(m=>m.visible=on);if(NIGHT.glow){NIGHT.glow.visible=on;NIGHT.pool.visible=on;}const nb=document.getElementById('nightbtn');if(nb)nb.textContent=on?L.m_day:L.m_night;try{localStorage.setItem('lc-night',on?'1':'');}catch(e){}T3.dirty=true;}
   T3.night=setNight;try{if(localStorage.getItem('lc-night')==='1')setNight(true);}catch(e){}
   /* deep links: ?u=CODE selects a home and flies to its façade, ?night=1 night mode, ?book=1 opens the booking form */
@@ -1268,7 +1269,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     const uc=(q.get('u')||'').toUpperCase();if(uc){const uu=UNITS.find(x=>x.code===uc);if(uu){setTimeout(()=>{select(uu);const i=UNITS.indexOf(uu);flyFacade(i);if(q.get('book')==='1'&&SCREEN){prefill(uu.type,uu.code);openBooking();}},400);}}}catch(e){}
   T3.render=()=>{if(anim){for(const k in anim.to)st[k]=anim.to[k];anim=null;}place(1);applyCam();renderer.render(scene,cam);T3.dirty=false;};
   T3.snap=()=>{T3.render();return renderer.domElement.toDataURL('image/jpeg',0.85);};
-  M3.ready=true;M3.loading=false;fit();refresh();if(selU)mark(selU);applyCam();requestAnimationFrame(tick);
+  envIntensity(0.35);M3.ready=true;M3.loading=false;fit();refresh();if(selU)mark(selU);applyCam();requestAnimationFrame(tick);
   const hint=document.getElementById('hint3');setTimeout(()=>{if(hint)hint.style.opacity='0';},9000);}
 function refresh3D(){if(T3)T3.refresh();}
 function mark3D(u){if(T3)T3.mark(u);}

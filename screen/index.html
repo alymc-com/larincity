@@ -95,7 +95,9 @@
   body.screen #plan .shead{display:none}
   body.screen .planlayout{display:block;max-width:none;margin:0}
   body.screen .mapwrap{position:fixed;inset:0;border:0;border-radius:0;aspect-ratio:auto;background:#fff}
-  body.screen .mapwrap:not(.m3d){top:50%;left:50%;inset:auto;transform:translate(-50%,-50%);width:min(100vw,160vh);aspect-ratio:1.6;border:1px solid var(--line);border-radius:var(--r)}
+  body.screen .mapwrap:not(.m3d){inset:auto;top:52%;left:50%;transform:translate(-50%,-50%);width:min(94vw,calc((100vh - 200px) * 1.6));aspect-ratio:1.6;border:1px solid var(--line);border-radius:var(--r)}
+  body.screen .mapwrap:not(.m3d) .mapin{position:absolute;inset:0}
+  body.screen .mapwrap:not(.m3d) .mapin img{width:100%;height:100%;object-fit:fill}
   body.screen .planbar{position:fixed;top:14px;inset-inline-start:14px;inset-inline-end:14px;z-index:30;margin:0;gap:6px;pointer-events:none}
   body.screen .planbar > *{pointer-events:auto}
   body.screen .fbtn,body.screen .zoomctl button,body.screen .modectl{box-shadow:0 6px 24px rgba(15,17,21,.10)}

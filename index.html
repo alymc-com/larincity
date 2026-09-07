@@ -907,7 +907,7 @@ function unitFrame(u){/* row direction from the nearest neighbour in the same bl
   let best=1e9,n=null;for(const v of UNITS){if(v===u||v.block!==u.block)continue;const d=Math.hypot((v.nx-u.nx)*1000,(v.ny-u.ny)*625);if(d<best){best=d;n=v;}}
   if(!n)return 0;return Math.atan2((n.ny-u.ny)*625,(n.nx-u.nx)*1000);}
 function init3D(){const box=document.getElementById('map3d');const W=box.clientWidth||mapwrap.clientWidth,H=box.clientHeight||mapwrap.clientHeight;
-  let renderer;try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});}catch(e){M3.failed=true;setMode('2d');return;}
+  let renderer;try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:true,powerPreference:'high-performance'});}catch(e){M3.failed=true;setMode('2d');return;}
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(W,H);renderer.setClearColor(0xffffff,1);renderer.outputEncoding=THREE.sRGBEncoding;box.appendChild(renderer.domElement);
   const scene=new THREE.Scene();scene.fog=new THREE.Fog(0xffffff,1400,2600);
   const cam=new THREE.PerspectiveCamera(40,W/H,2,6000);
@@ -927,16 +927,22 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   const outline=new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:0x0F1115}));outline.visible=false;scene.add(outline);
   const ring=new THREE.Mesh(new THREE.RingGeometry(1,1.18,48),new THREE.MeshBasicMaterial({color:gold,transparent:true,opacity:.95,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=0.6;ring.visible=false;scene.add(ring);
   /* camera state */
-  const st={theta:-0.32,phi:0.92,r:980,tx:-10,tz:20};const home={...st};let anim=null;
-  function applyCam(){const y=st.r*Math.cos(st.phi),rr=st.r*Math.sin(st.phi);cam.position.set(st.tx+rr*Math.sin(st.theta),y,st.tz+rr*Math.cos(st.theta));cam.lookAt(st.tx,0,st.tz);}
-  function flyTo(to,ms){const from={...st};const t0=performance.now();anim={from,to,t0,ms};T3.dirty=true;}
+  const st={theta:-0.30,phi:0.86,r:980,tx:0,tz:0};let home={...st};let anim=null,touched=false;
+  const gplane=new THREE.Plane(new THREE.Vector3(0,1,0),0);const fitRay=new THREE.Raycaster();const v3=new THREE.Vector3();
+  function ndcBox(){const pts=[];for(const x of [-500,500])for(const z of [-312,312])for(const y of [0,9]){v3.set(x,y,z).project(cam);pts.push([v3.x,v3.y]);}
+    return {minx:Math.min(...pts.map(p=>p[0])),maxx:Math.max(...pts.map(p=>p[0])),miny:Math.min(...pts.map(p=>p[1])),maxy:Math.max(...pts.map(p=>p[1]))};}
+  function groundAt(nx,ny){fitRay.setFromCamera({x:nx,y:ny},cam);const o=new THREE.Vector3();return fitRay.ray.intersectPlane(gplane,o)?o:null;}
+  function fit(){const M=0.94;for(let k=0;k<3;k++){let lo=250,hi=2400;for(let i=0;i<22;i++){st.r=(lo+hi)/2;applyCam();const b=ndcBox();if(b.maxx-b.minx>2*M||b.maxy-b.miny>2*M)lo=st.r;else hi=st.r;}st.r=hi;applyCam();
+      const b=ndcBox();const c=groundAt((b.minx+b.maxx)/2,(b.miny+b.maxy)/2),o=groundAt(0,0);if(c&&o){st.tx+=c.x-o.x;st.tz+=c.z-o.z;}}applyCam();home={...st};T3.dirty=true;}
+  function applyCam(){if(!cam)return;const y=st.r*Math.cos(st.phi),rr=st.r*Math.sin(st.phi);cam.position.set(st.tx+rr*Math.sin(st.theta),y,st.tz+rr*Math.cos(st.theta));cam.lookAt(st.tx,0,st.tz);}
+  function flyTo(to,ms){touched=true;const from={...st};const t0=performance.now();anim={from,to,t0,ms};T3.dirty=true;}
   function tick(now){if(anim){let p=Math.min(1,(now-anim.t0)/anim.ms);const e=1-Math.pow(1-p,3);for(const k in anim.to)st[k]=anim.from[k]+(anim.to[k]-anim.from[k])*e;if(p>=1)anim=null;T3.dirty=true;}
     if(rise<1){rise=Math.min(1,rise+(now-riseT)/1400);riseT=now;place(1-Math.pow(1-rise,3));T3.dirty=true;}
     if(T3.dirty&&visible){applyCam();renderer.render(scene,cam);T3.dirty=false;}requestAnimationFrame(tick);}
   let rise=0,riseT=performance.now(),visible=true;
   /* gestures */
   const el=renderer.domElement;const ptrs=new Map();let moved=0,pinch0=0,r0=0,rot0=null;
-  el.addEventListener('pointerdown',e=>{ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});el.setPointerCapture(e.pointerId);moved=0;anim=null;box.classList.add('drag');
+  el.addEventListener('pointerdown',e=>{touched=true;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});el.setPointerCapture(e.pointerId);moved=0;anim=null;box.classList.add('drag');
     if(ptrs.size===2){const a=[...ptrs.values()];pinch0=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);r0=st.r;}});
   el.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId)){hover(e);return;}const prev=ptrs.get(e.pointerId);const dx=e.clientX-prev.x,dy=e.clientY-prev.y;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved+=Math.abs(dx)+Math.abs(dy);
     if(ptrs.size===1){st.theta-=dx*0.006;st.phi=Math.min(1.32,Math.max(0.28,st.phi-dy*0.005));T3.dirty=true;}
@@ -946,7 +952,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   function pan(dx,dy){const k=st.r*0.0016;const sx=Math.cos(st.theta),sz=-Math.sin(st.theta);st.tx-=(dx*sx-dy*sz)*k;st.tz-=(dx*sz+dy*sx)*k;st.tx=Math.max(-520,Math.min(520,st.tx));st.tz=Math.max(-340,Math.min(340,st.tz));}
   const up=e=>{if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);try{el.releasePointerCapture(e.pointerId);}catch(x){}if(ptrs.size===0){box.classList.remove('drag');if(moved<6)pick(e,true);}pinch0=0;};
   el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
-  el.addEventListener('wheel',e=>{e.preventDefault();anim=null;st.r=Math.min(1700,Math.max(120,st.r*(e.deltaY>0?1.12:0.89)));T3.dirty=true;},{passive:false});
+  el.addEventListener('wheel',e=>{e.preventDefault();touched=true;anim=null;st.r=Math.min(1700,Math.max(120,st.r*(e.deltaY>0?1.12:0.89)));T3.dirty=true;},{passive:false});
   el.addEventListener('dblclick',()=>home3D());
   /* picking */
   const ray=new THREE.Raycaster();const mouse=new THREE.Vector2();const tip=document.getElementById('tip3');let hov=-1;
@@ -963,11 +969,12 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   function refresh(){UNITS.forEach((u,i)=>inst.setColorAt(i,colourOf(u)));inst.instanceColor.needsUpdate=true;T3.dirty=true;}
   function mark(u){const i=UNITS.indexOf(u);const f=frames[i];outline.position.set(f.x,0,f.z);outline.rotation.set(0,f.a,0);outline.scale.set(f.w+0.6,f.h+0.4,f.d+0.6);outline.visible=true;
     ring.position.set(f.x,0.6,f.z);const rr=Math.max(f.w,f.d)*0.85;ring.scale.set(rr,rr,1);ring.visible=true;T3.dirty=true;}
-  function resize(){const w=box.clientWidth,h=box.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();T3.dirty=true;}
+  function resize(){const w=box.clientWidth,h=box.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();if(!touched&&M3.ready)fit();T3.dirty=true;}
   new ResizeObserver(resize).observe(box);
   new IntersectionObserver(es=>{visible=es[0].isIntersecting;if(visible)T3.dirty=true;},{threshold:0}).observe(box);
-  T3={dirty:true,resize,refresh,mark,zoom:d=>{anim=null;st.r=Math.min(1700,Math.max(120,st.r*(d>0?0.72:1.38)));T3.dirty=true;},home:()=>{flyTo({...home},900);outline.visible=false;ring.visible=false;}};
-  M3.ready=true;M3.loading=false;refresh();if(selU)mark(selU);applyCam();requestAnimationFrame(tick);
+  T3={dirty:true,snap:null,resize,refresh,mark,zoom:d=>{anim=null;st.r=Math.min(1700,Math.max(120,st.r*(d>0?0.72:1.38)));T3.dirty=true;},home:()=>{flyTo({...home},900);outline.visible=false;ring.visible=false;}};
+  T3.snap=()=>renderer.domElement.toDataURL('image/jpeg',0.85);
+  M3.ready=true;M3.loading=false;fit();refresh();if(selU)mark(selU);applyCam();requestAnimationFrame(tick);
   const hint=document.getElementById('hint3');setTimeout(()=>{if(hint)hint.style.opacity='0';},9000);}
 function refresh3D(){if(T3)T3.refresh();}
 function mark3D(u){if(T3)T3.mark(u);}

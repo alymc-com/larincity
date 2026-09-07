@@ -768,12 +768,13 @@ function room(r){return LANG==='ar'?r:(T.en.rooms[r]||r)}
 function hash(s){let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h}
 const AI_ENDPOINT='https://larin-assistant.larin-assistant.workers.dev/chat';
 const API=(typeof AI_ENDPOINT==='string'&&AI_ENDPOINT)?AI_ENDPOINT.replace(/\/chat$/,''):'';
-let SCREEN=false,PIN='';
-try{const q=new URLSearchParams(location.search);
-  if(q.has('screen')){localStorage.setItem('lc-screen',q.get('screen')==='0'?'':'1');}
-  if(q.get('pin')){localStorage.setItem('lc-pin',q.get('pin'));}
-  if(q.has('screen')||q.has('pin')){history.replaceState(null,'',location.pathname);}
-  SCREEN=localStorage.getItem('lc-screen')==='1';PIN=localStorage.getItem('lc-pin')||'';}catch(e){}
+let SCREEN=document.body.classList.contains('screen'),PIN='';
+try{const q=new URLSearchParams(location.search);let stored=false;
+  try{if(q.has('screen'))localStorage.setItem('lc-screen',q.get('screen')==='0'?'':'1');if(q.get('pin'))localStorage.setItem('lc-pin',q.get('pin'));
+      if(localStorage.getItem('lc-screen')==='1')SCREEN=true;PIN=localStorage.getItem('lc-pin')||'';stored=true;}catch(e){}
+  if(q.get('screen')==='1')SCREEN=true;if(q.get('pin'))PIN=q.get('pin');
+  if(stored&&q.has('pin')){history.replaceState(null,'',location.pathname+(SCREEN&&q.has('screen')?'?screen=1':''));}}catch(e){}
+function needPin(){if(!PIN){const p=prompt(L.sc_pin);if(p){PIN=p.trim();try{localStorage.setItem('lc-pin',PIN);}catch(e){}}}return PIN;}
 if(SCREEN)document.body.classList.add('screen');
 if(API){UNITS.forEach(u=>u.status='available');}
 else{UNITS.forEach(u=>{const h=hash(u.code);u.status=h%23===0?'sold':(h%8===0?'reserved':'available')});}
@@ -782,7 +783,7 @@ function paintDot(u){if(!u.el)return;u.el.classList.remove('reserved','sold');if
 function applyStatus(map){let changed=false;UNITS.forEach(u=>{const ns=map[u.code]||'available';if(ns!==u.status){u.status=ns;paintDot(u);changed=true;}});
   if(changed){renderAvail();if(selU)select(selU);}}
 async function syncUnits(force){if(!API)return;try{const r=await fetch(API+'/units',{cache:'no-store'});const j=await r.json();if(force||j.v!==UV){UV=j.v;applyStatus(j.units||{});}}catch(e){}}
-async function staffSet(code,status){const p=prompt(L.sc_pin);if(p===null)return;if(p!==PIN){alert(L.sc_pin);return;}
+async function staffSet(code,status){const p=prompt(L.sc_pin);if(p===null)return;if(!needPin()||p.trim()!==PIN){alert(L.sc_pin);return;}
   try{const r=await fetch(API+'/units/set',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:PIN,code,status})});const j=await r.json();if(!r.ok||!j.ok)throw j;await syncUnits(true);}catch(e){alert(L.sc_err);}}
 const GALS=['aerial-night-desert','mosque','fountain-plaza-day-families','central-garden-day','fountain-plaza','aerial-sunset-02'];
 
@@ -813,7 +814,7 @@ function select(u){if(sel)sel.classList.remove('sel');sel=u.el;selU=u;sel.classL
   <img src="${IMG['unit-'+t.plot+'m']}" alt="">
   ${u.status==='available'?`<a class="btn" href="#book" onclick="prefill('${u.type}','${u.code}')">${L.res_unit} ${u.code} <svg viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></svg></a>`:`<button class="btn ghost" disabled style="opacity:.5">${L.na}</button>`}
   <button class="btn ghost" style="margin-top:8px" onclick="openModal('${u.type}')">${L.plan_of} ${u.type}</button>
-  ${(SCREEN&&API&&PIN)?`<div class="staff"><span>${L.sc_manage}</span><div><button class="${u.status==='available'?'on':''}" onclick="staffSet('${u.code}','available')">${L.sc_avail}</button><button class="${u.status==='reserved'?'on':''}" onclick="staffSet('${u.code}','reserved')">${L.sc_res}</button><button class="${u.status==='sold'?'on':''}" onclick="staffSet('${u.code}','sold')">${L.sc_sold}</button></div></div>`:''}`;}
+  ${(SCREEN&&API)?`<div class="staff"><span>${L.sc_manage}</span><div><button class="${u.status==='available'?'on':''}" onclick="staffSet('${u.code}','available')">${L.sc_avail}</button><button class="${u.status==='reserved'?'on':''}" onclick="staffSet('${u.code}','reserved')">${L.sc_res}</button><button class="${u.status==='sold'?'on':''}" onclick="staffSet('${u.code}','sold')">${L.sc_sold}</button></div></div>`:''}`;}
 function setFilter(t){filter=t;document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('on',b.dataset.t===t));UNITS.forEach(u=>u.el.classList.toggle('dim',t!=='all'&&u.type!==t));}
 document.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',()=>setFilter(b.dataset.t)));
 
@@ -863,7 +864,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 function prefill(t,code){document.getElementById('f-type').value=t;document.getElementById('f-unit').value=code;}
 async function submitForm(e){e.preventDefault();const f=id=>document.getElementById(id).value.trim();const btn=document.querySelector('#form button[type=submit]');
   const data={name:f('f-name'),phone:f('f-phone'),type:f('f-type'),code:f('f-unit').toUpperCase(),city:f('f-city'),kind:f('f-kind'),note:f('f-note'),lang:LANG};
-  let ref='LC-2026-'+String(1000+Math.floor(Math.random()*9000));const fromScreen=SCREEN&&PIN&&data.code;
+  let ref='LC-2026-'+String(1000+Math.floor(Math.random()*9000));const fromScreen=!!(SCREEN&&data.code&&needPin());
   if(API){btn.disabled=true;try{let r;
       if(fromScreen){r=await fetch(API+'/units/set',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:PIN,code:data.code,status:'reserved',name:data.name,phone:data.phone,note:data.note,city:data.city,lang:LANG,source:'screen'})});}
       else{r=await fetch(API+'/request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}

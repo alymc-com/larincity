@@ -1059,7 +1059,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   function ndcBox(){const pts=[];for(const x of [BB.x0,BB.x1])for(const z of [BB.z0,BB.z1])for(const y of [0,9]){v3.set(x,y,z).project(cam);pts.push([v3.x,v3.y]);}
     return {minx:Math.min(...pts.map(p=>p[0])),maxx:Math.max(...pts.map(p=>p[0])),miny:Math.min(...pts.map(p=>p[1])),maxy:Math.max(...pts.map(p=>p[1]))};}
   function groundAt(nx,ny){fitRay.setFromCamera({x:nx,y:ny},cam);const o=new THREE.Vector3();return fitRay.ray.intersectPlane(gplane,o)?o:null;}
-  function fit(){const M=0.94;for(let k=0;k<3;k++){let lo=250,hi=3200;for(let i=0;i<22;i++){st.r=(lo+hi)/2;applyCam();const b=ndcBox();if(b.maxx-b.minx>2*M||b.maxy-b.miny>2*M)lo=st.r;else hi=st.r;}st.r=hi;applyCam();
+  function fit(){const M=0.94;if(!touched)st.theta=(cam.aspect<0.9?Math.PI/2:0)-0.30;for(let k=0;k<3;k++){let lo=250,hi=3200;for(let i=0;i<22;i++){st.r=(lo+hi)/2;applyCam();const b=ndcBox();if(b.maxx-b.minx>2*M||b.maxy-b.miny>2*M)lo=st.r;else hi=st.r;}st.r=hi;applyCam();
       const b=ndcBox();const c=groundAt((b.minx+b.maxx)/2,(b.miny+b.maxy)/2),o=groundAt(0,0);if(c&&o){st.tx+=c.x-o.x;st.tz+=c.z-o.z;}}applyCam();home={...st};T3.dirty=true;}
   function applyCam(){if(!cam)return;const y=st.r*Math.cos(st.phi),rr=st.r*Math.sin(st.phi);cam.position.set(st.tx+rr*Math.sin(st.theta),y,st.tz+rr*Math.cos(st.theta));cam.lookAt(st.tx,0,st.tz);}
   function flyTo(to,ms){touched=true;const from={...st};const t0=performance.now();anim={from,to,t0,ms};T3.dirty=true;}

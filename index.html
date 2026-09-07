@@ -970,8 +970,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   const sandT=grainTex('#D9CDB2',34);sandT.repeat.set(160,160);
   const ground=new THREE.Mesh(new THREE.PlaneGeometry(9000,9000),new THREE.MeshStandardMaterial({map:sandT,roughness:1,metalness:0}));ground.rotation.x=-Math.PI/2;ground.position.y=-0.2;ground.receiveShadow=true;scene.add(ground);
   /* the site itself: a slightly lighter, finer sand */
-  const siteT=grainTex('#E3D9C2',26);siteT.repeat.set(40,25);
-  const site=new THREE.Mesh(new THREE.PlaneGeometry(1000,625),new THREE.MeshStandardMaterial({map:siteT,roughness:1,metalness:0}));site.rotation.x=-Math.PI/2;site.position.y=0.02;site.receiveShadow=true;scene.add(site);
+
   const N=UNITS.length;const NIGHT={on:false,glow:null,pool:null};
   /* ---- geometry builder: merged boxes/spheres/cylinders with vertex colours ---- */
   const GB=()=>({pos:[],nor:[],col:[]});
@@ -1036,6 +1035,8 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   place(0.01);
   /* ---- roads, pavements and parks (polygons extracted from the plan) ---- */
   function inPoly(x,y,ring){let c=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c;}return c;}
+  const inSite=p=>p.ring&&Math.max(...p.ring.map(q=>q[0]))>95;
+  ['roads','pavements','parks'].forEach(k=>{if(SCENE[k])SCENE[k]=SCENE[k].filter(inSite);});
   function polyMesh(list,hex,y){if(!list||!list.length)return null;const shapes=[];
     for(const p of list){if(!p.ring||p.ring.length<3)continue;const sh=new THREE.Shape(p.ring.map(q=>new THREE.Vector2(q[0]-500,-(q[1]-312.5))));
       for(const h of (p.holes||[])){if(h.length>2)sh.holes.push(new THREE.Path(h.map(q=>new THREE.Vector2(q[0]-500,-(q[1]-312.5)))));}shapes.push(sh);}
@@ -1149,9 +1150,9 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   new ResizeObserver(resize).observe(box);
   new IntersectionObserver(es=>{visible=es[0].isIntersecting;if(visible)T3.dirty=true;},{threshold:0}).observe(box);
   T3={dirty:true,snap:null,resize,refresh,mark,st:()=>({theta:st.theta,phi:st.phi,r:st.r,tx:st.tx,tz:st.tz,anim:!!anim,auto:autoOrbit,touched}),unmark:()=>{outline.visible=false;ring.visible=false;T3.dirty=true;},fly:u=>{const f=frames[UNITS.indexOf(u)];if(f)flyTo({tx:f.x,tz:f.z,r:Math.min(st.r,380),phi:Math.max(st.phi,0.8)},900);},zoom:d=>{anim=null;st.r=Math.min(3200,Math.max(45,st.r*(d>0?0.72:1.38)));T3.dirty=true;},home:()=>{flyTo({...home},900);outline.visible=false;ring.visible=false;}};
-  function setNight(on){NIGHT.on=on;document.body.classList.toggle('night',on);renderer.setClearColor(on?0x0B1220:0xE9F1F8,1);setSky(on?0x0A1530:0x7FB3E6,on?0x2A3A58:0xEEF3F7);
-    hemi.color.setHex(on?0x2B3B5C:0xdfeeff);hemi.groundColor.setHex(on?0x15171E:0xb9ad98);hemi.intensity=on?0.55:0.75;
-    sun.color.setHex(on?0x9FB6E0:0xfff1dc);sun.intensity=on?0.32:1.35;sun.position.set(on?380:-420,on?560:760,on?-260:360);fill.intensity=on?0.06:0.22;renderer.toneMappingExposure=on?0.9:1.05;
+  function setNight(on){NIGHT.on=on;document.body.classList.toggle('night',on);renderer.setClearColor(on?0x070E1F:0xE9F1F8,1);setSky(on?0x070E1F:0x7FB3E6,on?0x1A2540:0xEEF3F7);
+    hemi.color.setHex(on?0x243354:0xdfeeff);hemi.groundColor.setHex(on?0x101218:0xb9ad98);hemi.intensity=on?0.32:0.75;
+    sun.color.setHex(on?0x9FB6E0:0xfff1dc);sun.intensity=on?0.22:1.35;sun.position.set(on?380:-420,on?560:760,on?-260:360);fill.intensity=on?0.06:0.22;renderer.toneMappingExposure=on?0.82:1.05;
     LIGHTS.forEach(m=>m.visible=on);if(NIGHT.glow){NIGHT.glow.visible=on;NIGHT.pool.visible=on;}const nb=document.getElementById('nightbtn');if(nb)nb.textContent=on?L.m_day:L.m_night;try{localStorage.setItem('lc-night',on?'1':'');}catch(e){}T3.dirty=true;}
   T3.night=setNight;try{if(localStorage.getItem('lc-night')==='1')setNight(true);}catch(e){}
   T3.snap=()=>renderer.domElement.toDataURL('image/jpeg',0.85);

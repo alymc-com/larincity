@@ -90,6 +90,25 @@
   .sbar .clock{margin-inline-start:auto;font-family:var(--la);font-weight:700;font-size:15px;color:rgba(255,255,255,.85);direction:ltr}
   .sbar .lang{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:8px 14px;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer}
   body.screen .sbar{display:none}
+  /* ---- glass controls on the sales screen ---- */
+  body.screen .fbtn,body.screen .zoomctl button,body.screen .modectl,body.screen .legend,body.screen .avail > div,body.screen .hint3,body.screen .panel .pclose{background:rgba(255,255,255,.42);backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px) saturate(1.5);border:1px solid rgba(255,255,255,.7);box-shadow:0 8px 28px rgba(15,17,21,.10),inset 0 1px 0 rgba(255,255,255,.6);color:var(--ink)}
+  body.screen .modectl button{background:transparent;border:0;box-shadow:none}
+  body.screen .modectl button.on,body.screen .fbtn.on{background:rgba(15,17,21,.82);color:#fff;border-color:rgba(15,17,21,.6);backdrop-filter:blur(18px)}
+  body.screen .modectl .lang2,body.screen .modectl .nightbtn{background:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.6)}
+  body.screen .fbtn:hover,body.screen .zoomctl button:hover{background:rgba(255,255,255,.7);transform:none;color:var(--ink)}
+  body.screen .ai-fab{background:rgba(15,17,21,.78);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.25)}
+  body.screen aside.panel{background:rgba(255,255,255,.78);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border:1px solid rgba(255,255,255,.75)}
+  body.screen .panel .staff button{background:rgba(255,255,255,.5)}
+  body.screen #book .wrap{background:rgba(255,255,255,.86);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,.8)}
+  /* night: smoked glass */
+  body.screen.night .fbtn,body.screen.night .zoomctl button,body.screen.night .modectl,body.screen.night .legend,body.screen.night .avail > div,body.screen.night .hint3{background:rgba(22,26,36,.55);border-color:rgba(255,255,255,.18);color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.12)}
+  body.screen.night .legend,body.screen.night .avail span{color:rgba(255,255,255,.8)}
+  body.screen.night .avail b{color:#fff}
+  body.screen.night .modectl .lang2,body.screen.night .modectl .nightbtn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}
+  body.screen.night .modectl button{color:#fff}
+  body.screen.night .modectl button.on,body.screen.night .fbtn.on{background:rgba(255,255,255,.92);color:var(--ink);border-color:rgba(255,255,255,.9)}
+  body.screen.night .modectl .nightbtn{background:#FFD48A;color:#1B2440;border-color:#FFD48A}
+  body.screen.night .fbtn:hover,body.screen.night .zoomctl button:hover{background:rgba(255,255,255,.2);color:#fff}
 
   /* ---- sales-centre screen: the 3D plan fills the viewport, UI floats over it ---- */
   body.screen{overflow:hidden;height:100vh}

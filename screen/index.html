@@ -856,7 +856,7 @@ function room(r){return LANG==='ar'?r:(T.en.rooms[r]||r)}
 function hash(s){let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h}
 const AI_ENDPOINT='https://larin-assistant.larin-assistant.workers.dev/chat';
 const API=(typeof AI_ENDPOINT==='string'&&AI_ENDPOINT)?AI_ENDPOINT.replace(/\/chat$/,''):'';
-let SCREEN=document.body.classList.contains('screen'),PIN='';
+let SCREEN=document.body.classList.contains('screen'),PIN='';window.__q0=location.search;
 try{const q=new URLSearchParams(location.search);let stored=false;
   try{if(q.has('screen'))localStorage.setItem('lc-screen',q.get('screen')==='0'?'':'1');if(q.get('pin'))localStorage.setItem('lc-pin',q.get('pin'));
       if(localStorage.getItem('lc-screen')==='1')SCREEN=true;PIN=localStorage.getItem('lc-pin')||'';stored=true;}catch(e){}
@@ -1285,7 +1285,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     LIGHTS.forEach(m=>m.visible=on);if(NIGHT.glow){NIGHT.glow.visible=on;NIGHT.pool.visible=on;}const nb=document.getElementById('nightbtn');if(nb)nb.textContent=on?L.m_day:L.m_night;try{localStorage.setItem('lc-night',on?'1':'');}catch(e){}T3.dirty=true;}
   T3.night=setNight;try{if(localStorage.getItem('lc-night')==='1')setNight(true);}catch(e){}
   /* deep links: ?u=CODE selects a home and flies to its façade, ?night=1 night mode, ?book=1 opens the booking form */
-  try{const q=new URLSearchParams(location.search);if(q.get('night')==='1')setNight(true);else if(q.get('night')==='0')setNight(false);
+  try{const q=new URLSearchParams(window.__q0||location.search);if(q.get('night')==='1')setNight(true);else if(q.get('night')==='0')setNight(false);
     const uc=(q.get('u')||'').toUpperCase();if(uc){const uu=UNITS.find(x=>x.code===uc);if(uu){setTimeout(()=>{select(uu);const i=UNITS.indexOf(uu);flyFacade(i);if(q.get('book')==='1'&&SCREEN){prefill(uu.type,uu.code);openBooking();}},400);}}}catch(e){}
   T3.render=()=>{if(anim){for(const k in anim.to)st[k]=anim.to[k];anim=null;}place(1);applyCam();renderer.render(scene,cam);T3.dirty=false;};
   T3.snap=()=>{T3.render();return renderer.domElement.toDataURL('image/jpeg',0.85);};

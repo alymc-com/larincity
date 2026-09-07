@@ -1131,7 +1131,11 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   /* selection outline + ring */
   const gold=new THREE.Color(0xC9A45C).convertSRGBToLinear();
   const geoBox=new THREE.BoxGeometry(1,1,1);geoBox.translate(0,0.5,0);const outline=new THREE.LineSegments(new THREE.EdgesGeometry(geoBox),new THREE.LineBasicMaterial({color:0x0F1115}));outline.visible=false;scene.add(outline);
-  const ring=new THREE.Mesh(new THREE.RingGeometry(1,1.18,48),new THREE.MeshBasicMaterial({color:gold,transparent:true,opacity:.95,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=0.6;ring.visible=false;scene.add(ring);
+  const ring=new THREE.Group();ring.visible=false;scene.add(ring);
+  const pinDot=new THREE.Mesh(new THREE.SphereGeometry(0.75*U,16,12),new THREE.MeshBasicMaterial({color:gold}));ring.add(pinDot);
+  const pinHalo=new THREE.Mesh(new THREE.SphereGeometry(0.75*U,16,12),new THREE.MeshBasicMaterial({color:gold,transparent:true,opacity:0.5,depthWrite:false}));ring.add(pinHalo);
+  const pinLine=new THREE.Mesh(new THREE.CylinderGeometry(0.06*U,0.06*U,1,6),new THREE.MeshBasicMaterial({color:gold,transparent:true,opacity:0.8}));ring.add(pinLine);
+  let pinT0=0;
   /* camera state */
   const st={theta:-0.30,phi:0.86,r:980,tx:0,tz:0};let home={...st};let anim=null,touched=false;
   const gplane=new THREE.Plane(new THREE.Vector3(0,1,0),0);const fitRay=new THREE.Raycaster();const v3=new THREE.Vector3();
@@ -1144,6 +1148,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   function applyCam(){if(!cam)return;const y=st.r*Math.cos(st.phi),rr=st.r*Math.sin(st.phi);cam.position.set(st.tx+rr*Math.sin(st.theta),y,st.tz+rr*Math.cos(st.theta));cam.lookAt(st.tx,0,st.tz);}
   function flyTo(to,ms){touched=true;const from={...st};const t0=performance.now();anim={from,to,t0,ms};T3.dirty=true;}
   function tick(now){if(anim){let p=Math.min(1,(now-anim.t0)/anim.ms);const e=1-Math.pow(1-p,3);for(const k in anim.to)st[k]=anim.from[k]+(anim.to[k]-anim.from[k])*e;if(p>=1)anim=null;T3.dirty=true;}
+    if(ring.visible){const t=((now-pinT0)%1600)/1600;const k=1+t*1.6;pinHalo.scale.set(k,k,k);pinHalo.material.opacity=0.55*(1-t);pinDot.position.y=Math.sin(now/300)*0.25*U;T3.dirty=true;}
     if(rise<1){rise=Math.min(1,rise+(now-riseT)/1400);riseT=now;place(1-Math.pow(1-rise,3));T3.dirty=true;}
     if(SCREEN&&!anim&&ptrs.size===0&&now-lastAct>45000){autoOrbit=true;}if(autoOrbit){st.theta+=0.00035*Math.min(50,now-(tick.last||now));T3.dirty=true;}tick.last=now;
     if(T3.dirty&&visible){applyCam();renderer.render(scene,cam);T3.dirty=false;}requestAnimationFrame(tick);}
@@ -1183,8 +1188,8 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   const cA=new THREE.Color(),white=new THREE.Color(0xffffff);
   function colourOf(u){if(u.status==='reserved')cA.setRGB(0.66,0.64,0.62);else if(u.status==='sold')cA.setRGB(0.32,0.32,0.34);else cA.setRGB(1,1,1);if(filter!=='all'&&u.type!==filter)cA.multiplyScalar(0.55);return cA;}
   function refresh(){UNITS.forEach((u,i)=>{const o=instOf[i];o.mesh.setColorAt(o.k,colourOf(u));});meshes.forEach(m=>{if(m.instanceColor)m.instanceColor.needsUpdate=true;});T3.dirty=true;}
-  function mark(u){const i=UNITS.indexOf(u);const f=frames[i];outline.position.set(f.x,0,f.z);outline.rotation.set(0,f.a,0);outline.scale.set(f.w+0.4,f.h+0.6,f.d+0.4);outline.visible=true;
-    ring.position.set(f.x,0.6,f.z);const rr=Math.max(f.w,f.d)*0.85;ring.scale.set(rr,rr,1);ring.visible=true;T3.dirty=true;}
+  function mark(u){const i=UNITS.indexOf(u);const f=frames[i];outline.visible=false;const top=f.h+0.9*U+1.4*U;const y=top+3.2*U;
+    ring.position.set(f.x,y,f.z);pinLine.scale.set(1,y-top,1);pinLine.position.y=-(y-top)/2;pinT0=performance.now();ring.visible=true;T3.dirty=true;}
   function resize(){const w=box.clientWidth,h=box.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();if(!touched&&M3.ready)fit();T3.dirty=true;}
   new ResizeObserver(resize).observe(box);
   new IntersectionObserver(es=>{visible=es[0].isIntersecting;if(visible)T3.dirty=true;},{threshold:0}).observe(box);

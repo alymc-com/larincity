@@ -1107,7 +1107,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   function resize(){const w=box.clientWidth,h=box.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();if(!touched&&M3.ready)fit();T3.dirty=true;}
   new ResizeObserver(resize).observe(box);
   new IntersectionObserver(es=>{visible=es[0].isIntersecting;if(visible)T3.dirty=true;},{threshold:0}).observe(box);
-  T3={dirty:true,snap:null,resize,refresh,mark,unmark:()=>{outline.visible=false;ring.visible=false;T3.dirty=true;},fly:u=>{const f=frames[UNITS.indexOf(u)];if(f)flyTo({tx:f.x,tz:f.z,r:Math.min(st.r,380),phi:Math.max(st.phi,0.8)},900);},zoom:d=>{anim=null;st.r=Math.min(1700,Math.max(45,st.r*(d>0?0.72:1.38)));T3.dirty=true;},home:()=>{flyTo({...home},900);outline.visible=false;ring.visible=false;}};
+  T3={dirty:true,snap:null,resize,refresh,mark,st:()=>({theta:st.theta,phi:st.phi,r:st.r,tx:st.tx,tz:st.tz,anim:!!anim,auto:autoOrbit,touched}),unmark:()=>{outline.visible=false;ring.visible=false;T3.dirty=true;},fly:u=>{const f=frames[UNITS.indexOf(u)];if(f)flyTo({tx:f.x,tz:f.z,r:Math.min(st.r,380),phi:Math.max(st.phi,0.8)},900);},zoom:d=>{anim=null;st.r=Math.min(1700,Math.max(45,st.r*(d>0?0.72:1.38)));T3.dirty=true;},home:()=>{flyTo({...home},900);outline.visible=false;ring.visible=false;}};
   T3.snap=()=>renderer.domElement.toDataURL('image/jpeg',0.85);
   M3.ready=true;M3.loading=false;fit();refresh();if(selU)mark(selU);applyCam();requestAnimationFrame(tick);
   const hint=document.getElementById('hint3');setTimeout(()=>{if(hint)hint.style.opacity='0';},9000);}

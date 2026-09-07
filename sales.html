@@ -112,7 +112,7 @@ function fmt(t){try{const d=new Date(t);return d.toLocaleString('ar-IQ',{hour12:
 async function load(){if(!PIN)return;try{const r=await fetch(API+'/sales?pin='+encodeURIComponent(PIN),{cache:'no-store'});if(r.status===403){logout('الرمز غير صحيح');return;}DATA=await r.json();render();$('last').textContent='آخر تحديث '+new Date().toLocaleTimeString('ar-IQ',{hour:'2-digit',minute:'2-digit'});}catch(e){$('last').textContent='تعذر الاتصال بالخادم';}}
 function enter(){PIN=$('pin').value.trim();if(!PIN){$('gerr').textContent='أدخل الرمز';return;}try{localStorage.setItem('lc-pin',PIN);}catch(e){}start();}
 function logout(msg){PIN='';try{localStorage.removeItem('lc-pin');}catch(e){}clearInterval(timer);$('app').hidden=true;$('gate').hidden=false;$('logout').hidden=true;$('gerr').textContent=msg||'';$('pin').value='';}
-function start(){$('gate').hidden=true;$('app').hidden=false;$('logout').hidden=false;$('screenlink').textContent=location.origin+'/?screen=1&pin='+PIN;load();clearInterval(timer);timer=setInterval(load,15000);}
+function start(){$('gate').hidden=true;$('app').hidden=false;$('logout').hidden=false;$('screenlink').textContent=location.origin+'/screen/?pin='+PIN;load();clearInterval(timer);timer=setInterval(load,15000);}
 function render(){const units=DATA.units||[],reqs=DATA.requests||[];
   const taken={};units.forEach(u=>{const t=u.code[0];taken[t]=taken[t]||{reserved:0,sold:0};taken[t][u.status]=(taken[t][u.status]||0)+1;});
   const res=units.filter(u=>u.status==='reserved').length,sold=units.filter(u=>u.status==='sold').length;

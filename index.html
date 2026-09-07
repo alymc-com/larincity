@@ -750,6 +750,7 @@ function room(r){return LANG==='ar'?r:(T.en.rooms[r]||r)}
 
 /* demo status */
 function hash(s){let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h}
+const AI_ENDPOINT='https://larin-assistant.larin-assistant.workers.dev/chat';
 const API=(typeof AI_ENDPOINT==='string'&&AI_ENDPOINT)?AI_ENDPOINT.replace(/\/chat$/,''):'';
 let SCREEN=false,PIN='';
 try{const q=new URLSearchParams(location.search);
@@ -862,7 +863,6 @@ if(SCREEN){let idleT;const kick=()=>{clearTimeout(idleT);idleT=setTimeout(()=>{c
 
 /* AI assistant: live Claude via the artifact `sample` capability, keyword fallback elsewhere */
 const aiBox=document.getElementById('ai'),aiMsgs=document.getElementById('aimsgs'),aiChips=document.getElementById('aichips');
-const AI_ENDPOINT='https://larin-assistant.larin-assistant.workers.dev/chat';
 let aiOpened=false,SAMPLE=undefined,aiHist=[],aiBusy=false,aiCtl=null;
 async function aiInit(){if(SAMPLE!==undefined)return SAMPLE;try{SAMPLE=(window.claude&&window.claude.use)?await window.claude.use('sample'):null;}catch(e){SAMPLE=null;}aiStat();return SAMPLE;}
 function aiStat(){const s=document.getElementById('aistat');if(!s)return;s.textContent=(SAMPLE||AI_ENDPOINT)?L.ai_live:L.ai_local;}

@@ -1233,7 +1233,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   function flyTo(to,ms){touched=true;const from={...st};const t0=performance.now();anim={from,to,t0,ms};T3.dirty=true;}
   function tick(now){if(anim){let p=Math.min(1,(now-anim.t0)/anim.ms);const e=1-Math.pow(1-p,3);for(const k in anim.to)st[k]=anim.from[k]+(anim.to[k]-anim.from[k])*e;if(p>=1)anim=null;T3.dirty=true;}
     if(ring.visible){const t=((now-pinT0)%1600)/1600;const k=1+t*2.2;pinHalo.scale.set(k,k,k);pinHalo.material.opacity=0.6*(1-t);pinDot.position.y=Math.sin(now/300)*0.25*U;T3.dirty=true;}
-    if(rise<1){rise=Math.min(1,rise+(now-riseT)/1400);riseT=now;place(1-Math.pow(1-rise,3));T3.dirty=true;}
+    if(rise<1){rise=Math.min(1,rise+(now-riseT)/1400);riseT=now;place(1-Math.pow(1-rise,3));renderer.shadowMap.needsUpdate=true;T3.dirty=true;}
     if(SCREEN&&!anim&&ptrs.size===0&&now-lastAct>45000){autoOrbit=true;}if(autoOrbit){st.theta+=0.00035*Math.min(50,now-(tick.last||now));T3.dirty=true;}tick.last=now;
     if(T3.dirty&&visible){applyCam();renderer.render(scene,cam);T3.dirty=false;}requestAnimationFrame(tick);}
   let rise=0,riseT=performance.now(),visible=true;
@@ -1279,7 +1279,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   new ResizeObserver(resize).observe(box);
   new IntersectionObserver(es=>{visible=es[0].isIntersecting;if(visible)T3.dirty=true;},{threshold:0}).observe(box);
   T3={dirty:true,snap:null,resize,refresh,mark,set:o=>{for(const k in o)if(k in st)st[k]=o[k];anim=null;touched=true;T3.dirty=true;},frame:i=>frames[i]?{...frames[i]}:null,at:(x,z,r,ph)=>{st.tx=x-500;st.tz=z-312.5;st.r=r||220;st.phi=ph||0.9;anim=null;touched=true;T3.dirty=true;},st:()=>({theta:st.theta,phi:st.phi,r:st.r,tx:st.tx,tz:st.tz,anim:!!anim,auto:autoOrbit,touched}),unmark:()=>{outline.visible=false;ring.visible=false;T3.dirty=true;},fly:u=>{const i=UNITS.indexOf(u);if(frames[i])flyFacade(i);},zoom:d=>{anim=null;st.r=Math.min(3200,Math.max(45,st.r*(d>0?0.72:1.38)));T3.dirty=true;},home:()=>{flyTo({...home},900);outline.visible=false;ring.visible=false;}};
-  function setNight(on){NIGHT.on=on;document.body.classList.toggle('night',on);scene.environment=on?null:dayEnv;envIntensity(on?0:0.25);renderer.setClearColor(on?0x070E1F:0xDCE6EE,1);setSky(on?0x070E1F:0x5E9BD8,on?0x1A2540:0xDCE6EE);
+  function setNight(on){NIGHT.on=on;renderer.shadowMap.needsUpdate=true;document.body.classList.toggle('night',on);scene.environment=on?null:dayEnv;envIntensity(on?0:0.25);renderer.setClearColor(on?0x070E1F:0xDCE6EE,1);setSky(on?0x070E1F:0x5E9BD8,on?0x1A2540:0xDCE6EE);
     hemi.color.setHex(on?0x243354:0xd6e6f7);hemi.groundColor.setHex(on?0x101218:0xa89c86);hemi.intensity=on?0.32:0.58;
     sun.color.setHex(on?0x9FB6E0:0xfff1dc);sun.intensity=on?0.22:1.25;sun.position.set(on?380:-420,on?560:760,on?-260:360);fill.intensity=on?0.06:0.22;renderer.toneMappingExposure=on?0.82:0.86;
     LIGHTS.forEach(m=>m.visible=on);if(NIGHT.glow){NIGHT.glow.visible=on;NIGHT.pool.visible=on;}const nb=document.getElementById('nightbtn');if(nb)nb.textContent=on?L.m_day:L.m_night;try{localStorage.setItem('lc-night',on?'1':'');}catch(e){}T3.dirty=true;}
@@ -1289,7 +1289,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     const uc=(q.get('u')||'').toUpperCase();if(uc){const uu=UNITS.find(x=>x.code===uc);if(uu){setTimeout(()=>{select(uu);const i=UNITS.indexOf(uu);flyFacade(i);if(q.get('book')==='1'&&SCREEN){prefill(uu.type,uu.code);openBooking();}},400);}}}catch(e){}
   T3.render=()=>{if(anim){for(const k in anim.to)st[k]=anim.to[k];anim=null;}place(1);applyCam();renderer.render(scene,cam);T3.dirty=false;};
   T3.snap=()=>{T3.render();return renderer.domElement.toDataURL('image/jpeg',0.85);};
-  envIntensity(0.25);M3.ready=true;M3.loading=false;fit();refresh();if(selU)mark(selU);applyCam();requestAnimationFrame(tick);
+  renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;envIntensity(0.25);M3.ready=true;M3.loading=false;fit();refresh();if(selU)mark(selU);applyCam();requestAnimationFrame(tick);
   const hint=document.getElementById('hint3');setTimeout(()=>{if(hint)hint.style.opacity='0';},9000);}
 function refresh3D(){if(T3)T3.refresh();}
 function mark3D(u){if(T3)T3.mark(u);}

@@ -87,6 +87,38 @@
   .sbar .clock{margin-inline-start:auto;font-family:var(--la);font-weight:700;font-size:15px;color:rgba(255,255,255,.85);direction:ltr}
   .sbar .lang{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:8px 14px;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer}
   body.screen .sbar{display:flex}
+
+  /* ---- sales-centre screen: the 3D plan fills the viewport, UI floats over it ---- */
+  body.screen{overflow:hidden;height:100vh}
+  body.screen #plan{position:fixed;inset:0;padding:0!important;margin:0;order:unset;border-radius:0;background:#fff}
+  body.screen #plan .wrap{max-width:none;padding:0;height:100%}
+  body.screen #plan .shead{display:none}
+  body.screen .planlayout{display:block;max-width:none;margin:0}
+  body.screen .mapwrap{position:fixed;inset:0;border:0;border-radius:0;aspect-ratio:auto;background:#fff}
+  body.screen .mapwrap:not(.m3d){top:50%;left:50%;inset:auto;transform:translate(-50%,-50%);width:min(100vw,160vh);aspect-ratio:1.6;border:1px solid var(--line);border-radius:var(--r)}
+  body.screen .planbar{position:fixed;top:82px;inset-inline-start:16px;inset-inline-end:16px;z-index:30;margin:0;gap:8px;pointer-events:none}
+  body.screen .planbar > *{pointer-events:auto}
+  body.screen .fbtn,body.screen .zoomctl button,body.screen .modectl{box-shadow:0 6px 24px rgba(15,17,21,.10)}
+  body.screen .modectl{margin-inline-start:auto}
+  body.screen .legend{position:fixed;bottom:18px;inset-inline-start:16px;z-index:30;margin:0;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);padding:9px 16px;border-radius:999px;border:1px solid var(--line)}
+  body.screen .avail{position:fixed;bottom:18px;inset-inline-end:16px;z-index:30;margin:0;display:flex;gap:8px}
+  body.screen .avail > div{background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:8px 14px;min-width:84px;text-align:center}
+  body.screen .hint3{bottom:auto;top:150px;inset-inline-start:16px;z-index:30}
+  body.screen .panel{position:fixed;top:150px;inset-inline-end:16px;width:min(380px,calc(100vw - 32px));max-height:calc(100vh - 240px);overflow:auto;z-index:35;padding:22px;border-radius:26px;box-shadow:0 20px 60px rgba(15,17,21,.16);transform:translateX(calc(var(--dir) * 120%));opacity:0;transition:transform .55s var(--ease),opacity .4s;scrollbar-width:none}
+  body.screen .panel::-webkit-scrollbar{display:none}
+  body.screen .panel.live{transform:none;opacity:1}
+  body.screen .panel .pclose{position:absolute;top:12px;inset-inline-end:12px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:18px;line-height:1;cursor:pointer;display:grid;place-items:center;z-index:2}
+  body.screen .panel h3{padding-inline-end:40px}
+  body.screen .panel .empty{display:none}
+  :root{--dir:1} html[dir=rtl]{--dir:-1}
+  body.screen #types,body.screen #gallery{display:none!important}
+  body.screen #book{display:none!important;position:fixed;inset:0;z-index:60;background:rgba(15,17,21,.5);backdrop-filter:blur(6px);overflow:auto;padding:26px 16px;margin:0;border-radius:0}
+  body.screen.booking #book{display:block!important}
+  body.screen #book .wrap{background:#fff;border-radius:28px;max-width:1000px;margin:30px auto;padding:34px 30px;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.3);gap:36px}
+  body.screen #book .bclose{position:absolute;top:14px;inset-inline-end:14px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center}
+  body.screen .sbar .stypes{margin-inline-start:14px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:8px 14px;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer}
+  body.screen .ai-fab{bottom:78px}
+  @media (max-width:760px){body.screen .planbar{top:70px;inset-inline-end:8px;inset-inline-start:8px;gap:6px}body.screen .avail{display:none}body.screen .panel{top:auto;bottom:70px;inset-inline:12px;width:auto;max-height:52vh;transform:translateY(120%)}body.screen .panel.live{transform:none}body.screen .hint3{display:none}body.screen .legend{bottom:12px}}
   body.screen .rv,body.screen .sec{opacity:1;transform:none;filter:none}
   @media (max-width:640px){.sbar{height:58px;padding:0 14px;gap:10px}.sbar .live{display:none}.sbar b{font-size:14px}}
   body.screen .fbtn{padding:12px 20px;font-size:16px}
@@ -511,7 +543,7 @@
   </div>
 </div>
 
-<div class="sbar" id="sbar"><img src="assets/mark-gold.png" alt=""><b data-i="sc_title">شاشة مركز المبيعات</b><span class="live"><i></i><span data-i="sc_live">متصل</span></span><span class="clock" id="sclock"></span><button class="lang" id="langbtn3" onclick="setLang(LANG==='ar'?'en':'ar')">EN</button></div>
+<div class="sbar" id="sbar"><img src="assets/mark-gold.png" alt=""><b data-i="sc_title">شاشة مركز المبيعات</b><span class="live"><i></i><span data-i="sc_live">متصل</span></span><button class="stypes" onclick="screenTypes()" data-i="sc_types">النماذج</button><span class="clock" id="sclock"></span><button class="lang" id="langbtn3" onclick="setLang(LANG==='ar'?'en':'ar')">EN</button></div>
 
 <header class="hero" id="top">
   <div class="bg"></div><div class="shade"></div>
@@ -654,7 +686,7 @@
 </div>
 
 <section class="book" id="book">
-  <div class="wrap">
+  <div class="wrap"><button class="bclose" type="button" onclick="closeBooking()" aria-label="close" hidden>×</button>
     <div class="rv">
       <span class="pill"><i></i><span data-i="bk_pill">الحجز</span></span>
       <h2 style="font-size:36px;margin-top:16px" data-i="bk_h">احجز وحدتك في ثلاث خطوات</h2>
@@ -745,7 +777,7 @@ ar:{brand:'لارين سيتي',proto:'نموذج أولي · بيانات ال�
  bn_h:'مجمع متكامل في مكان واحد',bn_p:'احجز وحدتك أو رتّب موعداً لزيارة المدينة.',bn_btn:'ابدأ الحجز',
  bk_pill:'الحجز',bk_h:'احجز وحدتك في ثلاث خطوات',st1b:'اختر النموذج أو الوحدة',st1t:'من البطاقات أو من الخريطة.',st2b:'أرسل بياناتك',st2t:'الاسم ورقم الهاتف فقط.',st3b:'يتواصل معك فريق المبيعات',st3t:'خلال يوم عمل لتأكيد الحجز.',
  f_type:'النموذج',f_choose:'اختر النموذج',f_unit:'رقم الوحدة (اختياري)',f_unit_ph:'مثال: S539',f_name:'الاسم الكامل',f_phone:'رقم الهاتف',f_city:'المحافظة',f_city_ph:'بابل',f_kind:'نوع الطلب',kinds:['حجز وحدة','طلب معاينة','استفسار عن الأسعار'],f_note:'ملاحظات',f_note_ph:'أي تفاصيل تود إضافتها',f_send:'إرسال طلب الحجز',f_notice:'نموذج أولي للعرض، الطلب لا يُرسل فعلياً. في النسخة النهائية يصل الطلب إلى فريق المبيعات عبر لوحة التحكم والواتساب.',
- f_notice_live:'يصل طلبك مباشرة إلى فريق المبيعات ويتواصل معك خلال يوم عمل.',f_err:'تعذر إرسال الطلب، تحقق من الاتصال وحاول مرة أخرى.',proto_live:'نسخة تجريبية',m3d:'ثلاثي الأبعاد',m2d:'مسطح',m_home:'عرض كامل',m_hint:'اسحب للتدوير · قرّب بإصبعين أو بعجلة الفأرة · اضغط على أي بيت',sc_title:'شاشة مركز المبيعات',sc_live:'متصل',sc_res:'محجوز',sc_sold:'مباع',sc_avail:'متاح',sc_pin:'أدخل رمز المبيعات',sc_manage:'إدارة الحالة (للموظفين)',sc_note:'تم حجز الوحدة {c} وظهرت محجوزة الآن على الشاشة والموقع.',sc_err:'تعذر الحفظ، تحقق من الاتصال.',d_h:'تم استلام طلبك',d_p:'سيتواصل معك فريق مبيعات لارين سيتي خلال يوم عمل على الرقم الذي أدخلته لتأكيد الحجز وترتيب موعد المعاينة.',d_btn:'طلب جديد',
+ f_notice_live:'يصل طلبك مباشرة إلى فريق المبيعات ويتواصل معك خلال يوم عمل.',f_err:'تعذر إرسال الطلب، تحقق من الاتصال وحاول مرة أخرى.',proto_live:'نسخة تجريبية',sc_close:'إغلاق',sc_types:'النماذج',m3d:'ثلاثي الأبعاد',m2d:'مسطح',m_home:'عرض كامل',m_hint:'اسحب للتدوير · قرّب بإصبعين أو بعجلة الفأرة · اضغط على أي بيت',sc_title:'شاشة مركز المبيعات',sc_live:'متصل',sc_res:'محجوز',sc_sold:'مباع',sc_avail:'متاح',sc_pin:'أدخل رمز المبيعات',sc_manage:'إدارة الحالة (للموظفين)',sc_note:'تم حجز الوحدة {c} وظهرت محجوزة الآن على الشاشة والموقع.',sc_err:'تعذر الحفظ، تحقق من الاتصال.',d_h:'تم استلام طلبك',d_p:'سيتواصل معك فريق مبيعات لارين سيتي خلال يوم عمل على الرقم الذي أدخلته لتأكيد الحجز وترتيب موعد المعاينة.',d_btn:'طلب جديد',
  ft_p:'مدينة سكنية متكاملة في بابل، مجاور جامعة الحلة.',ft_dev:'بيت العطاء',ft_devt:'الشركة المنفذة للمشروع',ft_sec:'الأقسام',ft_contact:'تواصل معنا',ft_wa:'واتساب المبيعات',ft_addr:'بابل، مجاور جامعة الحلة',ft_follow:'تابعنا',so1:'إنستغرام',so2:'فيسبوك',so3:'تيك توك',so4:'تلغرام',big:'لارين سيتي',copy:'© 2026 لارين سيتي · جميع الحقوق محفوظة',bl:'بابل · العراق',
  ai_name:'مساعد لارين',ai_sub:'الذكاء الاصطناعي الخاص بالمشروع',ai_ph:'اكتب سؤالك',ai_live:'متصل · الذكاء الاصطناعي الخاص بالمشروع',ai_local:'ردود جاهزة · النسخة المحلية بلا اتصال بالذكاء الاصطناعي',ai_hi:'أهلاً بك في لارين سيتي. أنا مساعدك الشخصي الذكي، اسألني أي شيء عن النماذج والمساحات أو الموقع أو المرافق أو طريقة الحجز.',ai_chips:['النماذج والمساحات','الموقع','المرافق','كيف أحجز؟','الأسعار'],
  ai_a:{types:'لدينا خمسة نماذج بطابقين: A بمساحة 160 م² (3 غرف نوم)، B بمساحة 200 م²، C بمساحة 300 م²، D بمساحة 320 م² (4 غرف)، وE بمساحة 600 م² (4 غرف وكراج مزدوج). لكل بيت حديقة وموقف.',loc:'لارين سيتي في محافظة بابل، مجاور جامعة الحلة مباشرة، على شارع رئيسي بعرض 20 متراً.',amen:'داخل المجمع: مدارس ابتدائية ومتوسطة وإعدادية، مركز صحي، دفاع مدني، مراكز تسوق، مسبح ونادٍ رياضي، غاز مركزي، وأمن على مدار الساعة. و60% من المساحة حدائق.',book:'الحجز بسيط: اختر النموذج أو الوحدة من الخريطة، أرسل اسمك ورقم هاتفك، ويتواصل معك فريق المبيعات خلال يوم عمل لتأكيد الحجز.',price:'الأسعار غير معروضة على الموقع. أرسل طلب حجز أو استفسار وسيزودك فريق المبيعات بالأسعار وخطط الدفع.',fallback:'يمكنني مساعدتك بخصوص النماذج والمساحات، الموقع، المرافق، وطريقة الحجز. في النسخة النهائية سأجيب عن أي سؤال وأحجز لك موعد معاينة مباشرة.'},
@@ -767,7 +799,7 @@ en:{brand:'LARIN CITY',proto:'Prototype · booking data is for demo',n_about:'Ab
  bn_h:'A complete community in one place',bn_p:'Reserve your home or book a visit to the city.',bn_btn:'Start booking',
  bk_pill:'Booking',bk_h:'Reserve your home in three steps',st1b:'Choose a type or a home',st1t:'From the cards or the map.',st2b:'Send your details',st2t:'Name and phone only.',st3b:'Our sales team calls you',st3t:'Within one working day.',
  f_type:'Type',f_choose:'Choose a type',f_unit:'Home number (optional)',f_unit_ph:'e.g. S539',f_name:'Full name',f_phone:'Phone',f_city:'Governorate',f_city_ph:'Babil',f_kind:'Request',kinds:['Reserve a home','Book a visit','Ask about prices'],f_note:'Notes',f_note_ph:'Anything you would like to add',f_send:'Send request',f_notice:'Prototype for demonstration; requests are not actually sent. In the final version they reach the sales team via the dashboard and WhatsApp.',
- f_notice_live:'Your request goes straight to the sales team, who will call you within one working day.',f_err:'Could not send the request. Check the connection and try again.',proto_live:'Beta',m3d:'3D',m2d:'Flat',m_home:'Full view',m_hint:'Drag to rotate · pinch or scroll to zoom · tap any home',sc_title:'Sales centre screen',sc_live:'Connected',sc_res:'Reserved',sc_sold:'Sold',sc_avail:'Available',sc_pin:'Enter the sales PIN',sc_manage:'Manage status (staff)',sc_note:'Home {c} is reserved and now shows as reserved on the screen and the website.',sc_err:'Could not save. Check the connection.',d_h:'Request received',d_p:'The Larin City sales team will call you within one working day to confirm and arrange a visit.',d_btn:'New request',
+ f_notice_live:'Your request goes straight to the sales team, who will call you within one working day.',f_err:'Could not send the request. Check the connection and try again.',proto_live:'Beta',sc_close:'Close',sc_types:'Homes',m3d:'3D',m2d:'Flat',m_home:'Full view',m_hint:'Drag to rotate · pinch or scroll to zoom · tap any home',sc_title:'Sales centre screen',sc_live:'Connected',sc_res:'Reserved',sc_sold:'Sold',sc_avail:'Available',sc_pin:'Enter the sales PIN',sc_manage:'Manage status (staff)',sc_note:'Home {c} is reserved and now shows as reserved on the screen and the website.',sc_err:'Could not save. Check the connection.',d_h:'Request received',d_p:'The Larin City sales team will call you within one working day to confirm and arrange a visit.',d_btn:'New request',
  ft_p:'An integrated residential city in Babil, next to Al-Hilla University.',ft_dev:'Bait Al-Ataa',ft_devt:'Project developer',ft_sec:'Sections',ft_contact:'Contact',ft_wa:'Sales WhatsApp',ft_addr:'Babil, next to Al-Hilla University',ft_follow:'Follow us',so1:'Instagram',so2:'Facebook',so3:'TikTok',so4:'Telegram',big:'LARIN CITY',copy:'© 2026 Larin City · All rights reserved',bl:'BABIL · IRAQ',
  ai_name:'Larin Assistant',ai_sub:'The project\'s own AI',ai_ph:'Type your question',ai_live:'Connected · the official Larin City AI',ai_local:'Canned replies · local copy, no AI connection',ai_hi:'Welcome to Larin City. I am your personal AI assistant. Ask me anything about home types and sizes, the location, facilities, or how to reserve.',ai_chips:['Home types & sizes','Location','Facilities','How do I reserve?','Prices'],
  ai_a:{types:'Five two-storey types: A at 160 m² (3 bedrooms), B at 200 m², C at 300 m², D at 320 m² (4 bedrooms), and E at 600 m² (4 bedrooms, double garage). Every home has a garden and parking.',loc:'Larin City is in Babil governorate, right next to Al-Hilla University, on a 20 m main boulevard.',amen:'Inside the gates: primary, middle and secondary schools, a health centre, civil defence, shopping centres, a pool and sports club, central gas, and 24/7 security. 60% of the land is green space.',book:'Reserving is simple: pick a type or a home on the map, send your name and phone, and the sales team calls you within one working day to confirm.',price:'Prices are not published on the site. Send a reservation or enquiry and the sales team will share prices and payment plans.',fallback:'I can help with home types and sizes, the location, facilities, and how to reserve. In the final version I will answer any question and book a viewing for you directly.'},
@@ -825,7 +857,7 @@ function select(u){if(sel)sel.classList.remove('sel');sel=u.el;selU=u;sel.classL
   if(ring)ring.remove();ring=document.createElementNS('http://www.w3.org/2000/svg','circle');ring.setAttribute('cx',u.el.getAttribute('cx'));ring.setAttribute('cy',u.el.getAttribute('cy'));ring.setAttribute('r',6);ring.setAttribute('class','ring');svg.appendChild(ring);
   if(M3.ready)mark3D(u);
   const t=TYPES.find(x=>x.code===u.type);panel.classList.add('live');
-  panel.innerHTML=`<h3>${u.code}</h3><span class="status ${u.status}">${L[u.status]}</span>
+  panel.innerHTML=`${SCREEN?'<button class="pclose" type="button" onclick="closePanel()" aria-label="close">×</button>':''}<h3>${u.code}</h3><span class="status ${u.status}">${L[u.status]}</span>
   <div class="kv"><span>${L.k_type}</span><b>${u.type} · ${L.tn[u.type]}</b><span>${L.k_land}</span><b>${t.plot} ${L.m2} (${t.dims} ${L.m})</b><span>${L.k_built}</span><b>${t.built} ${L.m2}</b><span>${L.k_bed}</span><b>${t.bed}</b><span>${L.k_bath}</span><b>${t.bath}</b><span>${L.k_block}</span><b>${u.block}</b></div>
   <img src="${IMG['unit-'+t.plot+'m']}" alt="">
   ${u.status==='available'?`<a class="btn" href="#book" onclick="prefill('${u.type}','${u.code}')">${L.res_unit} ${u.code} <svg viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></svg></a>`:`<button class="btn ghost" disabled style="opacity:.5">${L.na}</button>`}
@@ -1014,6 +1046,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   function flyTo(to,ms){touched=true;const from={...st};const t0=performance.now();anim={from,to,t0,ms};T3.dirty=true;}
   function tick(now){if(anim){let p=Math.min(1,(now-anim.t0)/anim.ms);const e=1-Math.pow(1-p,3);for(const k in anim.to)st[k]=anim.from[k]+(anim.to[k]-anim.from[k])*e;if(p>=1)anim=null;T3.dirty=true;}
     if(rise<1){rise=Math.min(1,rise+(now-riseT)/1400);riseT=now;place(1-Math.pow(1-rise,3));T3.dirty=true;}
+    if(SCREEN&&!anim&&ptrs.size===0&&now-lastAct>45000){autoOrbit=true;}if(autoOrbit){st.theta+=0.00035*Math.min(50,now-(tick.last||now));T3.dirty=true;}tick.last=now;
     if(T3.dirty&&visible){applyCam();renderer.render(scene,cam);T3.dirty=false;}requestAnimationFrame(tick);}
   let rise=0,riseT=performance.now(),visible=true;
   /* gestures */
@@ -1021,15 +1054,23 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   el.addEventListener('pointerdown',e=>{touched=true;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});el.setPointerCapture(e.pointerId);moved=0;anim=null;box.classList.add('drag');
     if(ptrs.size===2){const a=[...ptrs.values()];pinch0=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);r0=st.r;}});
   el.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId)){hover(e);return;}const prev=ptrs.get(e.pointerId);const dx=e.clientX-prev.x,dy=e.clientY-prev.y;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved+=Math.abs(dx)+Math.abs(dy);
-    if(ptrs.size===1){st.theta-=dx*0.006;st.phi=Math.min(1.32,Math.max(0.28,st.phi-dy*0.005));T3.dirty=true;}
-    else if(ptrs.size===2){const a=[...ptrs.values()];const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(pinch0>0){st.r=Math.min(1700,Math.max(120,r0*pinch0/d));}
+    if(ptrs.size===1){if(e.shiftKey||e.button===2||e.buttons===2){pan(dx,dy);}else{st.theta-=dx*0.006;st.phi=Math.min(1.42,Math.max(0.2,st.phi-dy*0.005));}T3.dirty=true;}
+    else if(ptrs.size===2){const a=[...ptrs.values()];const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(pinch0>0){st.r=Math.min(1700,Math.max(45,r0*pinch0/d));}
       /* two-finger drag pans */
       const mx=dx/2,my=dy/2;pan(mx,my);T3.dirty=true;}});
-  function pan(dx,dy){const k=st.r*0.0016;const sx=Math.cos(st.theta),sz=-Math.sin(st.theta);st.tx-=(dx*sx-dy*sz)*k;st.tz-=(dx*sz+dy*sx)*k;st.tx=Math.max(-520,Math.min(520,st.tx));st.tz=Math.max(-340,Math.min(340,st.tz));}
+  function pan(dx,dy){const k=st.r*0.0016;const sx=Math.cos(st.theta),sz=-Math.sin(st.theta);st.tx-=(dx*sx-dy*sz)*k;st.tz-=(dx*sz+dy*sx)*k;st.tx=Math.max(-640,Math.min(640,st.tx));st.tz=Math.max(-420,Math.min(420,st.tz));}
   const up=e=>{if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);try{el.releasePointerCapture(e.pointerId);}catch(x){}if(ptrs.size===0){box.classList.remove('drag');if(moved<6)pick(e,true);}pinch0=0;};
   el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
-  el.addEventListener('wheel',e=>{e.preventDefault();touched=true;anim=null;st.r=Math.min(1700,Math.max(120,st.r*(e.deltaY>0?1.12:0.89)));T3.dirty=true;},{passive:false});
+  el.addEventListener('wheel',e=>{e.preventDefault();touched=true;anim=null;st.r=Math.min(1700,Math.max(45,st.r*(e.deltaY>0?1.12:0.89)));T3.dirty=true;},{passive:false});
+  el.addEventListener('contextmenu',e=>e.preventDefault());
   el.addEventListener('dblclick',()=>home3D());
+  /* keyboard: arrows / WASD pan, Q E rotate, + - zoom */
+  document.addEventListener('keydown',e=>{if(!M3.on||!visible)return;const t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'))return;const k=e.key.toLowerCase();let h=true;lastAct=performance.now();autoOrbit=false;anim=null;
+    if(k==='arrowleft'||k==='a')pan(24,0);else if(k==='arrowright'||k==='d')pan(-24,0);else if(k==='arrowup'||k==='w')pan(0,24);else if(k==='arrowdown'||k==='s')pan(0,-24);
+    else if(k==='q')st.theta+=0.06;else if(k==='e')st.theta-=0.06;else if(k==='+'||k==='=')st.r=Math.max(45,st.r*0.9);else if(k==='-'||k==='_')st.r=Math.min(1700,st.r*1.1);else h=false;
+    if(h){e.preventDefault();T3.dirty=true;}});
+  let lastAct=performance.now(),autoOrbit=false;
+  ['pointerdown','wheel','touchstart'].forEach(ev=>el.addEventListener(ev,()=>{lastAct=performance.now();autoOrbit=false;},{passive:true}));
   /* picking */
   const ray=new THREE.Raycaster();const mouse=new THREE.Vector2();const tip=document.getElementById('tip3');let hov=-1;
   function cast(e){const r=el.getBoundingClientRect();mouse.x=((e.clientX-r.left)/r.width)*2-1;mouse.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(mouse,cam);const hit=ray.intersectObjects(meshes,false)[0];if(!hit)return -1;return byType[hit.object.userData.type][hit.instanceId];}
@@ -1038,7 +1079,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     const r=el.getBoundingClientRect();tip.style.display='block';tip.style.left=(e.clientX-r.left)+'px';tip.style.top=(e.clientY-r.top)+'px';tip.textContent=`${u.code} · ${L.type} ${u.type} · ${L[u.status]}`;}
   el.addEventListener('pointerleave',()=>{tip.style.display='none';hov=-1;box.classList.remove('hov');});
   function pick(e,fly){const i=cast(e);if(i<0)return;const u=UNITS[i];if(filter!=='all'&&u.type!==filter)return;select(u);
-    if(fly){const f=frames[i];flyTo({tx:f.x,tz:f.z,r:Math.min(st.r,380),phi:Math.max(st.phi,0.8)},900);}}
+    if(fly){const f=frames[i];flyTo({tx:f.x,tz:f.z,r:Math.min(st.r,SCREEN?300:380),phi:Math.max(st.phi,0.8)},900);}}
   /* colours */
   const cA=new THREE.Color(),white=new THREE.Color(0xffffff);
   function colourOf(u){if(u.status==='reserved')cA.setRGB(0.66,0.64,0.62);else if(u.status==='sold')cA.setRGB(0.32,0.32,0.34);else cA.setRGB(1,1,1);if(filter!=='all'&&u.type!==filter)cA.multiplyScalar(0.55);return cA;}
@@ -1048,7 +1089,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   function resize(){const w=box.clientWidth,h=box.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();if(!touched&&M3.ready)fit();T3.dirty=true;}
   new ResizeObserver(resize).observe(box);
   new IntersectionObserver(es=>{visible=es[0].isIntersecting;if(visible)T3.dirty=true;},{threshold:0}).observe(box);
-  T3={dirty:true,snap:null,resize,refresh,mark,fly:u=>{const f=frames[UNITS.indexOf(u)];if(f)flyTo({tx:f.x,tz:f.z,r:Math.min(st.r,380),phi:Math.max(st.phi,0.8)},900);},zoom:d=>{anim=null;st.r=Math.min(1700,Math.max(120,st.r*(d>0?0.72:1.38)));T3.dirty=true;},home:()=>{flyTo({...home},900);outline.visible=false;ring.visible=false;}};
+  T3={dirty:true,snap:null,resize,refresh,mark,unmark:()=>{outline.visible=false;ring.visible=false;T3.dirty=true;},fly:u=>{const f=frames[UNITS.indexOf(u)];if(f)flyTo({tx:f.x,tz:f.z,r:Math.min(st.r,380),phi:Math.max(st.phi,0.8)},900);},zoom:d=>{anim=null;st.r=Math.min(1700,Math.max(45,st.r*(d>0?0.72:1.38)));T3.dirty=true;},home:()=>{flyTo({...home},900);outline.visible=false;ring.visible=false;}};
   T3.snap=()=>renderer.domElement.toDataURL('image/jpeg',0.85);
   M3.ready=true;M3.loading=false;fit();refresh();if(selU)mark(selU);applyCam();requestAnimationFrame(tick);
   const hint=document.getElementById('hint3');setTimeout(()=>{if(hint)hint.style.opacity='0';},9000);}
@@ -1058,9 +1099,17 @@ function zoom3D(d){if(T3)T3.zoom(d);}
 function home3D(){if(T3)T3.home();}
 (function(){let m='3d';try{m=localStorage.getItem('lc-map')||'3d';}catch(e){}if(!window.WebGLRenderingContext)m='2d';setMode(m);})();
 
+/* sales-centre screen helpers */
+function closePanel(){panel.classList.remove('live');if(sel){sel.classList.remove('sel');sel=null;}selU=null;if(ring){ring.remove();ring=null;}if(T3)T3.unmark();}
+function openBooking(){document.body.classList.add('booking');const b=document.querySelector('#book .bclose');if(b)b.hidden=false;document.getElementById('book').scrollTop=0;}
+function closeBooking(){document.body.classList.remove('booking');}
+function screenTypes(){openModal(filter==='all'?'A':filter);}
+if(SCREEN){document.addEventListener('click',e=>{const a=e.target.closest('a[href="#book"]');if(a){e.preventDefault();closeModal();openBooking();}
+  const n=e.target.closest('a[href="#plan"],a[href="#types"],a[href="#gallery"],a[href="#about"],a[href="#amenities"]');if(n){e.preventDefault();}});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeBooking();});}
 /* live status sync */
 syncUnits(true);setInterval(syncUnits,SCREEN?8000:30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncUnits(true);});
-if(SCREEN){const ck=()=>{const c=document.getElementById('sclock');if(c)c.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});};ck();setInterval(ck,15000);let idleT;const kick=()=>{clearTimeout(idleT);idleT=setTimeout(()=>{closeModal();resetForm();window.scrollTo({top:0,behavior:'smooth'});},150000);};['pointerdown','keydown','touchstart','scroll'].forEach(ev=>addEventListener(ev,kick,{passive:true}));kick();}
+if(SCREEN){const ck=()=>{const c=document.getElementById('sclock');if(c)c.textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});};ck();setInterval(ck,15000);let idleT;const kick=()=>{clearTimeout(idleT);idleT=setTimeout(()=>{closeModal();closeBooking();resetForm();closePanel();home3D();setFilter('all');window.scrollTo({top:0,behavior:'smooth'});},150000);};['pointerdown','keydown','touchstart','scroll'].forEach(ev=>addEventListener(ev,kick,{passive:true}));kick();}
 
 /* AI assistant: live Claude via the artifact `sample` capability, keyword fallback elsewhere */
 const aiBox=document.getElementById('ai'),aiMsgs=document.getElementById('aimsgs'),aiChips=document.getElementById('aichips');

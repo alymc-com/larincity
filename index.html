@@ -1136,7 +1136,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   /* the pin: a red disc carrying the white Larin mark, always facing the camera */
   const pinCv=document.createElement('canvas');pinCv.width=pinCv.height=256;const pinCx=pinCv.getContext('2d');
   function drawPin(img){pinCx.clearRect(0,0,256,256);pinCx.beginPath();pinCx.arc(128,128,118,0,Math.PI*2);pinCx.fillStyle='#E0322B';pinCx.fill();pinCx.lineWidth=8;pinCx.strokeStyle='#B8241F';pinCx.stroke();
-    if(img){const r=img.width/img.height;let w=150,h=150/r;if(h>150){h=150;w=150*r;}pinCx.drawImage(img,128-w/2,128-h/2,w,h);}pinTex.needsUpdate=true;T3.dirty=true;}
+    if(img){const r=img.width/img.height;let w=150,h=150/r;if(h>150){h=150;w=150*r;}pinCx.drawImage(img,128-w/2,128-h/2,w,h);}pinTex.needsUpdate=true;if(T3)T3.dirty=true;}
   const pinTex=new THREE.CanvasTexture(pinCv);pinTex.encoding=THREE.sRGBEncoding;drawPin(null);
   const pinImg=new Image();pinImg.onload=()=>drawPin(pinImg);pinImg.src=IMG['mark-white']||'';
   const pinDot=new THREE.Sprite(new THREE.SpriteMaterial({map:pinTex,transparent:true,depthTest:false}));pinDot.scale.set(3.2*U,3.2*U,1);pinDot.renderOrder=10;ring.add(pinDot);

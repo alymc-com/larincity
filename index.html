@@ -313,6 +313,7 @@
   .hint3{position:absolute;bottom:10px;inset-inline-start:12px;font-size:11.5px;color:var(--mute);background:rgba(255,255,255,.85);padding:5px 10px;border-radius:999px;pointer-events:none;z-index:4;transition:opacity .6s}
   .mapwrap:not(.m3d) .hint3{display:none}
   body.screen .modectl button{font-size:15px;padding:11px 18px}
+  @media (max-width:640px){.mapwrap.m3d{aspect-ratio:5/4}.mapwrap.m3d .mapin{position:absolute;inset:0}.hint3{font-size:10.5px}}
   .mapin{position:relative;width:100%;cursor:crosshair;transform-origin:0 0;transition:transform .35s var(--ease);direction:ltr}
   .mapin.drag{transition:none;cursor:grabbing}
   .mapin img{width:100%;height:auto;display:block;pointer-events:none}

@@ -117,7 +117,7 @@ function enter(){PIN=$('pin').value.trim();if(!PIN){$('gerr').textContent='أد�
 function logout(msg){PIN='';try{localStorage.removeItem('lc-pin');}catch(e){}clearInterval(timer);$('app').hidden=true;$('gate').hidden=false;$('logout').hidden=true;$('gerr').textContent=msg||'';$('pin').value='';}
 function start(){$('gate').hidden=true;$('app').hidden=false;$('logout').hidden=false;$('screenlink').textContent=location.origin+'/screen/?pin='+PIN;load();clearInterval(timer);timer=setInterval(load,15000);}
 function render(){const units=DATA.units||[],reqs=DATA.requests||[];
-  const taken={};units.forEach(u=>{const t=u.code[0];taken[t]=taken[t]||{reserved:0,sold:0};taken[t][u.status]=(taken[t][u.status]||0)+1;});
+  const taken={};units.forEach(u=>{const t=u.type||u.code[0];taken[t]=taken[t]||{reserved:0,sold:0};taken[t][u.status]=(taken[t][u.status]||0)+1;});
   const res=units.filter(u=>u.status==='reserved').length,sold=units.filter(u=>u.status==='sold').length;
   $('tiles').innerHTML=`<div class="tile gold"><b>${638-res-sold}</b><span>وحدة متاحة من 638</span></div><div class="tile"><b>${res}</b><span>محجوزة</span></div><div class="tile"><b>${sold}</b><span>مباعة</span></div>`+
     Object.keys(TYPES).map(t=>{const k=taken[t]||{reserved:0,sold:0};return `<div class="tile"><b>${TYPES[t]-k.reserved-k.sold}<span style="display:inline;font-size:14px;color:var(--mute)"> / ${TYPES[t]}</span></b><span>نموذج ${t} متاح</span></div>`}).join('');

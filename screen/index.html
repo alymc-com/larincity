@@ -233,8 +233,8 @@
   nav.sc .wrap{height:58px}
   nav .logo{position:relative;display:block;height:36px;flex:none}
   nav .logo img{height:36px;width:auto;position:absolute;top:0;inset-inline-start:0;transition:opacity .3s}
-  nav .logo .lw{position:relative;display:block}   /* the white logo stays in flow so the link keeps its real width; eight nav links used to squeeze it to 0 */
-  nav:not(.sc) .logo .lb{opacity:0} nav.sc .logo .lw{opacity:0}
+  nav .logo .lg-w{position:relative;display:block}   /* the white logo stays in flow so the link keeps its real width; eight nav links used to squeeze it to 0 */
+  nav:not(.sc) .logo .lg-b{opacity:0} nav.sc .logo .lg-w{opacity:0}   /* lg-*, not lb/lw: .lb is the gallery lightbox (display:none) */
   nav ul{list-style:none;margin:0;padding:0;display:flex;gap:6px}
   nav ul a{font-size:14.5px;font-weight:700;color:var(--ink2);padding:8px 14px;border-radius:999px;transition:background .25s,color .25s}
   nav ul a:hover{background:var(--soft);color:var(--ink)}
@@ -764,7 +764,7 @@
 
 <nav id="nav">
   <div class="wrap">
-    <a class="logo" href="/"><img class="lb" src="../assets/logo-black.png" alt="Larin City"><img class="lw" src="../assets/logo-white.png" alt=""></a>
+    <a class="logo" href="/"><img class="lg-b" src="../assets/logo-black.png" alt="Larin City"><img class="lg-w" src="../assets/logo-white.png" alt=""></a>
     <ul id="menu">
       <li><a href="/about/" data-p="about" data-i="n_proj">المشروع</a></li>
       <li><a href="/homes/" data-p="homes" data-i="n_homes">النماذج</a></li>

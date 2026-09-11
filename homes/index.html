@@ -231,8 +231,9 @@
   nav.hide{transform:translateY(-100%)}
   nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;transition:height .4s}
   nav.sc .wrap{height:58px}
-  nav .logo{position:relative;display:block;height:36px;width:60px}
+  nav .logo{position:relative;display:block;height:36px;flex:none}
   nav .logo img{height:36px;width:auto;position:absolute;top:0;inset-inline-start:0;transition:opacity .3s}
+  nav .logo .lw{position:relative;display:block}   /* the white logo stays in flow so the link keeps its real width; eight nav links used to squeeze it to 0 */
   nav:not(.sc) .logo .lb{opacity:0} nav.sc .logo .lw{opacity:0}
   nav ul{list-style:none;margin:0;padding:0;display:flex;gap:6px}
   nav ul a{font-size:14.5px;font-weight:700;color:var(--ink2);padding:8px 14px;border-radius:999px;transition:background .25s,color .25s}

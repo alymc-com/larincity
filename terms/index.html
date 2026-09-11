@@ -766,7 +766,7 @@
   <div class="wrap">
     <a class="logo" href="/"><img class="lg-b" src="/assets/logo-black.png" alt="Larin City"><img class="lg-w" src="/assets/logo-white.png" alt=""></a>
     <ul id="menu">
-      <li><a href="/about/" data-p="about" data-i="n_proj">المشروع</a></li>
+      <li><a href="/" data-p="home" data-i="n_home">الرئيسية</a></li>
       <li><a href="/homes/" data-p="homes" data-i="n_homes">النماذج</a></li>
       <li><a href="/map/" data-p="map" data-i="n_map">المخطط</a></li>
       <li><a href="/amenities/" data-p="amenities" data-i="n_amen2">المرافق</a></li>
@@ -786,7 +786,7 @@
 <div class="mnav" id="mnav" aria-hidden="true">
   <div class="top"><img src="/assets/logo-black.png" alt="Larin City"><button class="x" type="button" onclick="toggleMenu(false)" aria-label="close">×</button></div>
   <div class="links">
-    <a href="/about/" data-p="about"><span data-i="m_about">عن المشروع</span><svg viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></svg></a>
+    <a href="/" data-p="home"><span data-i="n_home">الرئيسية</span><svg viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></svg></a>
     <a href="/homes/" data-p="homes"><span data-i="m_homes">النماذج السكنية</span><svg viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></svg></a>
     <a href="/map/" data-p="map"><span data-i="m_map">المخطط التفاعلي</span><svg viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></svg></a>
     <a href="/amenities/" data-p="amenities"><span data-i="m_amen">المرافق والخدمات</span><svg viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></svg></a>
@@ -815,7 +815,7 @@
         <p style="margin:0;max-width:36ch;color:var(--mute);font-size:14px" data-i="ft_p">مدينة سكنية متكاملة في بابل، مجاور جامعة الحلة.</p>
         <div class="dev"><img src="/assets/bait.png" alt="Bait Al-Ataa"><span><b data-i="ft_dev">بيت العطاء</b><span data-i="ft_devt">الشركة المنفذة للمشروع</span></span></div>
       </div>
-      <div><h4 data-i="ft_sec">الأقسام</h4><ul><li><a href="/about/" data-p="about" data-i="m_about">عن المشروع</a></li><li><a href="/homes/" data-p="homes" data-i="m_homes">النماذج السكنية</a></li><li><a href="/map/" data-p="map" data-i="m_map">المخطط التفاعلي</a></li><li><a href="/amenities/" data-p="amenities" data-i="m_amen">المرافق والخدمات</a></li><li><a href="/location/" data-p="location" data-i="m_loc">الموقع</a></li><li><a href="/gallery/" data-p="gallery" data-i="m_gal">المعرض</a></li><li><a href="/progress/" data-p="progress" data-i="m_prog">تقدّم الإنجاز</a></li><li><a href="/news/" data-p="news" data-i="m_news">الأخبار</a></li><li><a href="/book/" data-p="book" data-i="m_book">الحجز والتواصل</a></li></ul></div>
+      <div><h4 data-i="ft_sec">الأقسام</h4><ul><li><a href="/" data-p="home" data-i="n_home">الرئيسية</a></li><li><a href="/homes/" data-p="homes" data-i="m_homes">النماذج السكنية</a></li><li><a href="/map/" data-p="map" data-i="m_map">المخطط التفاعلي</a></li><li><a href="/amenities/" data-p="amenities" data-i="m_amen">المرافق والخدمات</a></li><li><a href="/location/" data-p="location" data-i="m_loc">الموقع</a></li><li><a href="/gallery/" data-p="gallery" data-i="m_gal">المعرض</a></li><li><a href="/progress/" data-p="progress" data-i="m_prog">تقدّم الإنجاز</a></li><li><a href="/news/" data-p="news" data-i="m_news">الأخبار</a></li><li><a href="/book/" data-p="book" data-i="m_book">الحجز والتواصل</a></li></ul></div>
       <div><h4 data-i="ft_contact">تواصل معنا</h4><ul><li dir="ltr" style="text-align:start">07XX XXX XXXX</li><li data-i="ft_wa">واتساب المبيعات</li><li>info@larincity.com</li><li data-i="ft_addr">بابل، مجاور جامعة الحلة</li></ul></div>
       <div><h4 data-i="ft_follow">تابعنا</h4><ul><li data-i="so1">إنستغرام</li><li data-i="so2">فيسبوك</li><li data-i="so3">تيك توك</li><li data-i="so4">تلغرام</li></ul></div>
     </div>
@@ -1486,7 +1486,7 @@ var PROGRESS={"stages": [{"s": "done", "ar": "الإجازة الاستثمار�
 Object.assign(T.ar,I18N.ar);Object.assign(T.en,I18N.en);
 /* old single-page links and the stored sales-screen mode keep working */
 if(PAGE&&SCREEN){location.replace('/screen/'+location.search);}
-else if(PAGE==='home'){const HM={'#plan':'/map/','#types':'/homes/','#book':'/book/','#about':'/about/','#amenities':'/amenities/','#gallery':'/gallery/','#contact':'/book/'};
+else if(PAGE==='home'){const HM={'#plan':'/map/','#types':'/homes/','#book':'/book/','#amenities':'/amenities/','#gallery':'/gallery/','#contact':'/book/'};
   if(/[?&]u=/.test(location.search))location.replace('/map/'+location.search);else if(HM[location.hash])location.replace(HM[location.hash]);}
 function bookHref(t,c){return document.getElementById('book')?'#book':'/book/'+(t?'?t='+t+(c?'&u='+c:''):'');}
 function mapHref(t){return document.getElementById('plan')?'#plan':'/map/'+(t?'?t='+t:'');}

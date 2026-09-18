@@ -806,6 +806,10 @@ footer .dev.partner img{width:56px;height:56px;object-fit:contain;background:non
 
 /* زرّا بطاقة النموذج في العربي */
 html[dir=rtl] .tcard .foot .btn{font-size:12px!important;padding:8px 10px!important;letter-spacing:0}
+
+/* الجوال: كلمة التذييل تتسع للشاشة، وحالة المرحلة في صفحة الإنجاز تحت النص لا فوق الخط */
+@media(max-width:700px){.word,.bigword{font-size:12.6vw!important;letter-spacing:.02em!important}}
+@media(max-width:760px){.stage .st{grid-column:2;justify-self:start;margin-top:0}}
 </style>
 <style id="booking-pause">/* ═══ الحجز متوقف مؤقتاً (BOOKING_OPEN = False في build_site.py) ═══ */
 .book .steps,#form,#done{display:none!important}

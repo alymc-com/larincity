@@ -811,8 +811,10 @@ footer .dev.partner img{width:56px;height:56px;object-fit:contain;background:#ff
 .bkp h3{font-size:clamp(22px,2.4vw,30px);margin:0 0 10px}
 .bkp p{color:var(--mute);line-height:1.9;margin:0 auto 22px;max-width:44ch}
 .bkp .acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.tcard .foot .btn:not(.ghost),.fqbook{display:none!important}
-.tcard .foot .btn.ghost{flex:1}
+.fqbook{display:none!important}
+/* زر الحجز في بطاقات النماذج يبقى ظاهراً بنص "الحجز قريباً" لكنه غير فعّال */
+.tcard .foot .btn:not(.ghost){pointer-events:none;cursor:default;opacity:.92}
+.tcard .foot .btn:not(.ghost) svg{display:none}
 </style>
 <meta name="theme-color" content="#0F1115">
 <link rel="alternate" hreflang="ar" href="https://larincity.com/terms/">
@@ -1665,9 +1667,9 @@ document.querySelectorAll('[data-count]').forEach(el=>co.observe(el));
 /* ═══ الحجز متوقف مؤقتاً: نصوص الأزرار، وإشعار مكان استمارة الحجز ═══ */
 (function(){
   if (typeof T === 'undefined') return;
-  Object.assign(T.ar, {book: 'الحجز قريباً', bn_btn: 'الحجز قريباً', bk_h: 'الحجز متوقف مؤقتاً', bn_p: 'نستعد لفتح الحجز قريباً، وسنعلن الموعد هنا.',
+  Object.assign(T.ar, {reserve: 'الحجز قريباً', book: 'الحجز قريباً', bn_btn: 'الحجز قريباً', bk_h: 'الحجز متوقف مؤقتاً', bn_p: 'نستعد لفتح الحجز قريباً، وسنعلن الموعد هنا.',
     vs1_p: 'تُفتح زيارات المشروع مع فتح الحجز قريباً.', m_book: 'الحجز قريباً'});
-  Object.assign(T.en, {book: 'Booking soon', bn_btn: 'Booking soon', bk_h: 'Booking is paused', bn_p: 'Booking opens soon; we will announce the date here.',
+  Object.assign(T.en, {reserve: 'Booking soon', book: 'Booking soon', bn_btn: 'Booking soon', bk_h: 'Booking is paused', bn_p: 'Booking opens soon; we will announce the date here.',
     vs1_p: 'Site visits open together with booking, soon.', m_book: 'Booking soon'});
   const N = {ar: ['يُفتح الحجز قريباً', 'نعمل على التجهيزات النهائية، وسيُفتح الحجز قريباً. يمكنك الآن استعراض النماذج والمخطط، أو سؤال مساعد لارين عن أي تفاصيل.', 'استعرض النماذج', 'اسأل المساعد'],
              en: ['Booking opens soon', 'We are completing the final preparations and booking opens soon. Meanwhile, explore the homes and the map, or ask the Larin assistant anything.', 'Explore the homes', 'Ask the assistant']};
@@ -1679,7 +1681,10 @@ document.querySelectorAll('[data-count]').forEach(el=>co.observe(el));
   window.LC_onLang = window.LC_onLang || []; window.LC_onLang.push(box);
   if (typeof window.setLang === 'function' && !window.setLang.lcWrapped) { const o = window.setLang;
     window.setLang = function () { const r = o.apply(this, arguments); (window.LC_onLang || []).forEach(f => { try { f(); } catch (e) {} }); return r; }; window.setLang.lcWrapped = true; }
-  setLang(LANG); box();
+  // الزر لا ينقل إلى صفحة الحجز ولا يُقرأ كرابط فعّال
+  const lock = () => document.querySelectorAll('.tcard .foot a.btn:not(.ghost)').forEach(a => { a.removeAttribute('href'); a.setAttribute('aria-disabled', 'true'); a.onclick = e => e.preventDefault(); });
+  window.LC_onLang.push(lock); const tg = document.getElementById('tgrid'); if (tg) new MutationObserver(lock).observe(tg, {childList: true});
+  setLang(LANG); box(); lock();
 })();
 </script>
 </body>

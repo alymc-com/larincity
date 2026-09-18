@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
 <meta name="description" content="مدارس ومركز صحي وجامع ومنطقة تجارية وحدائق، كلها داخل المدينة.">
 <link rel="canonical" href="https://larincity.com/amenities/">
 <meta property="og:type" content="website">
@@ -800,6 +799,33 @@ footer.sec{padding-top:70px!important}
 /* رقم الهاتف في التذييل يبدأ من اليمين في العربي */
 html[dir=rtl] footer li[dir=ltr]{text-align:right!important}
 </style>
+<style id="booking-pause">/* ═══ الحجز متوقف مؤقتاً (BOOKING_OPEN = False في build_site.py) ═══ */
+.book .steps,#form,#done{display:none!important}
+.bkp{background:#fff;border:1px solid var(--line);border-radius:28px;padding:clamp(26px,4vw,44px);box-shadow:0 30px 70px rgba(15,17,21,.07);text-align:center}
+.bkp .ic{width:64px;height:64px;margin:0 auto 18px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--gold)}
+.bkp .ic svg{width:28px;height:28px;stroke:var(--goldD);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bkp h3{font-size:clamp(22px,2.4vw,30px);margin:0 0 10px}
+.bkp p{color:var(--mute);line-height:1.9;margin:0 auto 22px;max-width:44ch}
+.bkp .acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.tcard .foot .btn:not(.ghost),.fqbook{display:none!important}
+.tcard .foot .btn.ghost{flex:1}
+</style>
+<meta name="theme-color" content="#0F1115">
+<link rel="alternate" hreflang="ar" href="https://larincity.com/amenities/">
+<link rel="alternate" hreflang="en" href="https://larincity.com/amenities/">
+<link rel="alternate" hreflang="x-default" href="https://larincity.com/amenities/">
+<meta property="og:locale:alternate" content="en_US">
+<link rel="apple-touch-icon" href="/assets/mark-gold.png">
+<style>.proto{display:none!important}</style>
+<script>
+/* نص بديل للصور التي بلا وصف، من عنوانها الظاهر (أفضل للوصول ولمحركات البحث) */
+addEventListener('DOMContentLoaded', () => setTimeout(() => document.querySelectorAll('img[alt=""]').forEach(im => {
+  const c = im.closest('.card,.xcard,.tcard,figure,.banner'); const t = c && (c.querySelector('.cap b,figcaption,h3,h2') || {}).textContent;
+  if (t && t.trim()) im.alt = t.trim(); }), 1500));
+/* رقم الهاتف في التذييل ما زال مؤقتاً (07XX...): لا يظهر حتى يُضاف الرقم الحقيقي */
+addEventListener('DOMContentLoaded', () => document.querySelectorAll('footer li[dir=ltr]').forEach(li => { if (/X{3}/.test(li.textContent)) li.hidden = true; }));
+</script>
+
 </head>
 <body data-page="amenities">
 
@@ -1666,6 +1692,27 @@ document.querySelectorAll('[data-count]').forEach(el=>co.observe(el));
       ph.insertAdjacentHTML('beforeend', `<img class="fp" src="/assets/fp${t.code}.jpg" alt="" loading="lazy">`);
       if (matchMedia('(hover:none)').matches) ph.addEventListener('click', () => ph.classList.toggle('fpon')); }); };
   fp(); addEventListener('load', fp); const tg = document.getElementById('tgrid'); if (tg) new MutationObserver(fp).observe(tg, {childList: true});
+})();
+</script>
+<script>
+/* ═══ الحجز متوقف مؤقتاً: نصوص الأزرار، وإشعار مكان استمارة الحجز ═══ */
+(function(){
+  if (typeof T === 'undefined') return;
+  Object.assign(T.ar, {book: 'الحجز قريباً', bn_btn: 'الحجز قريباً', bk_h: 'الحجز متوقف مؤقتاً', bn_p: 'نستعد لفتح الحجز قريباً، وسنعلن الموعد هنا.',
+    vs1_p: 'تُفتح زيارات المشروع مع فتح الحجز قريباً.', m_book: 'الحجز قريباً'});
+  Object.assign(T.en, {book: 'Booking soon', bn_btn: 'Booking soon', bk_h: 'Booking is paused', bn_p: 'Booking opens soon; we will announce the date here.',
+    vs1_p: 'Site visits open together with booking, soon.', m_book: 'Booking soon'});
+  const N = {ar: ['يُفتح الحجز قريباً', 'نعمل على التجهيزات النهائية، وسيُفتح الحجز قريباً. يمكنك الآن استعراض النماذج والمخطط، أو سؤال مساعد لارين عن أي تفاصيل.', 'استعرض النماذج', 'اسأل المساعد'],
+             en: ['Booking opens soon', 'We are completing the final preparations and booking opens soon. Meanwhile, explore the homes and the map, or ask the Larin assistant anything.', 'Explore the homes', 'Ask the assistant']};
+  const box = () => { const col = document.querySelector('#book .rv.d1'); if (!col) return;
+    let b = col.querySelector('.bkp'); if (!b) { b = document.createElement('div'); b.className = 'bkp'; col.prepend(b); }
+    const t = N[LANG === 'en' ? 'en' : 'ar'];
+    b.innerHTML = `<div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>${t[0]}</h3><p>${t[1]}</p>
+      <div class="acts"><a class="btn" href="/homes/">${t[2]}</a><button class="btn ghost" type="button" onclick="toggleAI()">${t[3]}</button></div>`; };
+  window.LC_onLang = window.LC_onLang || []; window.LC_onLang.push(box);
+  if (typeof window.setLang === 'function' && !window.setLang.lcWrapped) { const o = window.setLang;
+    window.setLang = function () { const r = o.apply(this, arguments); (window.LC_onLang || []).forEach(f => { try { f(); } catch (e) {} }); return r; }; window.setLang.lcWrapped = true; }
+  setLang(LANG); box();
 })();
 </script>
 </body>

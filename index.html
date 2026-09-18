@@ -804,6 +804,8 @@ footer.sec{padding-top:70px!important}
 html[dir=rtl] footer li[dir=ltr]{text-align:right!important}
 /* LARIN CITY: مسافة طبيعية بين الحروف (كان حرف L يلتصق بـ A) */
 .word,.word span,.bigword{letter-spacing:.02em!important;font-kerning:none!important;font-feature-settings:"kern" 0!important}
+/* زرّا بطاقة النموذج في العربي: خط أصغر حتى لا يلامس النص حافة الزر */
+html[dir=rtl] .tcard .foot .btn{font-size:12px!important;padding:8px 10px!important;letter-spacing:0}
 /* شركاء التنفيذ في التذييل */
 footer .dev.partner{margin-top:12px}
 footer .dev.partner img{width:56px;height:56px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:12px;padding:5px}
@@ -873,7 +875,9 @@ footer .dev.partner img{width:56px;height:56px;object-fit:contain;background:#ff
   transform:translate(calc(-50% + var(--x,0px)),var(--y,0px)) rotate(var(--a,0deg)) scale(var(--s,1))!important;
   transition:transform .8s cubic-bezier(.2,.8,.2,1) var(--dl,0s),box-shadow .5s,opacity .6s var(--dl,0s)!important;
   box-shadow:0 18px 40px rgba(15,17,21,.14)!important;will-change:transform}
-.fan>.tcard{width:262px}
+.fan>.tcard{width:286px}
+html[dir=rtl] .fan>.tcard .foot .btn{font-size:11.5px!important;padding:7px 8px!important}
+.fan>.tcard .foot{gap:6px}
 .fan>.tcard .body{padding:14px 14px 16px;gap:8px}
 .fan>.tcard h3{font-size:16px}
 .fan>.tcard .area{font-size:18px}

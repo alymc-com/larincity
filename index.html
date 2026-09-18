@@ -801,6 +801,8 @@ footer.sec{padding-top:70px!important}
 .track span::before{display:none!important}
 .track span{display:inline-flex!important;align-items:center;gap:10px}
 .track span svg{width:20px;height:20px;flex:none;stroke:var(--gold);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+/* رقم الهاتف في التذييل: يبدأ من اليمين في العربي مثل باقي الأسطر */
+html[dir=rtl] footer li[dir=ltr]{text-align:right!important}
 /* بلا علامة + بعد 638 */
 .stats .stat:nth-child(2) b em{display:none!important}
 .tcard .ph .pill,.card .pill.tag{color:#fff!important;text-shadow:0 1px 8px rgba(0,0,0,.6)}
@@ -1942,6 +1944,7 @@ document.querySelectorAll('[data-count]').forEach(el=>co.observe(el));
   const d = document.createElement('div'); d.className = 'dots'; d.setAttribute('role', 'navigation'); document.body.appendChild(d);
   const dots = () => { const T = tx(); d.setAttribute('aria-label', T.dotsL);
     d.innerHTML = ids.map((id, i) => document.getElementById(id) ? `<a href="#${id}"><i></i><span>${T.dots[i]}</span></a>` : '').join(''); spy(); };
+  d.remove();   // المالك ألغى النقاط الجانبية (2026-09-18)
   const spy = () => { const y = innerHeight * .4, as = [...d.querySelectorAll('a')]; let k = 0;
     as.forEach((a, i) => { const e = document.getElementById(a.getAttribute('href').slice(1)); if (e && e.getBoundingClientRect().top < y) k = i; });
     as.forEach((a, i) => a.classList.toggle('on', i === k)); d.classList.toggle('on', scrollY > innerHeight * .6); };

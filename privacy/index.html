@@ -822,7 +822,11 @@ footer .dev.partner img{width:56px;height:56px;object-fit:contain;background:#ff
 <link rel="alternate" hreflang="x-default" href="https://larincity.com/privacy/">
 <meta property="og:locale:alternate" content="en_US">
 <link rel="apple-touch-icon" href="/assets/mark-gold.png">
-<style>.proto{display:none!important}</style>
+<style>.proto{display:none!important}
+/* سحب لوحة اللمس للأعلى في Safari لا يكشف خلفية بيضاء فوق الواجهة */
+html,body{overscroll-behavior-y:none}
+html{background:#0F1115}
+body{background:#fff}</style>
 <script>
 /* نص بديل للصور التي بلا وصف، من عنوانها الظاهر (أفضل للوصول ولمحركات البحث) */
 addEventListener('DOMContentLoaded', () => setTimeout(() => document.querySelectorAll('img[alt=""]').forEach(im => {

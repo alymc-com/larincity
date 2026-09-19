@@ -1,0 +1,24 @@
+{
+  "name": "لارين سيتي · Larin City",
+  "short_name": "لارين سيتي",
+  "description": "مجمع سكني متكامل في بابل، مجاور جامعة الحلة: 638 وحدة سكنية بخمسة نماذج.",
+  "id": "/",
+  "start_url": "/?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "ar",
+  "background_color": "#0F1115",
+  "theme_color": "#0F1115",
+  "categories": ["lifestyle", "business"],
+  "icons": [
+    {"src": "/assets/app-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/assets/app-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "/assets/app-icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "shortcuts": [
+    {"name": "النماذج السكنية", "url": "/homes/", "icons": [{"src": "/assets/app-icon-192.png", "sizes": "192x192"}]},
+    {"name": "المخطط التفاعلي", "url": "/map/", "icons": [{"src": "/assets/app-icon-192.png", "sizes": "192x192"}]}
+  ]
+}

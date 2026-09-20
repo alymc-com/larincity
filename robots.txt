@@ -1,4 +1,3 @@
 User-agent: *
 Disallow: /screen/
-Disallow: /sales.html
-Sitemap: https://larincity.com/sitemap.xml
+Allow: /

@@ -54,10 +54,10 @@
     background:linear-gradient(90deg,transparent,#C9A45C,transparent)}
   #lc-gate .g-lead{margin:0;font-size:clamp(15px,2vw,21px);font-weight:700;opacity:.95}
   #lc-gate .g-sub{margin:12px 0 0;font-size:clamp(12px,1.5vw,15px);opacity:.62;letter-spacing:.14em}
-  #lc-gate footer{position:absolute;bottom:0;left:0;right:0;z-index:2;padding:20px clamp(16px,4vw,44px);
+  #lc-gate .g-foot{border:0;box-shadow:none;background:none;position:absolute;bottom:0;left:0;right:0;z-index:2;padding:20px clamp(16px,4vw,44px);
     display:flex;align-items:center;justify-content:space-between;gap:14px;font-size:11px;letter-spacing:.1em}
-  #lc-gate footer .g-copy{opacity:.55}
-  #lc-gate footer img{height:26px;width:auto;opacity:.8}
+  #lc-gate .g-foot .g-copy{opacity:.55}
+  #lc-gate .g-foot img{height:26px;width:auto;opacity:.8}
   #lc-gate .g-enter{background:none;border:0;color:#fff;opacity:.38;font:inherit;font-size:11px;
     letter-spacing:.2em;cursor:pointer;padding:6px 4px}
   #lc-gate .g-enter:hover{opacity:.8}
@@ -74,7 +74,7 @@
   #lc-gate form.bad{animation:lcShake .42s}
   @keyframes lcShake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
   #lc-gate.out{opacity:0;transition:opacity .55s ease}
-  @media (max-width:560px){#lc-gate footer{flex-direction:column;gap:10px;font-size:10px}}
+  @media (max-width:560px){#lc-gate .g-foot{border:0;box-shadow:none;background:none;flex-direction:column;gap:10px;font-size:10px}}
   @media (prefers-reduced-motion:reduce){#lc-gate .g-bg img,#lc-gate .g-sheen{animation:none}}`;
 
   const build = () => {
@@ -99,11 +99,11 @@
         </form>
         <div class="g-msg" id="lc-msg"></div>
       </main>
-      <footer>
+      <div class="g-foot">
         <span class="g-copy">© ٢٠٢٦ لارين سيتي</span>
         <button class="g-enter" id="lc-open" type="button">دخول</button>
         <img src="/assets/bait.png" alt="بيت العطاء">
-      </footer>`;
+      </div>`;
     document.body.appendChild(g);
 
     const form = g.querySelector('#lc-form'), input = g.querySelector('#lc-code'), msg = g.querySelector('#lc-msg');

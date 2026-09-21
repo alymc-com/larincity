@@ -1,3 +1,2 @@
 User-agent: *
-Disallow: /screen/
-Allow: /
+Disallow: /

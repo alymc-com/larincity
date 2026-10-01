@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
-<head><!--lc-gate--><meta name="robots" content="noindex,nofollow"><style>html.lc-locked{background:#0B0A08;overflow:hidden}html.lc-locked body>*:not(#lc-gate){display:none!important}</style><script>(function(){try{if(localStorage.getItem('lc-gate')==='83764ff80be4457f22a260ea6784dd3e568cfde028688515c147555ac32c20c7')return}catch(e){}document.documentElement.classList.add('lc-locked')})()</script><script src="/assets/gate.js?v=5" defer></script><!--/lc-gate-->
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
@@ -1242,6 +1242,68 @@ function setMode(m,save){const want=m==='3d';if(want&&(M3.failed))m='2d';M3.on=(
   if(M3.on){if(!M3.ready)load3D();else{T3.resize();T3.dirty=true;}}}
 /* VR mode on the sales screen: makes sure the 3D city is ready, then opens it in the headset */
 function vrMsg(t){let m=document.getElementById('vrmsg');if(!m){m=document.createElement('div');m.id='vrmsg';document.body.appendChild(m);}m.textContent=t;m.classList.add('on');clearTimeout(vrMsg.t);vrMsg.t=setTimeout(()=>m.classList.remove('on'),5200);}
+/*<LCPANO>*/
+/* LCPANO: 360 viewpoints inside the WebXR city (Meta Quest). Illustrative renders for the owners; the designers' panoramas replace them later (same file names).
+   A small menu rides on the left controller; the right ray picks a viewpoint, the panorama wraps the viewer on an inside-out sphere,
+   any other trigger press (or the last menu row) returns to the city. X / Y on the left controller hides or shows the menu. */
+const LCPANO_LIST=[['ext-gate','البوابة الرئيسية','Main gate'],['ext-garden','الحديقة المركزية','Central garden'],['ext-fountain','ساحة النافورة','Fountain plaza'],['ext-street','شارع سكني','Residential street'],['ext-villa','أمام فيلا النموذج E','Type E villa'],['ext-aerial','منظر جوي فوق المركز','Aerial view'],
+  ['int-a','صالة النموذج A','Type A living room'],['int-b','صالة النموذج B','Type B living room'],['int-c','صالة النموذج C','Type C living room'],['int-d','صالة النموذج D','Type D living room'],['int-e','صالة النموذج E','Type E living room']];
+function LCPano(o){/* o: {THREE, rig, cam, scene, base, ar, onOpen, onClose} */
+  const T=o.THREE,ar=o.ar!==false,F='Cairo, "IBM Plex Sans Arabic", Tahoma, sans-serif';
+  const P={on:false,cur:-1,hover:-1,menuOn:true,holder:null,tex:null,req:0};
+  const items=LCPANO_LIST.map(r=>({id:r[0],n:ar?r[1]:r[2]}));
+  /* ---- menu on a canvas ---- */
+  const RW=512,RH=58,TOP=92,rows=items.length+1;const cv=document.createElement('canvas');cv.width=RW;cv.height=TOP+RH*rows+20;const g=cv.getContext('2d');
+  const mtex=new T.CanvasTexture(cv);mtex.encoding=T.sRGBEncoding;const MW=0.2,MH=MW*cv.height/RW;
+  const menu=new T.Mesh(new T.PlaneGeometry(MW,MH),new T.MeshBasicMaterial({map:mtex,transparent:true,depthTest:false}));menu.renderOrder=1001;menu.position.set(0,0.06,-0.13);menu.rotation.x=-1.0;
+  function rr(x,y,w,h,r){g.beginPath();if(g.roundRect)g.roundRect(x,y,w,h,r);else g.rect(x,y,w,h);}
+  function draw(){g.clearRect(0,0,cv.width,cv.height);g.fillStyle='rgba(15,17,21,.88)';rr(0,0,RW,cv.height,28);g.fill();
+    g.direction=ar?'rtl':'ltr';g.textAlign=ar?'right':'left';const X=ar?RW-28:28;
+    g.fillStyle='#C9A45C';g.font='800 40px '+F;g.fillText(ar?'نقاط المشاهدة':'Viewpoints',X,58);
+    for(let i=0;i<rows;i++){const y=TOP+i*RH;const back=i===items.length;const name=back?(ar?'العودة إلى المدينة':'Back to the city'):items[i].n;
+      if(back&&!P.on)continue;
+      if(i===P.hover){g.fillStyle='rgba(255,255,255,.22)';rr(10,y,RW-20,RH-6,14);g.fill();}
+      if(i===P.cur&&P.on){g.fillStyle='rgba(201,164,92,.35)';rr(10,y,RW-20,RH-6,14);g.fill();}
+      if(i===6){g.fillStyle='rgba(255,255,255,.18)';g.fillRect(24,y-4,RW-48,2);}
+      g.fillStyle=back?'#C9A45C':'#F2F2F2';g.font=(back?'800 ':'600 ')+'31px '+F;g.fillText(name,X,y+38);}
+    mtex.needsUpdate=true;}
+  draw();
+  /* ---- sphere + label ---- */
+  const grp=new T.Group();grp.visible=false;o.rig.add(grp);
+  const geo=new T.SphereGeometry(400,96,48);geo.scale(-1,1,1);
+  const smat=new T.MeshBasicMaterial({color:0xffffff,depthWrite:false,fog:false});const sphere=new T.Mesh(geo,smat);sphere.renderOrder=-10;grp.add(sphere);
+  const lc=document.createElement('canvas');lc.width=1024;lc.height=176;const lg=lc.getContext('2d');const ltex=new T.CanvasTexture(lc);ltex.encoding=T.sRGBEncoding;
+  const label=new T.Mesh(new T.PlaneGeometry(1.1,1.1*176/1024),new T.MeshBasicMaterial({map:ltex,transparent:true,depthTest:false,fog:false}));label.renderOrder=1000;grp.add(label);
+  function drawLabel(name,loading){lg.clearRect(0,0,1024,176);lg.fillStyle='rgba(15,17,21,.78)';lg.beginPath();if(lg.roundRect)lg.roundRect(0,0,1024,176,36);else lg.rect(0,0,1024,176);lg.fill();
+    lg.direction=ar?'rtl':'ltr';lg.textAlign='center';lg.fillStyle='#FFFFFF';lg.font='800 50px '+F;lg.fillText(loading?(ar?'جارٍ التحميل…':'Loading…'):name,512,72);
+    lg.fillStyle='#E7D3A8';lg.font='600 40px '+F;lg.fillText(ar?'صورة توضيحية — للعرض على الملّاك':'Illustrative image, for the owners',512,138);ltex.needsUpdate=true;}
+  const loader=new T.TextureLoader();
+  const hidden=[];
+  function world(on){if(!on){hidden.length=0;o.scene.children.forEach(c=>{if(c!==o.rig&&c.visible){c.visible=false;hidden.push(c);}});}else{hidden.forEach(c=>c.visible=true);hidden.length=0;}}
+  function open(i){const it=items[i];if(!it)return;P.cur=i;const req=++P.req;
+    /* face the panorama centre (u = 0.5, local -X of the flipped sphere) toward where the viewer looks */
+    const f=new T.Vector3();o.cam.getWorldDirection(f);f.y=0;if(f.lengthSq()<1e-6)f.set(0,0,-1);f.normalize();f.applyAxisAngle(new T.Vector3(0,1,0),-o.rig.rotation.y);
+    sphere.rotation.set(0,Math.atan2(f.z,-f.x),0);
+    label.position.set(f.x*2.2,-0.62,f.z*2.2);label.rotation.set(0,Math.atan2(-f.x,-f.z),0);
+    grp.position.set(0,1.6,0);drawLabel(it.n,true);
+    if(!P.on){world(false);P.on=true;grp.visible=true;if(o.onOpen)o.onOpen();}
+    loader.load(o.base+it.id+'.jpg',tex=>{if(req!==P.req){tex.dispose();return;}tex.encoding=T.sRGBEncoding;tex.anisotropy=4;if(P.tex)P.tex.dispose();P.tex=tex;smat.map=tex;smat.needsUpdate=true;drawLabel(it.n,false);},undefined,()=>{drawLabel(ar?'تعذر تحميل الصورة':'Image not available',false);});
+    draw();}
+  function close(){if(!P.on)return;P.on=false;P.req++;grp.visible=false;world(true);smat.map=null;smat.needsUpdate=true;if(P.tex){P.tex.dispose();P.tex=null;}P.cur=-1;draw();if(o.onClose)o.onClose();}
+  /* ray from a controller to the menu: returns the row under the ray or -1 */
+  const rc=new T.Raycaster(),m4=new T.Matrix4(),org=new T.Vector3(),dir=new T.Vector3();
+  function rowAt(ctrl){if(!menu.parent||!menu.visible||ctrl===menu.parent)return -1;m4.identity().extractRotation(ctrl.matrixWorld);org.setFromMatrixPosition(ctrl.matrixWorld);dir.set(0,0,-1).applyMatrix4(m4);rc.set(org,dir);
+    const h=rc.intersectObject(menu,false)[0];if(!h||!h.uv)return -1;const py=(1-h.uv.y)*cv.height;const r=Math.floor((py-TOP)/RH);if(r<0||r>=rows)return -2;if(r===items.length&&!P.on)return -2;return r;}
+  return {menu,P,open,close,draw,items,
+    attach(ctrl){if(P.holder===ctrl)return;if(menu.parent)menu.parent.remove(menu);ctrl.add(menu);P.holder=ctrl;},
+    /* call every frame with the controllers; returns true for a controller whose ray is on the menu */
+    hover(ctrls){let best=-1,on=new Set();for(const c of ctrls){const r=rowAt(c);if(r!==-1){on.add(c);if(r>=0)best=r;}c.userData.onMenu=r!==-1;c.userData.menuRow=r;}if(best!==P.hover){P.hover=best;draw();}return on;},
+    /* trigger: returns true when the press was used by the viewpoints feature */
+    select(ctrl){const r=ctrl.userData.menuRow;if(ctrl.userData.onMenu){if(r===items.length||r===P.cur&&P.on)close();else if(r>=0)open(r);return true;}if(P.on){close();return true;}return false;},
+    toggleMenu(){P.menuOn=!P.menuOn;menu.visible=P.menuOn;},
+    dispose(){close();if(menu.parent)menu.parent.remove(menu);o.rig.remove(grp);geo.dispose();mtex.dispose();ltex.dispose();}};
+}
+/*</LCPANO>*/
 async function enterVR(){if(M3.failed){vrMsg(L.vr_no);return;}if(!M3.on)setMode('3d');for(let i=0;i<120&&!M3.ready;i++)await new Promise(r=>setTimeout(r,100));if(!M3.ready||!T3||!T3.vr){vrMsg(L.vr_no);return;}try{await T3.vr();}catch(e){console.error(e);vrMsg(L.vr_no);}}
 function load3D(){if(M3.ready||M3.failed||M3.loading)return;M3.loading=true;
   const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
@@ -1249,8 +1311,8 @@ function load3D(){if(M3.ready||M3.failed||M3.loading)return;M3.loading=true;
 function unitFrame(u){/* row direction from the nearest neighbour in the same block */
   let best=1e9,n=null;for(const v of UNITS){if(v===u||v.block!==u.block)continue;const d=Math.hypot((v.nx-u.nx)*1000,(v.ny-u.ny)*625);if(d<best){best=d;n=v;}}
   if(!n)return 0;return Math.atan2((n.ny-u.ny)*625,(n.nx-u.nx)*1000);}
-function init3D(){const box=document.getElementById('map3d');const W=box.clientWidth||mapwrap.clientWidth,H=box.clientHeight||mapwrap.clientHeight;
-  let renderer;try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:true,powerPreference:'high-performance'});}catch(e){M3.failed=true;setMode('2d');return;}
+function init3D(){let C3D=null;const box=document.getElementById('map3d');const W=box.clientWidth||mapwrap.clientWidth,H=box.clientHeight||mapwrap.clientHeight;
+  let renderer;try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:true,powerPreference:'high-performance',logarithmicDepthBuffer:true});/* log depth: no flicker between road, markings and kerbs at any distance */}catch(e){M3.failed=true;setMode('2d');return;}
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(W,H);renderer.setClearColor(0xDCE6EE,1);renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=0.86;const HQ=!/Mobi|Android/i.test(navigator.userAgent)&&(box.clientWidth||400)>700;renderer.shadowMap.enabled=HQ;renderer.shadowMap.type=THREE.PCFSoftShadowMap;box.appendChild(renderer.domElement);
   const scene=new THREE.Scene();
   const cam=new THREE.PerspectiveCamera(40,W/H,2,9000);
@@ -1391,7 +1453,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     const carGeo=finish(car);const CARS=[];const palette=[0xF2F2F2,0xC9CCD1,0x2B2E33,0x1F3A5F,0x8C1E1E,0xD8CDB4,0xEDEDED,0x3D3D40];
     (SCENE.lanes||[]).forEach((l,li)=>{for(let i=0;i<l.length-1;i++){const ax=l[i][0],az=l[i][1],bx=l[i+1][0],bz=l[i+1][1];const dx=bx-ax,dz=bz-az;const len=Math.hypot(dx,dz);if(len<14)continue;
         for(let t=7;t<len-7;t+=26){if(((li*7+Math.floor(t))%5)>1)continue;const side=((li+Math.floor(t))%2)?1:-1;const nx=-dz/len,nz=dx/len;const cx=ax+dx*t/len+nx*side*2.6,cz=az+dz*t/len+nz*side*2.6;CARS.push([cx,cz,Math.atan2(dx,dz)+(side>0?0:Math.PI),palette[(li+Math.floor(t))%palette.length]]);if(CARS.length>110)return;}}});
-    if(CARS.length){const im=new THREE.InstancedMesh(carGeo,matS,CARS.length);im.castShadow=HQ;CARS.forEach((c,i)=>{dummy.position.set(c[0]-500,0.12,c[1]-312.5);dummy.rotation.set(0,c[2],0);dummy.scale.set(1,1,1);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);im.setColorAt(i,new THREE.Color(c[3]).convertSRGBToLinear());});im.instanceMatrix.needsUpdate=true;scene.add(im);}
+    if(CARS.length){const im=new THREE.InstancedMesh(carGeo,matS,CARS.length);im.userData.prop='car';im.castShadow=HQ;CARS.forEach((c,i)=>{dummy.position.set(c[0]-500,0.12,c[1]-312.5);dummy.rotation.set(0,c[2],0);dummy.scale.set(1,1,1);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);im.setColorAt(i,new THREE.Color(c[3]).convertSRGBToLinear());});im.instanceMatrix.needsUpdate=true;scene.add(im);}
     /* ---- parks: perimeter hedges + flower beds, paths, and fountain plazas ---- */
     const pk=GB();const flowers=[];
     const parks=(SCENE.parks||[]).map(p=>{const r=p.ring;const cx=r.reduce((a,q)=>a+q[0],0)/r.length,cy=r.reduce((a,q)=>a+q[1],0)/r.length;let area=0;for(let i=0;i<r.length;i++){const a=r[i],b=r[(i+1)%r.length];area+=a[0]*b[1]-b[0]*a[1];}return {ring:r,cx,cy,area:Math.abs(area)/2};});
@@ -1425,9 +1487,9 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   const STREET=[];const LAMPS=[];(SCENE.pavements||[]).forEach((p,pi)=>{const xs=p.ring.map(q=>q[0]),ys=p.ring.map(q=>q[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);if((x1-x0)*(y1-y0)<40)return;let n=0;
     for(let y=y0+3;y<y1-3;y+=13)for(let x=x0+3;x<x1-3;x+=13){const jx=x+((x*11+y*3)%7)-3,jy=y+((x*5+y*7)%7)-3;if(!inPoly(jx,jy,p.ring))continue;if(((pi*3+n)%6)===0)LAMPS.push([jx,jy]);else STREET.push([jx,jy]);n++;if(STREET.length>900)return;}});
   (function(){if(!STREET.length)return;const gb=GB();addCyl(gb,0,0,0,0.14*U,0.2*U,2.4*U,C.trunk,6);addSphere(gb,0,3.2*U,0,1.35*U,C.green2);addSphere(gb,0.6*U,2.8*U,0.3*U,0.9*U,0x5FA24C);
-    const im=new THREE.InstancedMesh(finish(gb),matS,STREET.length);im.castShadow=HQ;STREET.forEach((t,i)=>{const sc=0.85+((i*5)%4)*0.1;dummy.position.set(t[0]-500,0.4,t[1]-312.5);dummy.rotation.set(0,i*0.7,0);dummy.scale.set(sc,sc,sc);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);im.setColorAt(i,new THREE.Color(1,1,1));});im.instanceMatrix.needsUpdate=true;scene.add(im);
+    const im=new THREE.InstancedMesh(finish(gb),matS,STREET.length);im.userData.prop='street';im.castShadow=HQ;STREET.forEach((t,i)=>{const sc=0.85+((i*5)%4)*0.1;dummy.position.set(t[0]-500,0.4,t[1]-312.5);dummy.rotation.set(0,i*0.7,0);dummy.scale.set(sc,sc,sc);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);im.setColorAt(i,new THREE.Color(1,1,1));});im.instanceMatrix.needsUpdate=true;scene.add(im);
     if(!LAMPS.length)return;const lg=GB();addCyl(lg,0,0,0,0.09*U,0.12*U,7*U,0x3A3A3E,6);addBox(lg,0,7*U,0,0.9*U,0.25*U,0.25*U,0x3A3A3E);addSphere(lg,0.4*U,6.9*U,0,0.22*U,0xFFF2C6);
-    const lm=new THREE.InstancedMesh(finish(lg),matS,LAMPS.length);lm.castShadow=HQ;LAMPS.forEach((t,i)=>{dummy.position.set(t[0]-500,0.4,t[1]-312.5);dummy.rotation.set(0,i*1.1,0);dummy.scale.set(1,1,1);dummy.updateMatrix();lm.setMatrixAt(i,dummy.matrix);lm.setColorAt(i,new THREE.Color(1,1,1));});lm.instanceMatrix.needsUpdate=true;scene.add(lm);
+    const lm=new THREE.InstancedMesh(finish(lg),matS,LAMPS.length);lm.userData.prop='lamp';lm.castShadow=HQ;LAMPS.forEach((t,i)=>{dummy.position.set(t[0]-500,0.4,t[1]-312.5);dummy.rotation.set(0,i*1.1,0);dummy.scale.set(1,1,1);dummy.updateMatrix();lm.setMatrixAt(i,dummy.matrix);lm.setColorAt(i,new THREE.Color(1,1,1));});lm.instanceMatrix.needsUpdate=true;scene.add(lm);
     /* night: glowing heads + warm pools of light on the ground */
     const gg=GB();addSphere(gg,0.4*U,6.9*U,0,0.34*U,0xFFE9B8);const glow=new THREE.InstancedMesh(finish(gg),new THREE.MeshBasicMaterial({vertexColors:true}),LAMPS.length);
     const pool=new THREE.InstancedMesh(new THREE.CircleGeometry(7*U,20),new THREE.MeshBasicMaterial({color:new THREE.Color(0xFFD48A).convertSRGBToLinear(),transparent:true,opacity:0.22,depthWrite:false}),LAMPS.length);
@@ -1439,13 +1501,13 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     for(let y=y0+6;y<y1-6&&n<40;y+=9)for(let x=x0+6;x<x1-6&&n<40;x+=9){const jx=x+((x*7+y*3)%5)-2,jy=y+((x*3+y*5)%5)-2;if(!inPoly(jx,jy,p.ring))continue;
       if((SCENE.trees||[]).some(t=>Math.hypot(t[0]-jx,t[1]-jy)<9))continue;if(((x*13+y*7)%10)<6)continue;PARK_TREES.push([jx,jy]);n++;}});
   (function(){if(!PARK_TREES.length)return;const gb=GB();addCyl(gb,0,0,0,0.18*U,0.26*U,2.6*U,C.trunk,6);addSphere(gb,0,3.6*U,0,1.9*U,C.green2);addSphere(gb,0.9*U,3.0*U,0.4*U,1.2*U,0x5FA24C);addSphere(gb,-0.8*U,3.2*U,-0.5*U,1.1*U,0x4F8C3E);
-    const im=new THREE.InstancedMesh(finish(gb),matS,PARK_TREES.length);im.castShadow=HQ;PARK_TREES.forEach((t,i)=>{const sc=0.8+((i*5)%4)*0.12;dummy.position.set(t[0]-500,0.35,t[1]-312.5);dummy.rotation.set(0,i*0.9,0);dummy.scale.set(sc,sc,sc);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);});
+    const im=new THREE.InstancedMesh(finish(gb),matS,PARK_TREES.length);im.userData.prop='parktree';im.castShadow=HQ;PARK_TREES.forEach((t,i)=>{const sc=0.8+((i*5)%4)*0.12;dummy.position.set(t[0]-500,0.35,t[1]-312.5);dummy.rotation.set(0,i*0.9,0);dummy.scale.set(sc,sc,sc);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);});
     im.instanceMatrix.needsUpdate=true;PARK_TREES.forEach((t,i)=>im.setColorAt(i,new THREE.Color(1,1,1)));scene.add(im);})();
   /* ---- palms on the plan's tree symbols ---- */
   (function(){const gb=GB();addCyl(gb,0,0,0,0.22*U,0.36*U,6.5*U,C.trunk,7);
     for(let i=0;i<9;i++){const g=new THREE.BoxGeometry(0.55*U,0.1*U,3.4*U);g.translate(0,0,1.7*U);g.rotateX(-0.55);g.rotateY(i*Math.PI*2/9);g.translate(0,6.5*U,0);addGeo(gb,g,i%2?C.green2:0x4C8B3F);}
     addSphere(gb,0,6.5*U,0,0.5*U,C.green2);
-    const geo=finish(gb);const trees=SCENE.trees||[];const im=new THREE.InstancedMesh(geo,matS,trees.length);im.castShadow=HQ;
+    const geo=finish(gb);const trees=SCENE.trees||[];const im=new THREE.InstancedMesh(geo,matS,trees.length);im.userData.prop='palm';im.castShadow=HQ;
     trees.forEach((t,i)=>{const sc=0.85+((i*7)%5)*0.08;dummy.position.set(t[0]-500,0,t[1]-312.5);dummy.rotation.set(0,i*1.3,0);dummy.scale.set(sc,sc,sc);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);});
     im.instanceMatrix.needsUpdate=true;trees.forEach((t,i)=>im.setColorAt(i,new THREE.Color(1,1,1)));scene.add(im);})();
   /* ---- facility buildings (schools, mosque, commercial, services) ---- */
@@ -1551,7 +1613,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
   function setNight(on){NIGHT.on=on;renderer.shadowMap.needsUpdate=true;document.body.classList.toggle('night',on);scene.environment=on?null:dayEnv;envIntensity(on?0:0.25);renderer.setClearColor(on?0x070E1F:0xDCE6EE,1);setSky(on?0x070E1F:0x5E9BD8,on?0x1A2540:0xDCE6EE);
     hemi.color.setHex(on?0x243354:0xd6e6f7);hemi.groundColor.setHex(on?0x101218:0xa89c86);hemi.intensity=on?0.32:0.58;
     sun.color.setHex(on?0x9FB6E0:0xfff1dc);sun.intensity=on?0.22:1.25;sun.position.set(on?380:-420,on?560:760,on?-260:360);fill.intensity=on?0.06:0.22;renderer.toneMappingExposure=on?0.82:0.86;
-    LIGHTS.forEach(m=>m.visible=on);if(NIGHT.glow){NIGHT.glow.visible=on;NIGHT.pool.visible=on;}const nb=document.getElementById('nightbtn');if(nb)nb.textContent=on?L.m_day:L.m_night;try{localStorage.setItem('lc-night',on?'1':'');}catch(e){}T3.dirty=true;}
+    LIGHTS.forEach(m=>m.visible=on);if(NIGHT.glow){NIGHT.glow.visible=on;NIGHT.pool.visible=on;}const nb=document.getElementById('nightbtn');if(nb)nb.textContent=on?L.m_day:L.m_night;try{localStorage.setItem('lc-night',on?'1':'');}catch(e){}if(C3D&&C3D.ready)C3D.night(on);T3.dirty=true;}
   T3.env=v=>{scene.environment=v?dayEnv:null;envIntensity(v?0.25:0);T3.dirty=true;};T3.shadows=v=>{renderer.shadowMap.enabled=!!v;renderer.shadowMap.needsUpdate=true;scene.traverse(o=>{if(o.material)o.material.needsUpdate=true;});T3.dirty=true;};
   T3.night=setNight;try{if(localStorage.getItem('lc-night')==='1')setNight(true);}catch(e){}
   /* deep links: ?u=CODE selects a home and flies to its façade, ?night=1 night mode, ?book=1 opens the booking form */
@@ -1564,11 +1626,11 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     let ok=false;try{ok=!!(navigator.xr&&await navigator.xr.isSessionSupported('immersive-vr'));}catch(e){}
     if(!ok){vrMsg(L.vr_no);return false;}
     const session=await navigator.xr.requestSession('immersive-vr',{optionalFeatures:['local-floor','bounded-floor']});
-    renderer.xr.enabled=true;renderer.xr.setReferenceSpaceType('local-floor');
+    renderer.xr.enabled=true;renderer.xr.setReferenceSpaceType('local-floor');if(C3D)C3D.vr=true;
     /* lighter rendering in the headset so motion stays fluid: no shadow maps, foveated rendering, a steady frame rate */
     const hadShadows=renderer.shadowMap.enabled;renderer.shadowMap.enabled=false;scene.traverse(o=>{if(o.material)o.material.needsUpdate=true;});
     try{renderer.xr.setFramebufferScaleFactor(0.9);}catch(e){}try{if(renderer.xr.setFoveation)renderer.xr.setFoveation(1);}catch(e){}
-    const rig=new THREE.Group(),vcam=new THREE.PerspectiveCamera(70,1,0.1,9000);rig.add(vcam);scene.add(rig);
+    const rig=new THREE.Group(),vcam=new THREE.PerspectiveCamera(70,1,0.3,3000);rig.add(vcam);scene.add(rig);
     const AER=130;let aerial=false;
     rig.position.set(st.tx+Math.sin(st.theta)*60,0,st.tz+Math.cos(st.theta)*60);rig.rotation.y=st.theta;
     /* card shown in front of the eyes, drawn on a canvas (Arabic shaping by the browser) */
@@ -1581,14 +1643,15 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     card([L.mvr,L.vr_tip.split('،')[0]||'',''],null);
     const marker=new THREE.Mesh(new THREE.RingGeometry(0.7,0.95,32).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0x0A84FF}));marker.visible=false;scene.add(marker);
     const r2=new THREE.Raycaster(),mrot=new THREE.Matrix4(),org=new THREE.Vector3(),dir=new THREE.Vector3(),hitP=new THREE.Vector3();
-    const ctrls=[0,1].map(n=>{const c=renderer.xr.getController(n);
+    let PV=null;const ctrls=[0,1].map(n=>{const c=renderer.xr.getController(n);
       const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-1)]),new THREE.LineBasicMaterial({color:0xffffff}));line.scale.z=80;c.add(line);
-      c.addEventListener('connected',e=>{c.userData.gp=e.data.gamepad;c.userData.hand=e.data.handedness;});
-      c.addEventListener('selectstart',()=>{const h=c.userData.h;if(!h)return;
+      c.addEventListener('connected',e=>{c.userData.gp=e.data.gamepad;c.userData.hand=e.data.handedness;if(PV&&e.data.handedness==='left')PV.attach(c);});
+      c.addEventListener('selectstart',()=>{if(PV&&PV.select(c))return;const h=c.userData.h;if(!h)return;
         if(h.unit){const u=h.unit;select(u);const sc={available:'#E9EDF3',reserved:'#A8A39E',sold:'#55565A'}[u.status];card([u.code,L.type+' '+u.type,L[u.status]],sc);return;}
         glide={x0:rig.position.x,z0:rig.position.z,x1:h.p.x,z1:h.p.z,t0:performance.now(),ms:Math.min(1400,500+h.p.distanceTo(rig.position)*4)};});
-      c.addEventListener('squeezestart',()=>{aerial=!aerial;lift={y0:rig.position.y,y1:aerial?AER:0,t0:performance.now(),ms:1600};});
+      c.addEventListener('squeezestart',()=>{if(PV&&PV.P.on)return;aerial=!aerial;lift={y0:rig.position.y,y1:aerial?AER:0,t0:performance.now(),ms:1600};});
       rig.add(c);return c;});
+    PV=LCPano({THREE,rig,cam:vcam,scene,base:'/pano/',ar:LANG==='ar',onOpen:()=>{marker.visible=false;panel.visible=false;glide=null;}});
     /* all motion is eased: glide to a pointed spot, rise/descend for the aerial view, stick walking and turning with gentle acceleration */
     let glide=null,lift=null,lastT=0;const vel=new THREE.Vector2(),fwd=new THREE.Vector3(),sdir=new THREE.Vector3();let turnV=0;
     const ease=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
@@ -1596,13 +1659,15 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
       if(glide){const p=Math.min(1,(now-glide.t0)/glide.ms),e=ease(p);rig.position.x=glide.x0+(glide.x1-glide.x0)*e;rig.position.z=glide.z0+(glide.z1-glide.z0)*e;if(p>=1)glide=null;}
       if(lift){const p=Math.min(1,(now-lift.t0)/lift.ms),e=ease(p);rig.position.y=lift.y0+(lift.y1-lift.y0)*e;if(p>=1)lift=null;}
       let mx=0,my=0,tx=0;
+      if(!PV.P.holder){const lc=ctrls.find(c=>c.userData.hand==='left')||ctrls.find(c=>c.userData.gp);if(lc)PV.attach(lc);}
+      const onM=PV.hover(ctrls);
       for(const c of ctrls){mrot.identity().extractRotation(c.matrixWorld);org.setFromMatrixPosition(c.matrixWorld);dir.set(0,0,-1).applyMatrix4(mrot);r2.set(org,dir);
-        const hm=r2.intersectObjects(meshes,false)[0];let h=null;
+        const busy=PV.P.on||onM.has(c);const hm=busy?null:r2.intersectObjects(meshes,false)[0];let h=null;
         if(hm){const i=byType[hm.object.userData.type][hm.instanceId];if(i!=null)h={unit:UNITS[i]};}
-        else if(r2.ray.intersectPlane(gplane,hitP)&&hitP.distanceTo(org)<2500){h={p:hitP.clone()};marker.visible=true;marker.position.set(hitP.x,0.08,hitP.z);}
+        else if(!busy&&r2.ray.intersectPlane(gplane,hitP)&&hitP.distanceTo(org)<2500){h={p:hitP.clone()};marker.visible=true;marker.position.set(hitP.x,0.08,hitP.z);}
         c.userData.h=h;
         const gp=c.userData.gp;if(gp&&gp.axes){const ax=gp.axes[2]||0,ay=gp.axes[3]||0,dz=v=>Math.abs(v)<0.15?0:(v-Math.sign(v)*0.15)/0.85;
-          if(c.userData.hand==='left'){mx=dz(ax);my=dz(ay);}else tx=dz(ax);}}
+          if(c.userData.hand==='left'){mx=dz(ax);my=dz(ay);const xb=!!((gp.buttons[4]&&gp.buttons[4].pressed)||(gp.buttons[5]&&gp.buttons[5].pressed));if(xb&&!c.userData.xb)PV.toggleMenu();c.userData.xb=xb;}else tx=dz(ax);}}
       /* walking: left stick, toward where you look; speed rises and falls smoothly (about 3.5 m/s on foot, faster from the air) */
       const sp=(rig.position.y>20?22:2.2),k=1-Math.exp(-dt*3.2);vel.x+=(mx*sp-vel.x)*k;vel.y+=(my*sp-vel.y)*k;
       vcam.getWorldDirection(fwd);fwd.y=0;if(fwd.lengthSq()>1e-6){fwd.normalize();if(!sdir.lengthSq())sdir.copy(fwd);else sdir.lerp(fwd,1-Math.exp(-dt*4)).normalize();}
@@ -1611,11 +1676,95 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
       /* turning: right stick, a gentle 45°/s that eases in and out */
       turnV+=(-tx*Math.PI/4-turnV)*(1-Math.exp(-dt*3));if(Math.abs(turnV)>0.001)rig.rotation.y+=turnV*dt;
       renderer.render(scene,vcam);}
-    session.addEventListener('end',()=>{renderer.setAnimationLoop(null);renderer.xr.enabled=false;renderer.shadowMap.enabled=hadShadows;renderer.shadowMap.needsUpdate=true;scene.traverse(o=>{if(o.material)o.material.needsUpdate=true;});ctrls.forEach(c=>rig.remove(c));scene.remove(rig);scene.remove(marker);panel.geometry.dispose();ptex.dispose();
+    session.addEventListener('end',()=>{renderer.setAnimationLoop(null);if(C3D)C3D.vr=false;if(PV){PV.dispose();PV=null;}renderer.xr.enabled=false;renderer.shadowMap.enabled=hadShadows;renderer.shadowMap.needsUpdate=true;scene.traverse(o=>{if(o.material)o.material.needsUpdate=true;});ctrls.forEach(c=>rig.remove(c));scene.remove(rig);scene.remove(marker);panel.geometry.dispose();ptex.dispose();
       resize();T3.dirty=true;document.querySelectorAll('#modectl .vrbtn').forEach(b=>b.classList.remove('on'));});
     await renderer.xr.setSession(session);renderer.setAnimationLoop(frameXR);
     try{if(session.updateTargetFrameRate&&session.supportedFrameRates){const fr=[...session.supportedFrameRates];session.updateTargetFrameRate(fr.includes(72)?72:fr[0]);}}catch(e){}
     document.querySelectorAll('#modectl .vrbtn').forEach(b=>b.classList.add('on'));return true;};
+  /*<C3D>*/
+  /* ===== Realistic city layer (lazy). Textured house types, palms, trees, lamps and cars from /city3d/ (Blender exports), PBR ground,
+     HDRI sky. The procedural city above shows instantly and stays as the fallback; its house meshes stay (hidden) as the picking proxy,
+     and every matrix / colour change on them is forwarded to the textured copies, so status colours, filters, rise, VR all keep working.
+     Instances are split into spatial chunks: near chunks use LOD0, far ones LOD1, chunks outside the view are skipped. ===== */
+  C3D={ready:false,vr:false,chunks:[],tris:0};
+  (function(){
+    const BASE='/city3d/',CDN='https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/';
+    const addScript=src=>new Promise((res,rej)=>{if(window.THREE&&((src.includes('GLTF')&&THREE.GLTFLoader)||(src.includes('DRACO')&&THREE.DRACOLoader)||(src.includes('RGBE')&&THREE.RGBELoader)))return res();const s=document.createElement('script');s.src=CDN+src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+    const CELL=110,_m=new THREE.Matrix4(),_v=new THREE.Vector3(),_fr=new THREE.Frustum(),_cam=new THREE.Vector3(),_c=new THREE.Color();
+    /* one chunked instanced set: parts = [{g0,g1,mat}] (g1 may be null = hide when far); items = [{m:Matrix4,c:Color}] */
+    function chunked(parts,items,opt){const cells=new Map();items.forEach((it,i)=>{_v.setFromMatrixPosition(it.m);const key=Math.floor(_v.x/CELL)+','+Math.floor(_v.z/CELL);if(!cells.has(key))cells.set(key,[]);cells.get(key).push(i);});
+      const where=new Array(items.length);const out=[];
+      cells.forEach(ids=>{const ch={ids,lod:-1,parts:[],c:new THREE.Vector3(),r:0,near:opt.near,far:opt.far||1e9,farVR:opt.farVR||opt.far||1e9,tri:[0,0]};
+        ids.forEach(i=>{_v.setFromMatrixPosition(items[i].m);ch.c.add(_v);});ch.c.multiplyScalar(1/ids.length);ids.forEach(i=>{_v.setFromMatrixPosition(items[i].m);ch.r=Math.max(ch.r,_v.distanceTo(ch.c));});ch.r+=opt.rad||20;
+        parts.forEach(p=>{const im=new THREE.InstancedMesh(p.g0,p.mat,ids.length);im.userData.m0=p.mat;im.userData.m1=p.mat1||p.mat;im.frustumCulled=false;im.castShadow=HQ&&opt.shadow!==false;im.receiveShadow=HQ;
+          ids.forEach((i,j)=>{im.setMatrixAt(j,items[i].m);if(items[i].c)im.setColorAt(j,items[i].c);where[i]=[ch,j];});im.userData.c3d=1;scene.add(im);ch.parts.push({im,g0:p.g0,g1:p.g1});});
+        ch.tri=[parts.reduce((a,p)=>a+tc(p.g0),0)*ids.length,parts.reduce((a,p)=>a+(p.g1?tc(p.g1):0),0)*ids.length];out.push(ch);C3D.chunks.push(ch);});
+      return {chunks:out,where};}
+    /* the procedural street trees sit on a grid inside the blocks: keep only those outside every home plot */
+    function inPlot(x,z){for(const f of frames){if(!f)continue;const dx=x-f.x,dz=z-f.z;if(Math.abs(dx)>40||Math.abs(dz)>40)continue;const ca=Math.cos(f.a),sa=Math.sin(f.a);const lx=dx*ca-dz*sa,lz=dx*sa+dz*ca;if(Math.abs(lx)<f.w/2+0.8&&Math.abs(lz)<f.d/2+0.8)return true;}return false;}
+    function tc(g){return g.index?g.index.count/3:g.attributes.position.count/3;}
+    /* GLB scene -> {name: {geometry, material}} (node transforms baked into the geometry) */
+    function parts(root){const o={};root.updateMatrixWorld(true);root.traverse(n=>{if(n.isMesh){const g=n.geometry.clone();g.applyMatrix4(n.matrixWorld);o[n.name]={g,mat:n.material};}});return o;}
+    /* merge every primitive into one geometry with vertex colours taken from its material (props) */
+    function merged(root){root.updateMatrixWorld(true);const P=[],N=[],C=[];root.traverse(n=>{if(!n.isMesh)return;let g=n.geometry.clone();g.applyMatrix4(n.matrixWorld);if(g.index)g=g.toNonIndexed();
+        const p=g.attributes.position.array,nn=g.attributes.normal.array;const col=(n.material&&n.material.color)?n.material.color:_c.set(0xcccccc);for(let i=0;i<p.length;i+=3){P.push(p[i],p[i+1],p[i+2]);N.push(nn[i],nn[i+1],nn[i+2]);C.push(col.r,col.g,col.b);}});
+      const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));return g;}
+    C3D.update=cam=>{if(!C3D.ready)return;_cam.setFromMatrixPosition(cam.matrixWorld);const cull=!C3D.vr&&cam.isPerspectiveCamera;if(cull){_m.multiplyMatrices(cam.projectionMatrix,cam.matrixWorldInverse);_fr.setFromProjectionMatrix(_m);}
+      let tris=0,shadow=false;const k=C3D.vr?0.45:1;
+      for(const ch of C3D.chunks){const d=Math.max(0,_cam.distanceTo(ch.c)-ch.r);const lod=d<ch.near*k?0:(d<(C3D.vr?ch.farVR:ch.far)?1:2);
+        const vis=lod<2&&(!cull||_fr.intersectsSphere({center:ch.c,radius:ch.r}));
+        if(lod!==ch.lod){ch.lod=lod;shadow=true;ch.parts.forEach(p=>{const g=lod===0?p.g0:p.g1;if(g){p.im.geometry=g;p.im.material=lod===0?p.im.userData.m0:p.im.userData.m1;p.im.visible=true;}else p.im.visible=false;});}
+        ch.parts.forEach(p=>{p.im.visible=vis&&(lod===0||!!p.g1);});
+        if(vis)tris+=ch.tri[lod===0?0:1];}
+      C3D.tris=tris;if(shadow&&HQ)renderer.shadowMap.needsUpdate=true;};
+    let glassMat=null;
+    C3D.night=on=>{if(!C3D.ready)return;LIGHTS.forEach(m=>m.visible=false);
+      if(glassMat){glassMat.emissive.setHex(on?0xFFC879:0x000000);glassMat.emissiveIntensity=on?0.85:0;}
+      if(C3D.sky){scene.background=on?null:C3D.sky;skyMesh.visible=on;}
+      if(!on&&C3D.sun)sun.position.copy(C3D.sun);renderer.shadowMap.needsUpdate=true;T3.dirty=true;};
+    async function start(){try{
+      const man=await (await fetch(BASE+'manifest.json')).json();
+      await addScript('loaders/GLTFLoader.js');await addScript('loaders/DRACOLoader.js');await addScript('loaders/RGBELoader.js');
+      const draco=new THREE.DRACOLoader();draco.setDecoderPath(CDN+'libs/draco/');const gl=new THREE.GLTFLoader();gl.setDRACOLoader(draco);
+      const glb=f=>new Promise((res,rej)=>gl.load(BASE+f,g=>res(g.scene),undefined,rej));const tl=new THREE.TextureLoader();
+      /* sky: HDRI environment + background picture, sun turned to match */
+      if(man.sky){new THREE.RGBELoader().setDataType(THREE.HalfFloatType).load(BASE+man.sky.hdr,hdr=>{const pm=new THREE.PMREMGenerator(renderer);const env=pm.fromEquirectangular(hdr).texture;pm.dispose();dayEnv=env;
+        hdr.mapping=THREE.EquirectangularReflectionMapping;C3D.sky=hdr;if(!NIGHT.on){scene.environment=env;envIntensity(0.42);scene.background=hdr;skyMesh.visible=false;}T3.dirty=true;});}
+      if(man.sun){C3D.sun=new THREE.Vector3(man.sun[0],man.sun[1],man.sun[2]).multiplyScalar(950);if(!NIGHT.on)sun.position.copy(C3D.sun);sun.color.setHex(0xfff3e2);}
+      /* PBR ground: asphalt, paving, lawn, desert (UVs of the plan shapes are in metres) */
+      const tex=(f,rep,srgb)=>{const t=tl.load(BASE+f,()=>{T3.dirty=true;});t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rep,rep);if(srgb)t.encoding=THREE.sRGBEncoding;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return t;};
+      const skin=(mesh,g,rep,ns)=>{if(!mesh||!g)return;const m=mesh.material;m.map=tex(g.map,rep,true);m.normalMap=tex(g.normal,rep,false);m.normalScale=new THREE.Vector2(ns,ns);m.color.setHex(0xffffff);m.roughness=0.92;m.needsUpdate=true;};
+      const G=man.ground||{};skin(mRoad,G.asphalt,1/(G.asphalt||{}).size,0.6);skin(mPave,G.pavers,1/(G.pavers||{}).size,0.7);skin(mPark,G.grass,1/(G.grass||{}).size,0.8);skin(ground,G.sand,9000/(G.sand||{}).size,0.6);
+      /* houses: chunked copies that mirror the hidden procedural proxies */
+      const H=man.houses||{};
+      for(const im of meshes){const t=im.userData.type;if(!H[t])continue;
+        const [r0,r1]=await Promise.all([glb(H[t].lod0),glb(H[t].lod1)]);const p0=parts(r0),p1=parts(r1);if(!p0.body)continue;
+        const body=p0.body.mat;body.envMapIntensity=0.42;if(p0.glass){glassMat=glassMat||new THREE.MeshStandardMaterial({color:0x0b0d10,roughness:0.06,metalness:0.1,envMapIntensity:1.2});}
+        const items=[];for(let k=0;k<im.count;k++){const m=new THREE.Matrix4();im.getMatrixAt(k,m);const c=new THREE.Color(1,1,1);if(im.instanceColor)c.fromArray(im.instanceColor.array,k*3);items.push({m,c});}
+        const body1=p1.body&&p1.body.mat&&p1.body.mat.map?p1.body.mat:body;body1.envMapIntensity=0.42;const P=[{g0:p0.body.g,g1:p1.body?p1.body.g:p0.body.g,mat:body,mat1:body1}];if(p0.glass)P.push({g0:p0.glass.g,g1:p1.glass?p1.glass.g:null,mat:glassMat});
+        const set=chunked(P,items,{near:170,far:1e9,rad:Math.max(H[t].pw,H[t].pd)});
+        const sm=im.setMatrixAt.bind(im),sc=im.setColorAt.bind(im);
+        im.setMatrixAt=(k,m)=>{sm(k,m);const w=set.where[k];if(w)w[0].parts.forEach(p=>{p.im.setMatrixAt(w[1],m);p.im.instanceMatrix.needsUpdate=true;});};
+        im.setColorAt=(k,c)=>{sc(k,c);const w=set.where[k];if(w)w[0].parts.forEach(p=>{p.im.setColorAt(w[1],c);if(p.im.instanceColor)p.im.instanceColor.needsUpdate=true;});};
+        im.visible=false;}
+      /* props: replace the procedural geometry, keep their placements */
+      const pmat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.78,metalness:0.05});const P=man.props||{};
+      const propGeo={};for(const n in P)propGeo[n]=merged(await glb(P[n].file));
+      const IRAQ=[0xF2F2F0,0xEDEDEA,0xC4C6C9,0x8E9196,0x1C1D20,0x3A3D42,0xE9E4D8];
+      scene.children.filter(o=>o.isInstancedMesh&&o.userData.prop).forEach(im=>{const kind=im.userData.prop;const items=[];
+        for(let k=0;k<im.count;k++){const m=new THREE.Matrix4();im.getMatrixAt(k,m);
+          if(kind==='street'||kind==='lamp'){_v.setFromMatrixPosition(m);if(inPlot(_v.x,_v.z))continue;}
+          items.push({m,c:kind==='car'?new THREE.Color(IRAQ[(k*5)%IRAQ.length]).convertSRGBToLinear():new THREE.Color(1,1,1)});}
+        if(kind==='car'){const by=[[],[],[]];items.forEach((it,k)=>by[(k*7)%10<5?0:((k*7)%10<8?1:2)].push(it));['car_sedan','car_suv','car_pickup'].forEach((n,i)=>{if(propGeo[n]&&by[i].length)chunked([{g0:propGeo[n],g1:null,mat:pmat}],by[i],{near:320,rad:6});});}
+        else{const n={street:'palm',palm:'palm',parktree:'tree',lamp:'lamp'}[kind];if(!propGeo[n])return;chunked([{g0:propGeo[n],g1:propGeo[n+'_lod1']||propGeo[n],mat:pmat}],items,{near:kind==='lamp'?260:150,far:kind==='lamp'?700:1e9,farVR:kind==='lamp'?160:260,rad:8,shadow:kind!=='lamp'});}
+        im.visible=false;});
+      C3D.ready=true;C3D.night(NIGHT.on);envIntensity(NIGHT.on?0:0.42);renderer.shadowMap.needsUpdate=true;T3.dirty=true;
+    }catch(e){console.warn('city3d: staying with the procedural city',e);}}
+    scene.onBeforeRender=(r,s,cam)=>{if(C3D.ready)C3D.update(cam);};
+    T3.c3dStats=()=>({ready:C3D.ready,tris:Math.round(C3D.tris),chunks:C3D.chunks.length,calls:renderer.info.render.calls,frameTris:renderer.info.render.triangles});
+    if(typeof SCREEN!=='undefined'&&SCREEN)setTimeout(start,600);   /* sales screen only; the public map keeps the light procedural city */
+  })();
+  /*</C3D>*/
   renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;envIntensity(0.25);M3.ready=true;M3.loading=false;fit();refresh();if(selU)mark(selU);applyCam();requestAnimationFrame(tick);
   const hint=document.getElementById('hint3');setTimeout(()=>{if(hint)hint.style.opacity='0';},9000);}
 function refresh3D(){if(T3)T3.refresh();}

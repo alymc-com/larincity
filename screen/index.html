@@ -1564,6 +1564,9 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     if(!ok){vrMsg(L.vr_no);return false;}
     const session=await navigator.xr.requestSession('immersive-vr',{optionalFeatures:['local-floor','bounded-floor']});
     renderer.xr.enabled=true;renderer.xr.setReferenceSpaceType('local-floor');
+    /* lighter rendering in the headset so motion stays fluid: no shadow maps, foveated rendering, a steady frame rate */
+    const hadShadows=renderer.shadowMap.enabled;renderer.shadowMap.enabled=false;scene.traverse(o=>{if(o.material)o.material.needsUpdate=true;});
+    try{renderer.xr.setFramebufferScaleFactor(0.9);}catch(e){}try{if(renderer.xr.setFoveation)renderer.xr.setFoveation(1);}catch(e){}
     const rig=new THREE.Group(),vcam=new THREE.PerspectiveCamera(70,1,0.1,9000);rig.add(vcam);scene.add(rig);
     const AER=130;let aerial=false;
     rig.position.set(st.tx+Math.sin(st.theta)*60,0,st.tz+Math.cos(st.theta)*60);rig.rotation.y=st.theta;
@@ -1586,7 +1589,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
       c.addEventListener('squeezestart',()=>{aerial=!aerial;lift={y0:rig.position.y,y1:aerial?AER:0,t0:performance.now(),ms:1600};});
       rig.add(c);return c;});
     /* all motion is eased: glide to a pointed spot, rise/descend for the aerial view, stick walking and turning with gentle acceleration */
-    let glide=null,lift=null,lastT=0;const vel=new THREE.Vector2(),fwd=new THREE.Vector3();let turnV=0;
+    let glide=null,lift=null,lastT=0;const vel=new THREE.Vector2(),fwd=new THREE.Vector3(),sdir=new THREE.Vector3();let turnV=0;
     const ease=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
     function frameXR(time){const now=performance.now(),dt=Math.min(0.05,lastT?(now-lastT)/1000:0.016);lastT=now;marker.visible=false;
       if(glide){const p=Math.min(1,(now-glide.t0)/glide.ms),e=ease(p);rig.position.x=glide.x0+(glide.x1-glide.x0)*e;rig.position.z=glide.z0+(glide.z1-glide.z0)*e;if(p>=1)glide=null;}
@@ -1600,15 +1603,17 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
         const gp=c.userData.gp;if(gp&&gp.axes){const ax=gp.axes[2]||0,ay=gp.axes[3]||0,dz=v=>Math.abs(v)<0.15?0:(v-Math.sign(v)*0.15)/0.85;
           if(c.userData.hand==='left'){mx=dz(ax);my=dz(ay);}else tx=dz(ax);}}
       /* walking: left stick, toward where you look; speed rises and falls smoothly (about 3.5 m/s on foot, faster from the air) */
-      const sp=(rig.position.y>20?28:3.5);vel.x+=(mx*sp-vel.x)*Math.min(1,dt*5);vel.y+=(my*sp-vel.y)*Math.min(1,dt*5);
-      if(Math.abs(vel.x)+Math.abs(vel.y)>0.01){vcam.getWorldDirection(fwd);fwd.y=0;fwd.normalize();const rx=-fwd.z,rz=fwd.x;
+      const sp=(rig.position.y>20?22:2.2),k=1-Math.exp(-dt*3.2);vel.x+=(mx*sp-vel.x)*k;vel.y+=(my*sp-vel.y)*k;
+      vcam.getWorldDirection(fwd);fwd.y=0;if(fwd.lengthSq()>1e-6){fwd.normalize();if(!sdir.lengthSq())sdir.copy(fwd);else sdir.lerp(fwd,1-Math.exp(-dt*4)).normalize();}
+      if(Math.abs(vel.x)+Math.abs(vel.y)>0.01){fwd.copy(sdir);const rx=-fwd.z,rz=fwd.x;
         rig.position.x+=(-fwd.x*vel.y+rx*vel.x)*dt;rig.position.z+=(-fwd.z*vel.y+rz*vel.x)*dt;glide=null;}
       /* turning: right stick, a gentle 45°/s that eases in and out */
-      turnV+=(-tx*Math.PI/4-turnV)*Math.min(1,dt*4);if(Math.abs(turnV)>0.001)rig.rotation.y+=turnV*dt;
+      turnV+=(-tx*Math.PI/4-turnV)*(1-Math.exp(-dt*3));if(Math.abs(turnV)>0.001)rig.rotation.y+=turnV*dt;
       renderer.render(scene,vcam);}
-    session.addEventListener('end',()=>{renderer.setAnimationLoop(null);renderer.xr.enabled=false;ctrls.forEach(c=>rig.remove(c));scene.remove(rig);scene.remove(marker);panel.geometry.dispose();ptex.dispose();
+    session.addEventListener('end',()=>{renderer.setAnimationLoop(null);renderer.xr.enabled=false;renderer.shadowMap.enabled=hadShadows;renderer.shadowMap.needsUpdate=true;scene.traverse(o=>{if(o.material)o.material.needsUpdate=true;});ctrls.forEach(c=>rig.remove(c));scene.remove(rig);scene.remove(marker);panel.geometry.dispose();ptex.dispose();
       resize();T3.dirty=true;document.querySelectorAll('#modectl .vrbtn').forEach(b=>b.classList.remove('on'));});
     await renderer.xr.setSession(session);renderer.setAnimationLoop(frameXR);
+    try{if(session.updateTargetFrameRate&&session.supportedFrameRates){const fr=[...session.supportedFrameRates];session.updateTargetFrameRate(fr.includes(72)?72:fr[0]);}}catch(e){}
     document.querySelectorAll('#modectl .vrbtn').forEach(b=>b.classList.add('on'));return true;};
   renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;envIntensity(0.25);M3.ready=true;M3.loading=false;fit();refresh();if(selU)mark(selU);applyCam();requestAnimationFrame(tick);
   const hint=document.getElementById('hint3');setTimeout(()=>{if(hint)hint.style.opacity='0';},9000);}

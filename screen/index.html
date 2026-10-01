@@ -1579,20 +1579,32 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     const r2=new THREE.Raycaster(),mrot=new THREE.Matrix4(),org=new THREE.Vector3(),dir=new THREE.Vector3(),hitP=new THREE.Vector3();
     const ctrls=[0,1].map(n=>{const c=renderer.xr.getController(n);
       const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-1)]),new THREE.LineBasicMaterial({color:0xffffff}));line.scale.z=80;c.add(line);
-      c.addEventListener('connected',e=>{c.userData.gp=e.data.gamepad;});
+      c.addEventListener('connected',e=>{c.userData.gp=e.data.gamepad;c.userData.hand=e.data.handedness;});
       c.addEventListener('selectstart',()=>{const h=c.userData.h;if(!h)return;
         if(h.unit){const u=h.unit;select(u);const sc={available:'#E9EDF3',reserved:'#A8A39E',sold:'#55565A'}[u.status];card([u.code,L.type+' '+u.type,L[u.status]],sc);return;}
-        rig.position.set(h.p.x,aerial?AER:0,h.p.z);});
-      c.addEventListener('squeezestart',()=>{aerial=!aerial;rig.position.y=aerial?AER:0;});
+        glide={x0:rig.position.x,z0:rig.position.z,x1:h.p.x,z1:h.p.z,t0:performance.now(),ms:Math.min(1400,500+h.p.distanceTo(rig.position)*4)};});
+      c.addEventListener('squeezestart',()=>{aerial=!aerial;lift={y0:rig.position.y,y1:aerial?AER:0,t0:performance.now(),ms:1600};});
       rig.add(c);return c;});
-    let turnLock=false;
-    function frameXR(){marker.visible=false;
+    /* all motion is eased: glide to a pointed spot, rise/descend for the aerial view, stick walking and turning with gentle acceleration */
+    let glide=null,lift=null,lastT=0;const vel=new THREE.Vector2(),fwd=new THREE.Vector3();let turnV=0;
+    const ease=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
+    function frameXR(time){const now=performance.now(),dt=Math.min(0.05,lastT?(now-lastT)/1000:0.016);lastT=now;marker.visible=false;
+      if(glide){const p=Math.min(1,(now-glide.t0)/glide.ms),e=ease(p);rig.position.x=glide.x0+(glide.x1-glide.x0)*e;rig.position.z=glide.z0+(glide.z1-glide.z0)*e;if(p>=1)glide=null;}
+      if(lift){const p=Math.min(1,(now-lift.t0)/lift.ms),e=ease(p);rig.position.y=lift.y0+(lift.y1-lift.y0)*e;if(p>=1)lift=null;}
+      let mx=0,my=0,tx=0;
       for(const c of ctrls){mrot.identity().extractRotation(c.matrixWorld);org.setFromMatrixPosition(c.matrixWorld);dir.set(0,0,-1).applyMatrix4(mrot);r2.set(org,dir);
         const hm=r2.intersectObjects(meshes,false)[0];let h=null;
         if(hm){const i=byType[hm.object.userData.type][hm.instanceId];if(i!=null)h={unit:UNITS[i]};}
         else if(r2.ray.intersectPlane(gplane,hitP)&&hitP.distanceTo(org)<2500){h={p:hitP.clone()};marker.visible=true;marker.position.set(hitP.x,0.08,hitP.z);}
         c.userData.h=h;
-        const gp=c.userData.gp;if(gp&&gp.axes){const x=gp.axes[2]||gp.axes[0]||0;if(Math.abs(x)>0.7&&!turnLock){rig.rotation.y-=Math.sign(x)*Math.PI/6;turnLock=true;}if(Math.abs(x)<0.3)turnLock=false;}}
+        const gp=c.userData.gp;if(gp&&gp.axes){const ax=gp.axes[2]||0,ay=gp.axes[3]||0,dz=v=>Math.abs(v)<0.15?0:(v-Math.sign(v)*0.15)/0.85;
+          if(c.userData.hand==='left'){mx=dz(ax);my=dz(ay);}else tx=dz(ax);}}
+      /* walking: left stick, toward where you look; speed rises and falls smoothly (about 3.5 m/s on foot, faster from the air) */
+      const sp=(rig.position.y>20?28:3.5);vel.x+=(mx*sp-vel.x)*Math.min(1,dt*5);vel.y+=(my*sp-vel.y)*Math.min(1,dt*5);
+      if(Math.abs(vel.x)+Math.abs(vel.y)>0.01){vcam.getWorldDirection(fwd);fwd.y=0;fwd.normalize();const rx=-fwd.z,rz=fwd.x;
+        rig.position.x+=(-fwd.x*vel.y+rx*vel.x)*dt;rig.position.z+=(-fwd.z*vel.y+rz*vel.x)*dt;glide=null;}
+      /* turning: right stick, a gentle 45°/s that eases in and out */
+      turnV+=(-tx*Math.PI/4-turnV)*Math.min(1,dt*4);if(Math.abs(turnV)>0.001)rig.rotation.y+=turnV*dt;
       renderer.render(scene,vcam);}
     session.addEventListener('end',()=>{renderer.setAnimationLoop(null);renderer.xr.enabled=false;ctrls.forEach(c=>rig.remove(c));scene.remove(rig);scene.remove(marker);panel.geometry.dispose();ptex.dispose();
       resize();T3.dirty=true;document.querySelectorAll('#modectl .vrbtn').forEach(b=>b.classList.remove('on'));});

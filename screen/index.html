@@ -385,7 +385,9 @@
   body.screen .modectl .lang2{display:inline-block}
   .modectl .lang2{display:none;border:1px solid var(--line);background:#fff}
   .modectl .nightbtn{border:1px solid var(--line);background:#fff}
-  body:not(.screen) .modectl button[data-m]{display:none}
+  body:not(.screen) .modectl button[data-m],body:not(.screen) .modectl .vrbtn{display:none}
+  #vrmsg{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:60;max-width:min(520px,calc(100vw - 32px));padding:14px 20px;border-radius:18px;background:rgba(15,17,21,.88);color:#fff;font:600 15px/1.6 var(--font);text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .35s}
+  #vrmsg.on{opacity:1}
   body.night .modectl .nightbtn{background:#1B2440;color:#FFD48A;border-color:#1B2440}
   body.night .modectl{background:rgba(255,255,255,.9)}
   @media (max-width:640px){.mapwrap.m3d{aspect-ratio:5/4}.mapwrap.m3d .mapin{position:absolute;inset:0}.hint3{font-size:10.5px}}
@@ -906,7 +908,7 @@
       <button class="fbtn" data-t="D"><span class="sw" style="background:#3B8DF0"></span>D · 320 <span data-i="m2">م²</span></button>
       <button class="fbtn" data-t="E"><span class="sw" style="background:#F05A5A"></span>E · 600 <span data-i="m2">م²</span></button>
       <div class="zoomctl"><button onclick="zoomMap(1)" aria-label="+">+</button><button onclick="zoomMap(-1)" aria-label="-">−</button></div>
-      <div class="modectl" id="modectl"><button data-m="3d" class="on" onclick="setMode('3d')" data-i="m3d">ثلاثي الأبعاد</button><button data-m="2d" onclick="setMode('2d')" data-i="m2d">مسطح</button><button class="nightbtn" id="nightbtn" onclick="toggleNight()" data-i="m_night">ليلي</button><button class="lang2" id="langbtn4" onclick="setLang(LANG==='ar'?'en':'ar')">EN</button><button class="home" onclick="home3D()" aria-label="home" title=""><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg></button></div>
+      <div class="modectl" id="modectl"><button data-m="3d" class="on" onclick="setMode('3d')" data-i="m3d">ثلاثي الأبعاد</button><button data-m="2d" onclick="setMode('2d')" data-i="m2d">مسطح</button><button class="vrbtn" onclick="enterVR()" data-i="mvr">الواقع الافتراضي</button><button class="nightbtn" id="nightbtn" onclick="toggleNight()" data-i="m_night">ليلي</button><button class="lang2" id="langbtn4" onclick="setLang(LANG==='ar'?'en':'ar')">EN</button><button class="home" onclick="home3D()" aria-label="home" title=""><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg></button></div>
     </div>
     <div class="planlayout">
       <div class="rv">
@@ -1058,7 +1060,7 @@ ar:{brand:'لارين سيتي',proto:'نموذج أولي · بيانات ال�
  bn_h:'مجمع متكامل في مكان واحد',bn_p:'احجز وحدتك أو رتّب موعداً لزيارة المدينة.',bn_btn:'ابدأ الحجز',
  bk_pill:'الحجز',bk_h:'احجز وحدتك في ثلاث خطوات',st1b:'اختر النموذج أو الوحدة',st1t:'من البطاقات أو من الخريطة.',st2b:'أرسل بياناتك',st2t:'الاسم ورقم الهاتف فقط.',st3b:'يتواصل معك فريق المبيعات',st3t:'خلال يوم عمل لتأكيد الحجز.',
  f_type:'النموذج',f_choose:'اختر النموذج',f_unit:'رقم الوحدة (اختياري)',f_unit_ph:'مثال: S539',f_name:'الاسم الكامل',f_phone:'رقم الهاتف',f_city:'المحافظة',f_city_ph:'بابل',f_kind:'نوع الطلب',kinds:['حجز وحدة','طلب معاينة','استفسار عن الأسعار'],f_note:'ملاحظات',f_note_ph:'أي تفاصيل تود إضافتها',f_send:'إرسال طلب الحجز',f_notice:'نموذج أولي للعرض، الطلب لا يُرسل فعلياً. في النسخة النهائية يصل الطلب إلى فريق المبيعات عبر لوحة التحكم والواتساب.',
- f_notice_live:'يصل طلبك مباشرة إلى فريق المبيعات ويتواصل معك خلال يوم عمل.',f_err:'تعذر إرسال الطلب، تحقق من الاتصال وحاول مرة أخرى.',proto_live:'نسخة تجريبية',sc_close:'إغلاق',sc_types:'النماذج',m_night:'ليلي',m_day:'نهاري',m3d:'ثلاثي الأبعاد',m2d:'مسطح',m_home:'عرض كامل',m_hint:'اسحب للتدوير · قرّب بإصبعين أو بعجلة الفأرة · اضغط على أي بيت',sc_title:'شاشة مركز المبيعات',sc_live:'متصل',sc_res:'محجوز',sc_sold:'مباع',sc_avail:'متاح',sc_pin:'أدخل رمز المبيعات',sc_manage:'إدارة الحالة (للموظفين)',sc_note:'تم حجز الوحدة {c} وظهرت محجوزة الآن على الشاشة والموقع.',sc_err:'تعذر الحفظ، تحقق من الاتصال.',d_h:'تم استلام طلبك',d_p:'سيتواصل معك فريق مبيعات لارين سيتي خلال يوم عمل على الرقم الذي أدخلته لتأكيد الحجز وترتيب موعد المعاينة.',d_btn:'طلب جديد',
+ f_notice_live:'يصل طلبك مباشرة إلى فريق المبيعات ويتواصل معك خلال يوم عمل.',f_err:'تعذر إرسال الطلب، تحقق من الاتصال وحاول مرة أخرى.',proto_live:'نسخة تجريبية',sc_close:'إغلاق',sc_types:'النماذج',m_night:'ليلي',m_day:'نهاري',m3d:'ثلاثي الأبعاد',m2d:'مسطح',mvr:'الواقع الافتراضي',vr_no:'لتجربة الواقع الافتراضي افتح هذه الشاشة من متصفح نظارة Meta Quest',vr_tip:'وجّه يد التحكم إلى الأرض واضغط الزناد للانتقال، وإلى أي بيت لعرض بياناته. العصا للالتفات، والقبضة للمنظر العلوي.',m_home:'عرض كامل',m_hint:'اسحب للتدوير · قرّب بإصبعين أو بعجلة الفأرة · اضغط على أي بيت',sc_title:'شاشة مركز المبيعات',sc_live:'متصل',sc_res:'محجوز',sc_sold:'مباع',sc_avail:'متاح',sc_pin:'أدخل رمز المبيعات',sc_manage:'إدارة الحالة (للموظفين)',sc_note:'تم حجز الوحدة {c} وظهرت محجوزة الآن على الشاشة والموقع.',sc_err:'تعذر الحفظ، تحقق من الاتصال.',d_h:'تم استلام طلبك',d_p:'سيتواصل معك فريق مبيعات لارين سيتي خلال يوم عمل على الرقم الذي أدخلته لتأكيد الحجز وترتيب موعد المعاينة.',d_btn:'طلب جديد',
  ft_p:'مدينة سكنية متكاملة في بابل، مجاور جامعة الحلة.',ft_dev:'بيت العطاء',ft_devt:'الشركة المنفذة للمشروع',ft_p1:'شركة البلاد الحصينة للبناء الجاهز',ft_p2:'مكتب البنيان الثابت',ft_pt:'شريك التنفيذ',ft_sec:'الأقسام',ft_contact:'تواصل معنا',ft_wa:'واتساب المبيعات',ft_addr:'بابل، مجاور جامعة الحلة',ft_follow:'تابعنا',so1:'إنستغرام',so2:'فيسبوك',so3:'تيك توك',so4:'سناب شات',big:'لارين سيتي',copy:'© 2026 لارين سيتي · جميع الحقوق محفوظة',bl:'بابل · العراق',
  ai_name:'مساعد لارين',ai_sub:'الذكاء الاصطناعي الخاص بالمشروع',ai_ph:'اكتب سؤالك',ai_live:'متصل · الذكاء الاصطناعي الخاص بالمشروع',ai_local:'ردود جاهزة · النسخة المحلية بلا اتصال بالذكاء الاصطناعي',ai_hi:'أهلاً بك في لارين سيتي. أنا مساعدك الشخصي الذكي، اسألني أي شيء عن النماذج والمساحات أو الموقع أو المرافق أو طريقة الحجز.',ai_chips:['النماذج والمساحات','الموقع','المرافق','كيف أحجز؟','الأسعار'],
  ai_a:{types:'لدينا خمسة نماذج بطابقين: A بمساحة 160 م² (3 غرف نوم)، B بمساحة 200 م²، C بمساحة 300 م²، D بمساحة 320 م² (4 غرف)، وE بمساحة 600 م² (4 غرف وكراج مزدوج). لكل بيت حديقة وموقف.',loc:'لارين سيتي في محافظة بابل، مجاور جامعة الحلة مباشرة، على شارع رئيسي بعرض 20 متراً.',amen:'داخل المجمع: مدارس ابتدائية ومتوسطة وإعدادية، مركز صحي، دفاع مدني، مراكز تسوق، مسبح ونادٍ رياضي، غاز مركزي، وأمن على مدار الساعة. و60% من المساحة حدائق.',book:'الحجز بسيط: اختر النموذج أو الوحدة من الخريطة، أرسل اسمك ورقم هاتفك، ويتواصل معك فريق المبيعات خلال يوم عمل لتأكيد الحجز.',price:'الأسعار غير معروضة على الموقع. أرسل طلب حجز أو استفسار وسيزودك فريق المبيعات بالأسعار وخطط الدفع.',fallback:'يمكنني مساعدتك بخصوص النماذج والمساحات، الموقع، المرافق، وطريقة الحجز. في النسخة النهائية سأجيب عن أي سؤال وأحجز لك موعد معاينة مباشرة.'},
@@ -1080,7 +1082,7 @@ en:{brand:'LARIN CITY',proto:'Prototype · booking data is for demo',n_about:'Ab
  bn_h:'A complete community in one place',bn_p:'Reserve your home or book a visit to the city.',bn_btn:'Start booking',
  bk_pill:'Booking',bk_h:'Reserve your home in three steps',st1b:'Choose a type or a home',st1t:'From the cards or the map.',st2b:'Send your details',st2t:'Name and phone only.',st3b:'Our sales team calls you',st3t:'Within one working day.',
  f_type:'Type',f_choose:'Choose a type',f_unit:'Home number (optional)',f_unit_ph:'e.g. S539',f_name:'Full name',f_phone:'Phone',f_city:'Governorate',f_city_ph:'Babil',f_kind:'Request',kinds:['Reserve a home','Book a visit','Ask about prices'],f_note:'Notes',f_note_ph:'Anything you would like to add',f_send:'Send request',f_notice:'Prototype for demonstration; requests are not actually sent. In the final version they reach the sales team via the dashboard and WhatsApp.',
- f_notice_live:'Your request goes straight to the sales team, who will call you within one working day.',f_err:'Could not send the request. Check the connection and try again.',proto_live:'Beta',sc_close:'Close',sc_types:'Homes',m_night:'Night',m_day:'Day',m3d:'3D',m2d:'Flat',m_home:'Full view',m_hint:'Drag to rotate · pinch or scroll to zoom · tap any home',sc_title:'Sales centre screen',sc_live:'Connected',sc_res:'Reserved',sc_sold:'Sold',sc_avail:'Available',sc_pin:'Enter the sales PIN',sc_manage:'Manage status (staff)',sc_note:'Home {c} is reserved and now shows as reserved on the screen and the website.',sc_err:'Could not save. Check the connection.',d_h:'Request received',d_p:'The Larin City sales team will call you within one working day to confirm and arrange a visit.',d_btn:'New request',
+ f_notice_live:'Your request goes straight to the sales team, who will call you within one working day.',f_err:'Could not send the request. Check the connection and try again.',proto_live:'Beta',sc_close:'Close',sc_types:'Homes',m_night:'Night',m_day:'Day',m3d:'3D',m2d:'Flat',mvr:'VR',vr_no:'To use VR, open this screen in the Meta Quest browser',vr_tip:'Point at the ground and pull the trigger to move, at any home to see it. Stick to turn, grip for the aerial view.',m_home:'Full view',m_hint:'Drag to rotate · pinch or scroll to zoom · tap any home',sc_title:'Sales centre screen',sc_live:'Connected',sc_res:'Reserved',sc_sold:'Sold',sc_avail:'Available',sc_pin:'Enter the sales PIN',sc_manage:'Manage status (staff)',sc_note:'Home {c} is reserved and now shows as reserved on the screen and the website.',sc_err:'Could not save. Check the connection.',d_h:'Request received',d_p:'The Larin City sales team will call you within one working day to confirm and arrange a visit.',d_btn:'New request',
  ft_p:'An integrated residential city in Babil, next to Al-Hilla University.',ft_dev:'Bait Al-Ataa',ft_devt:'Project developer',ft_p1:'Al-Belad Al-Hassena Co. for Precast Products',ft_p2:'Al-Bunyan Al-Thabit Office',ft_pt:'Execution partner',ft_sec:'Sections',ft_contact:'Contact',ft_wa:'Sales WhatsApp',ft_addr:'Babil, next to Al-Hilla University',ft_follow:'Follow us',so1:'Instagram',so2:'Facebook',so3:'TikTok',so4:'Snapchat',big:'LARIN CITY',copy:'© 2026 Larin City · All rights reserved',bl:'BABIL · IRAQ',
  ai_name:'Larin Assistant',ai_sub:'The project\'s own AI',ai_ph:'Type your question',ai_live:'Connected · the official Larin City AI',ai_local:'Canned replies · local copy, no AI connection',ai_hi:'Welcome to Larin City. I am your personal AI assistant. Ask me anything about home types and sizes, the location, facilities, or how to reserve.',ai_chips:['Home types & sizes','Location','Facilities','How do I reserve?','Prices'],
  ai_a:{types:'Five two-storey types: A at 160 m² (3 bedrooms), B at 200 m², C at 300 m², D at 320 m² (4 bedrooms), and E at 600 m² (4 bedrooms, double garage). Every home has a garden and parking.',loc:'Larin City is in Babil governorate, right next to Al-Hilla University, on a 20 m main boulevard.',amen:'Inside the gates: primary, middle and secondary schools, a health centre, civil defence, shopping centres, a pool and sports club, central gas, and 24/7 security. 60% of the land is green space.',book:'Reserving is simple: pick a type or a home on the map, send your name and phone, and the sales team calls you within one working day to confirm.',price:'Prices are not published on the site. Send a reservation or enquiry and the sales team will share prices and payment plans.',fallback:'I can help with home types and sizes, the location, facilities, and how to reserve. In the final version I will answer any question and book a viewing for you directly.'},
@@ -1238,6 +1240,9 @@ function setMode(m,save){const want=m==='3d';if(want&&(M3.failed))m='2d';M3.on=(
   document.querySelectorAll('#modectl button[data-m]').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
   if(save!==false){try{localStorage.setItem('lc-map',m);}catch(e){}}
   if(M3.on){if(!M3.ready)load3D();else{T3.resize();T3.dirty=true;}}}
+/* VR mode on the sales screen: makes sure the 3D city is ready, then opens it in the headset */
+function vrMsg(t){let m=document.getElementById('vrmsg');if(!m){m=document.createElement('div');m.id='vrmsg';document.body.appendChild(m);}m.textContent=t;m.classList.add('on');clearTimeout(vrMsg.t);vrMsg.t=setTimeout(()=>m.classList.remove('on'),5200);}
+async function enterVR(){if(M3.failed){vrMsg(L.vr_no);return;}if(!M3.on)setMode('3d');for(let i=0;i<120&&!M3.ready;i++)await new Promise(r=>setTimeout(r,100));if(!M3.ready||!T3||!T3.vr){vrMsg(L.vr_no);return;}try{await T3.vr();}catch(e){console.error(e);vrMsg(L.vr_no);}}
 function load3D(){if(M3.ready||M3.failed||M3.loading)return;M3.loading=true;
   const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
   s.onload=()=>{try{init3D();}catch(e){console.error(e);M3.failed=true;setMode('2d',false);}};s.onerror=()=>{M3.failed=true;setMode('2d',false);};document.head.appendChild(s);}
@@ -1498,7 +1503,7 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     if(ring.visible){const t=((now-pinT0)%1600)/1600;const k=1+t*2.2;pinHalo.scale.set(k,k,k);pinHalo.material.opacity=0.6*(1-t);pinDot.position.y=Math.sin(now/300)*0.25*U;T3.dirty=true;}
     if(rise<1){rise=Math.min(1,rise+(now-riseT)/1400);riseT=now;place(1-Math.pow(1-rise,3));renderer.shadowMap.needsUpdate=true;T3.dirty=true;}
     if(SCREEN&&!anim&&ptrs.size===0&&now-lastAct>45000){autoOrbit=true;}if(autoOrbit){st.theta+=0.00035*Math.min(50,now-(tick.last||now));T3.dirty=true;}tick.last=now;
-    if(T3.dirty&&visible){applyCam();renderer.render(scene,cam);T3.dirty=false;}requestAnimationFrame(tick);}
+    if(T3.dirty&&visible&&!renderer.xr.isPresenting){applyCam();renderer.render(scene,cam);T3.dirty=false;}requestAnimationFrame(tick);}
   let rise=0,riseT=performance.now(),visible=true;
   /* gestures */
   const el=renderer.domElement;const ptrs=new Map();let moved=0,pinch0=0,r0=0,rot0=null;
@@ -1553,6 +1558,46 @@ function init3D(){const box=document.getElementById('map3d');const W=box.clientW
     const uc=(q.get('u')||'').toUpperCase();if(uc){const uu=UNITS.find(x=>x.code===uc);if(uu){setTimeout(()=>{select(uu);const i=UNITS.indexOf(uu);flyFacade(i);if(q.get('book')==='1'&&SCREEN){prefill(uu.type,uu.code);openBooking();}},400);}}}catch(e){}
   T3.render=()=>{if(anim){for(const k in anim.to)st[k]=anim.to[k];anim=null;}place(1);applyCam();renderer.render(scene,cam);T3.dirty=false;};
   T3.snap=()=>{T3.render();return renderer.domElement.toDataURL('image/jpeg',0.85);};
+  /* VR: the same 3D city in a Meta Quest (WebXR). Trigger on the ground = move there, on a home = its card; grip = street / aerial; stick = snap turn */
+  T3.vr=async()=>{
+    let ok=false;try{ok=!!(navigator.xr&&await navigator.xr.isSessionSupported('immersive-vr'));}catch(e){}
+    if(!ok){vrMsg(L.vr_no);return false;}
+    const session=await navigator.xr.requestSession('immersive-vr',{optionalFeatures:['local-floor','bounded-floor']});
+    renderer.xr.enabled=true;renderer.xr.setReferenceSpaceType('local-floor');
+    const rig=new THREE.Group(),vcam=new THREE.PerspectiveCamera(70,1,0.1,9000);rig.add(vcam);scene.add(rig);
+    const AER=130;let aerial=false;
+    rig.position.set(st.tx+Math.sin(st.theta)*60,0,st.tz+Math.cos(st.theta)*60);rig.rotation.y=st.theta;
+    /* card shown in front of the eyes, drawn on a canvas (Arabic shaping by the browser) */
+    const pc=document.createElement('canvas');pc.width=1024;pc.height=320;const pg=pc.getContext('2d');const ptex=new THREE.CanvasTexture(pc);ptex.encoding=THREE.sRGBEncoding;
+    const panel=new THREE.Mesh(new THREE.PlaneGeometry(1.3,0.41),new THREE.MeshBasicMaterial({map:ptex,transparent:true,depthTest:false}));panel.renderOrder=999;panel.position.set(0,-0.28,-1.5);panel.visible=false;vcam.add(panel);
+    function card(lines,col){const rtl=document.documentElement.dir==='rtl';pg.clearRect(0,0,1024,320);pg.fillStyle='rgba(255,255,255,.95)';pg.beginPath();if(pg.roundRect)pg.roundRect(0,0,1024,320,40);else pg.rect(0,0,1024,320);pg.fill();
+      pg.direction=rtl?'rtl':'ltr';pg.textAlign=rtl?'right':'left';const X=rtl?968:56;pg.fillStyle='#0F1115';pg.font='800 78px Cairo, "IBM Plex Sans Arabic", sans-serif';pg.fillText(lines[0],X,112);
+      pg.font='600 46px Cairo, "IBM Plex Sans Arabic", sans-serif';pg.fillStyle='#3A3F4A';pg.fillText(lines[1],X,192);if(col){pg.fillStyle=col;pg.beginPath();pg.arc(rtl?X-22:X+22,262,20,0,7);pg.fill();}
+      pg.fillStyle='#0F1115';pg.font='700 50px Cairo, "IBM Plex Sans Arabic", sans-serif';pg.fillText(lines[2]||'',rtl?X-58:X+58,280);ptex.needsUpdate=true;panel.visible=true;clearTimeout(card.t);card.t=setTimeout(()=>{panel.visible=false;},7000);}
+    card([L.mvr,L.vr_tip.split('،')[0]||'',''],null);
+    const marker=new THREE.Mesh(new THREE.RingGeometry(0.7,0.95,32).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0x0A84FF}));marker.visible=false;scene.add(marker);
+    const r2=new THREE.Raycaster(),mrot=new THREE.Matrix4(),org=new THREE.Vector3(),dir=new THREE.Vector3(),hitP=new THREE.Vector3();
+    const ctrls=[0,1].map(n=>{const c=renderer.xr.getController(n);
+      const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-1)]),new THREE.LineBasicMaterial({color:0xffffff}));line.scale.z=80;c.add(line);
+      c.addEventListener('connected',e=>{c.userData.gp=e.data.gamepad;});
+      c.addEventListener('selectstart',()=>{const h=c.userData.h;if(!h)return;
+        if(h.unit){const u=h.unit;select(u);const sc={available:'#E9EDF3',reserved:'#A8A39E',sold:'#55565A'}[u.status];card([u.code,L.type+' '+u.type,L[u.status]],sc);return;}
+        rig.position.set(h.p.x,aerial?AER:0,h.p.z);});
+      c.addEventListener('squeezestart',()=>{aerial=!aerial;rig.position.y=aerial?AER:0;});
+      rig.add(c);return c;});
+    let turnLock=false;
+    function frameXR(){marker.visible=false;
+      for(const c of ctrls){mrot.identity().extractRotation(c.matrixWorld);org.setFromMatrixPosition(c.matrixWorld);dir.set(0,0,-1).applyMatrix4(mrot);r2.set(org,dir);
+        const hm=r2.intersectObjects(meshes,false)[0];let h=null;
+        if(hm){const i=byType[hm.object.userData.type][hm.instanceId];if(i!=null)h={unit:UNITS[i]};}
+        else if(r2.ray.intersectPlane(gplane,hitP)&&hitP.distanceTo(org)<2500){h={p:hitP.clone()};marker.visible=true;marker.position.set(hitP.x,0.08,hitP.z);}
+        c.userData.h=h;
+        const gp=c.userData.gp;if(gp&&gp.axes){const x=gp.axes[2]||gp.axes[0]||0;if(Math.abs(x)>0.7&&!turnLock){rig.rotation.y-=Math.sign(x)*Math.PI/6;turnLock=true;}if(Math.abs(x)<0.3)turnLock=false;}}
+      renderer.render(scene,vcam);}
+    session.addEventListener('end',()=>{renderer.setAnimationLoop(null);renderer.xr.enabled=false;ctrls.forEach(c=>rig.remove(c));scene.remove(rig);scene.remove(marker);panel.geometry.dispose();ptex.dispose();
+      resize();T3.dirty=true;document.querySelectorAll('#modectl .vrbtn').forEach(b=>b.classList.remove('on'));});
+    await renderer.xr.setSession(session);renderer.setAnimationLoop(frameXR);
+    document.querySelectorAll('#modectl .vrbtn').forEach(b=>b.classList.add('on'));return true;};
   renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;envIntensity(0.25);M3.ready=true;M3.loading=false;fit();refresh();if(selU)mark(selU);applyCam();requestAnimationFrame(tick);
   const hint=document.getElementById('hint3');setTimeout(()=>{if(hint)hint.style.opacity='0';},9000);}
 function refresh3D(){if(T3)T3.refresh();}

@@ -1,0 +1,74 @@
+{
+ "camry": {
+  "kind": "sedan",
+  "length_m": 4.885,
+  "tris_src": 176591,
+  "trisH": 22000,
+  "tris0": 10000,
+  "tris1": 1499,
+  "kbH": 456,
+  "paint": true,
+  "kb0": 611,
+  "kb1": 59
+ },
+ "corolla": {
+  "kind": "sedan",
+  "length_m": 4.63,
+  "tris_src": 188000,
+  "trisH": 22000,
+  "tris0": 10000,
+  "tris1": 1717,
+  "kbH": 497,
+  "paint": true,
+  "kb0": 798,
+  "kb1": 74
+ },
+ "sportage": {
+  "kind": "suv",
+  "length_m": 4.44,
+  "tris_src": 81949,
+  "trisH": 22000,
+  "tris0": 10000,
+  "tris1": 1500,
+  "kbH": 226,
+  "paint": true,
+  "kb0": 136,
+  "kb1": 38
+ },
+ "patrol": {
+  "kind": "suv",
+  "length_m": 5.165,
+  "tris_src": 5679,
+  "trisH": 5679,
+  "tris0": 5679,
+  "tris1": 1500,
+  "kbH": 45,
+  "paint": false,
+  "kb0": 466,
+  "kb1": 22
+ },
+ "landcruiser": {
+  "kind": "suv",
+  "length_m": 3.84,
+  "tris_src": 138752,
+  "trisH": 21999,
+  "tris0": 9999,
+  "tris1": 1499,
+  "kbH": 303,
+  "paint": false,
+  "kb0": 394,
+  "kb1": 50
+ },
+ "hilux": {
+  "kind": "pickup",
+  "length_m": 4.8,
+  "tris_src": 19388,
+  "trisH": 19388,
+  "tris0": 10000,
+  "tris1": 1500,
+  "kbH": 94,
+  "paint": false,
+  "kb0": 67,
+  "kb1": 22
+ }
+}

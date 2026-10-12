@@ -86,12 +86,12 @@
     const g = document.createElement('div');
     g.id = 'lc-gate';
     g.innerHTML = `
-      <div class="g-bg" id="lc-bg"><img src="/assets/aerial-sunset-02.jpg" alt="مجمع لارين سيتي السكني"><div class="g-sheen"></div></div>
+      <div class="g-bg" id="lc-bg"><img src="/assets/aerial-sunset-02.jpg" alt="مجمع لارين السكني"><div class="g-sheen"></div></div>
       <main>
-        <img class="g-logo" src="/assets/logo-gold.png" alt="لارين سيتي">
+        <img class="g-logo" src="/assets/logo-gold.png" alt="مجمع لارين السكني">
         <h1>قريباً جداً</h1>
         <div class="g-rule"></div>
-        <p class="g-lead">مجمع لارين سيتي السكني</p>
+        <p class="g-lead">مجمع لارين السكني</p>
         <p class="g-sub">بابل · مجاور جامعة الحلة</p>
         <form id="lc-form" autocomplete="off">
           <input id="lc-code" type="password" inputmode="text" placeholder="رمز الدخول" aria-label="رمز الدخول">
@@ -100,7 +100,7 @@
         <div class="g-msg" id="lc-msg"></div>
       </main>
       <div class="g-foot">
-        <span class="g-copy">© ٢٠٢٦ لارين سيتي</span>
+        <span class="g-copy">© ٢٠٢٦ مجمع لارين السكني</span>
         <button class="g-enter" id="lc-open" type="button">دخول</button>
         <img src="/assets/bait.png" alt="بيت العطاء">
       </div>`;

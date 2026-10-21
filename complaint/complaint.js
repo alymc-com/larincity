@@ -7,11 +7,11 @@
   fetch(API).then((r) => (r.ok ? r.json() : Promise.reject())).then((J) => {
     box.innerHTML = `<div class="who"><span class="ic2">${ICON}</span><div><h1>تقديم شكوى</h1><p>كل الحقول مطلوبة حتى نتواصل معك</p></div></div>
       <label>موضوع الشكوى<select data-tp><option value="">اختر الموضوع</option>${J.topics.map((t) => `<option>${esc(t)}</option>`).join('')}</select></label>
-      <div><h2 style="margin-bottom:8px">أنت الآن</h2><div class="seg" data-stg><button type="button" data-v="b" class="on">حجزت بيتاً</button><button type="button" data-v="h">استلمت بيتي</button></div></div>
+      <div><h2 style="margin-bottom:8px">أنت الآن</h2><div class="seg" data-stg><button type="button" data-v="i" class="on">مهتم</button><button type="button" data-v="b">حجزت بيتاً</button><button type="button" data-v="h">استلمت بيتي</button></div></div>
       <label>تفاصيل المشكلة<textarea data-det maxlength="1500" placeholder="اكتب ما حدث بالتفصيل"></textarea></label>
       <div class="row"><label>اسمك<input data-nm maxlength="80" autocomplete="name"></label><label>رقم هاتفك<input data-ph maxlength="20" inputmode="tel" dir="ltr" autocomplete="tel" placeholder="07XXXXXXXXX"></label></div>
       <div class="msg" data-m></div><button type="button" class="go" data-go disabled>إرسال الشكوى</button>`;
-    let stg = 'b'; const q = (k) => box.querySelector(k), tp = q('[data-tp]'), det = q('[data-det]'), nm = q('[data-nm]'), ph = q('[data-ph]'), go = q('[data-go]'), m = q('[data-m]');
+    let stg = 'i'; const q = (k) => box.querySelector(k), tp = q('[data-tp]'), det = q('[data-det]'), nm = q('[data-nm]'), ph = q('[data-ph]'), go = q('[data-go]'), m = q('[data-m]');
     const upd = () => { go.disabled = !(tp.value && det.value.trim().length >= 5 && nm.value.trim().length >= 2 && ph.value.replace(/\D/g, '').length >= 10); };
     [tp, det, nm, ph].forEach((e) => { e.addEventListener('input', upd); e.addEventListener('change', upd); });
     q('[data-stg]').addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (!b) return; stg = b.dataset.v; box.querySelectorAll('[data-stg] button').forEach((x) => x.classList.toggle('on', x === b)); });

@@ -1122,12 +1122,34 @@ const corePost=(path,data)=>fetch(CORE+path,{method:'POST',headers:{'Content-Typ
   .then(async r=>{const j=await r.json().catch(()=>({}));return r.ok?j:Object.assign({error:'error'},j);}).catch(()=>({error:'network'}));
 function askPin(what,run){PINRUN=run;document.getElementById('spin-what').textContent=what;document.getElementById('spin-err').hidden=true;
   const i=document.getElementById('spin-code');i.value='';document.getElementById('spin').hidden=false;setTimeout(()=>i.focus(),60);}
+/* دون اتصال (قرار المالك 2026-10-24): طلب الزبون يُحفظ على الشاشة برقم مؤقت ويُرسل حين يعود الاتصال طلباً للمبيعات.
+   أما حجز الوحدة بالرمز فلا يتم دون اتصال، لأن الوحدة قد تُحجز في اللحظة نفسها من مكان آخر؛ يتابعه موظف المبيعات من الطلب. */
+const OFFT=(a,b)=>LANG==='ar'?a:b,OQ='lc-scr-ob';
+const oqGet=()=>{try{return JSON.parse(localStorage.getItem(OQ)||'[]')}catch(x){return[]}};
+const oqSet=L=>{try{L.length?localStorage.setItem(OQ,JSON.stringify(L)):localStorage.removeItem(OQ)}catch(x){}offStrip();};
+function offQueue(data){const L=oqGet();let n=0;try{n=(+localStorage.getItem('lc-scr-tmp')||0)+1;localStorage.setItem('lc-scr-tmp',String(n))}catch(x){}
+  L.push({data:Object.assign({},data,{note:[data.note,OFFT('سُجّل على شاشة المبيعات دون اتصال','Saved on the sales screen offline')].filter(Boolean).join(' · ')}),at:Date.now(),tmp:n});oqSet(L);return OFFT('مؤقت-','TEMP-')+n;}
+function offDone(ref,wasBook){document.getElementById('ref').textContent=ref;const dp=document.querySelector('#done p');
+  if(dp)dp.textContent=wasBook?OFFT('لا يوجد اتصال الآن، فسُجّل طلب الزبون على هذه الشاشة برقم مؤقت، ويصل إلى المبيعات حين يعود الاتصال. الوحدة لم تُحجز بعد؛ يحجزها موظف المبيعات بعد التأكد أنها ما زالت متاحة.','Offline: the request was saved with a temporary number and reaches sales when back online. The home is not reserved yet.')
+    :OFFT('سُجّل طلبك برقم مؤقت دون اتصال، ويصل إلى فريق المبيعات حين يعود الاتصال.','Saved with a temporary number; it reaches the sales team when back online.');
+  document.getElementById('form').style.display='none';document.getElementById('done').style.display='block';}
+let offEl=null,oqBusy=false;
+function offStrip(){const n=oqGet().length,down=navigator.onLine===false;if(!down&&!n){if(offEl){offEl.remove();offEl=null}return;}
+  if(!offEl){offEl=document.createElement('div');offEl.setAttribute('role','status');offEl.style.cssText='position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);left:16px;z-index:9999;color:#fff;font:600 14px/1.5 inherit;padding:9px 16px;border-radius:12px;max-width:min(420px,calc(100% - 32px));text-align:start;box-shadow:0 6px 20px rgba(0,0,0,.25)';document.body.appendChild(offEl);}
+  offEl.style.background=down?'#B42318':'#1E7B46';
+  offEl.textContent=down?OFFT('لا يوجد اتصال · تعرض الشاشة آخر حالة للوحدات','Offline · showing the last known availability')+(n?OFFT(' · '+n+' طلبات تنتظر الإرسال',' · '+n+' requests waiting'):''):OFFT('عاد الاتصال · تُرسل الطلبات المحفوظة ('+n+')','Back online · sending '+n+' saved requests');}
+async function oqDrain(){if(oqBusy||navigator.onLine===false||!API)return;if(!oqGet().length)return offStrip();oqBusy=true;
+  try{while(oqGet().length){const op=oqGet()[0];let r;try{r=await fetch(API+'/request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(op.data)})}catch(x){break}
+      if(r.status===429||r.status>=500)break;oqSet(oqGet().slice(1));}}finally{oqBusy=false;offStrip();}
+  syncUnits(true);}
+addEventListener('online',()=>{offStrip();oqDrain()});addEventListener('offline',offStrip);setInterval(oqDrain,20000);addEventListener('load',()=>{offStrip();oqDrain()});
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 function pinClose(){const d=document.getElementById('spin');if(d)d.hidden=true;PINRUN=null;}
 async function pinSubmit(e){e.preventDefault();const i=document.getElementById('spin-code'),er=document.getElementById('spin-err'),bt=e.target.querySelector('button[type=submit]'),pin=i.value.trim();
   if(!/^\d{6}$/.test(pin)){er.textContent=L.sc_pin4;er.hidden=false;return false;}
   if(!PINRUN)return false;bt.disabled=true;
   try{const r=await PINRUN(pin);
-    if(r&&r.error){er.textContent=({bad_pin:L.sc_badpin,too_many:L.sc_toomany,forbidden:L.sc_forbid,not_available:L.sc_taken})[r.error]||L.sc_err;er.hidden=false;i.value='';i.focus();return false;}
+    if(r&&r.error){er.textContent=r.error==='network'?OFFT('لا يوجد اتصال الآن. الحجز بالرمز يحتاج اتصالاً لأن الوحدة قد تُحجز من مكان آخر','No connection. Reserving needs a connection'):({bad_pin:L.sc_badpin,too_many:L.sc_toomany,forbidden:L.sc_forbid,not_available:L.sc_taken})[r.error]||L.sc_err;er.hidden=false;i.value='';i.focus();return false;}
     pinClose();}
   catch(x){er.textContent=L.sc_err;er.hidden=false;}finally{bt.disabled=false;}return false;}
 function flash(msg){const t=document.getElementById('stoast');if(!t)return;t.textContent=msg;t.hidden=false;clearTimeout(flash.t);flash.t=setTimeout(()=>t.hidden=true,3500);}
@@ -1217,13 +1239,15 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 function prefill(t,code){const a=document.getElementById('f-type'),b=document.getElementById('f-unit');if(a)a.value=t;if(b)b.value=code;}
 async function submitForm(e){e.preventDefault();const f=id=>document.getElementById(id).value.trim();const btn=document.querySelector('#form button[type=submit]');
   const data={name:f('f-name'),phone:f('f-phone'),type:f('f-type'),code:f('f-unit').toUpperCase(),city:f('f-city'),kind:f('f-kind'),note:f('f-note'),lang:LANG};
+  if(SCREEN&&CORE&&data.code&&navigator.onLine===false){const n=offQueue(data);offDone(n,true);return false;}
   if(SCREEN&&CORE&&data.code){askPin(L.sc_pin_book.replace('{c}',data.code),async pin=>{
       const j=await corePost('/screen/book',{pin,code:data.code,name:data.name,phone:data.phone,note:data.note,city:data.city,lang:LANG});if(j.error)return j;
       await syncUnits(true);document.getElementById('ref').textContent=j.ref;const dp=document.querySelector('#done p');if(dp)dp.textContent=L.sc_note.replace('{c}',data.code)+' '+L.sc_done_by.replace('{n}',j.by);
       document.getElementById('form').style.display='none';document.getElementById('done').style.display='block';return j;});return false;}
   let ref='LC-2026-'+String(1000+Math.floor(Math.random()*9000));const fromScreen=false;
   if(API){btn.disabled=true;try{let r;
-      {r=await fetch(API+'/request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}
+      if(navigator.onLine===false){btn.disabled=false;offDone(offQueue(data),false);return false;}
+      try{r=await fetch(API+'/request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}catch(net){btn.disabled=false;offDone(offQueue(data),false);return false;}
       const j=await r.json();if(!r.ok||!j.ok)throw j;ref=j.ref||data.code||ref;if(fromScreen)await syncUnits(true);
     }catch(err){btn.disabled=false;alert(err&&err.error==='not_available'?L.sc_taken:L.f_err);return false;}btn.disabled=false;}
   document.getElementById('ref').textContent=ref;const dp=document.querySelector('#done p');if(dp)dp.textContent=fromScreen?L.sc_note.replace('{c}',data.code):L.d_p;

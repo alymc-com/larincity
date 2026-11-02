@@ -776,8 +776,8 @@
 
 /* تصميم 2 · حروف LARIN CITY تظهر فيها صورة المدينة، بحدّ ذهبي رفيع */
 /* الصورة على الكلمة كلها (لا على كل حرف)، والحروف بلا حدود، والصورة تنساب ببطء داخلها */
-.word{background:url(/assets/aerial-sunset-01.jpg) var(--wx,50%) var(--wy,45%)/var(--ws,108%) auto no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
-  filter:drop-shadow(0 14px 22px rgba(15,17,21,.16))}
+/* طلب المالك 2026-11-03: الصورة المتحركة داخل الحروف كانت تومض على الهاتف، فصار الاسم ذهبياً ثابتاً بلا صورة ولا ظل */
+.word{background:linear-gradient(180deg,#E8CA84 0%,#D2AE62 45%,#B08A3E 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
 .word span{display:inline;background:none!important;-webkit-text-fill-color:transparent;color:transparent;-webkit-text-stroke:0!important;animation:none!important}
 
 /* تصميم 4 · أزرار الحجز ذهبية بارزة */
@@ -2006,7 +2006,7 @@ document.querySelectorAll('[data-count]').forEach(el=>co.observe(el));
 
   // تصميم 2 · الصورة داخل LARIN CITY تتحرك مع التمرير فقط
   const wd = document.querySelector('.word');
-  if (wd && !matchMedia('(prefers-reduced-motion: reduce)').matches) { let raf = 0;
+  if (false && wd) { let raf = 0;   // متوقفة: الاسم ذهبي ثابت (2026-11-03)
     const pan = () => { raf = 0; const r = wd.getBoundingClientRect(), H = innerHeight; if (r.bottom < -200 || r.top > H + 200) return;
       const p = Math.min(1, Math.max(0, (H - r.top) / (H + r.height)));
       // الصورة بحجمها الطبيعي تقريباً (108%) حتى لا تتكبّر وتتشوّه، والحركة عمودية أساساً لأن ارتفاع الصورة أكبر بكثير من الكلمة

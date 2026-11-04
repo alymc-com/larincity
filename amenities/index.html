@@ -563,7 +563,7 @@
   .spinbox .slh b{font-size:17px}
   .spinbox .x{margin-inline-start:auto;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:18px;cursor:pointer}
   .spinbox .what{margin:0;color:var(--ink2);font-size:14.5px}
-  .spinbox input.pin4{font-family:var(--la);font-size:36px;font-weight:800;letter-spacing:.6em;text-indent:.6em;text-align:center;padding:12px;border-radius:16px} .pin4.pinst{font-size:16px;font-weight:600;letter-spacing:0;text-indent:0;margin-bottom:10px;width:100%}
+  .spinbox input.pin4{font-family:var(--la);font-size:36px;font-weight:800;letter-spacing:.6em;text-indent:.6em;text-align:center;padding:12px;border-radius:16px}
   .spinbox .slerr{margin:0;background:#F7E3E3;color:#A32020;border-radius:12px;padding:9px 12px;font-size:13px}
   .stoast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:95;background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-weight:700;font-size:14px;box-shadow:0 14px 40px rgba(0,0,0,.25)}
 
@@ -977,7 +977,6 @@ if ('serviceWorker' in navigator) addEventListener('load', () => navigator.servi
 <div class="spin" id="spin" hidden><form class="spinbox" id="spin-form" onsubmit="return pinSubmit(event)" autocomplete="off">
   <div class="slh"><img src="/assets/mark-gold.png" alt=""><b data-i="sc_pin_t">الرمز السري</b><button type="button" class="x" onclick="pinClose()" aria-label="close">×</button></div>
   <p class="what" id="spin-what"></p>
-  <input id="spin-staff" class="pin4 pinst" type="email" inputmode="email" autocomplete="username" dir="ltr" required placeholder="بريدك في النظام" aria-label="بريدك في النظام"><script>try{document.getElementById('spin-staff').value=localStorage.getItem('lc-sc-staff')||''}catch(e){}</script>
   <input id="spin-code" class="pin4" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" dir="ltr" aria-label="PIN">
   <p class="slerr" id="spin-err" hidden></p>
   <button class="btn" type="submit"><span data-i="sc_confirm">تأكيد</span></button>
@@ -1063,9 +1062,7 @@ function applyStatus(map){let changed=false;UNITS.forEach(u=>{const ns=map[u.cod
 async function syncUnits(force){if(!API)return;try{const r=await fetch(API+'/units',{cache:'no-store'});const j=await r.json();if(force||j.v!==UV){UV=j.v;applyStatus(j.units||{});}}catch(e){}}
 /* sales screen: every sale or reservation is confirmed with the employee's personal 4-digit PIN; the system knows who from the PIN */
 let PINRUN=null;
-/* الشاشة: الخادم يعرف الموظف من بريده مع رمزه (2026-11-04)، والبريد يُحفظ على الجهاز فلا يُكتب كل مرة */
-const scStaff=()=>{const e=document.getElementById('spin-staff'),v=e?e.value.trim():'';try{if(v)localStorage.setItem('lc-sc-staff',v)}catch(x){}return v};
-const corePost=(path,data)=>fetch(CORE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(/^\/screen\//.test(path)?Object.assign({staff:scStaff()},data):data)})
+const corePost=(path,data)=>fetch(CORE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
   .then(async r=>{const j=await r.json().catch(()=>({}));return r.ok?j:Object.assign({error:'error'},j);}).catch(()=>({error:'network'}));
 function askPin(what,run){PINRUN=run;document.getElementById('spin-what').textContent=what;document.getElementById('spin-err').hidden=true;
   const i=document.getElementById('spin-code');i.value='';document.getElementById('spin').hidden=false;setTimeout(()=>i.focus(),60);}

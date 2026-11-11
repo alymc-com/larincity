@@ -593,10 +593,19 @@
   .spinbox .slh{display:flex;align-items:center;gap:10px}
   .spinbox .slh img{width:30px;height:30px}
   .spinbox .slh b{font-size:17px}
-  .spinbox .x{margin-inline-start:auto;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:18px;cursor:pointer}
+  .spinbox .x{margin-inline-start:auto;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:18px;cursor:pointer}
   .spinbox .what{margin:0;color:var(--ink2);font-size:14.5px}
   .spinbox input.pin4{font-family:var(--la);font-size:36px;font-weight:800;letter-spacing:.6em;text-indent:.6em;text-align:center;padding:12px;border-radius:16px}
   .spinbox .slerr{margin:0;background:#F7E3E3;color:#A32020;border-radius:12px;padding:9px 12px;font-size:13px}
+  /* البند 4.11: سطر الجهاز المسجل تحت زر التأكيد، ونافذة طلب التسجيل ورمز العرض من 6 أحرف */
+  .spinbox .sdev{margin:0;text-align:center;font-size:13px;color:var(--ink2)}
+  .spinbox .sdev button{min-height:44px;padding:0 12px;border:0;background:none;color:var(--ink2);font:500 13px var(--ar,inherit);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+  .spinbox .sdev b{font-weight:600;color:#1E7A46;line-height:1.7}
+  .spinbox .sdev b::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-inline-end:6px;vertical-align:middle}
+  .spinbox .pcode{display:block;text-align:center;font-family:var(--la);font-size:40px;font-weight:800;letter-spacing:.18em;color:var(--ink);padding:10px 0;user-select:all}
+  .spinbox .pwait{margin:-6px 0 0;text-align:center;font-size:14px;font-weight:600;color:#B25E00}
+  .spinbox .pwait::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#E8890C;margin-inline-end:7px;vertical-align:middle}
+  .spin{padding:max(20px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left))}
   .stoast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:95;background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-weight:700;font-size:14px;box-shadow:0 14px 40px rgba(0,0,0,.25)}
 
   /* page header */
@@ -1060,6 +1069,16 @@
   <input id="spin-code" class="pin4" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" dir="ltr" aria-label="PIN">
   <p class="slerr" id="spin-err" hidden></p>
   <button class="btn" type="submit"><span data-i="sc_confirm">تأكيد</span></button>
+  <p class="sdev" id="spin-dev"></p>
+</form></div>
+<div class="spin" id="spair" hidden><form class="spinbox" id="spair-form" onsubmit="return pairSubmit(event)" autocomplete="off">
+  <div class="slh"><img src="../assets/mark-gold.png" alt=""><b id="spair-t">تسجيل هذا الجهاز</b><button type="button" class="x" onclick="pairClose()" aria-label="إغلاق">×</button></div>
+  <p class="what" id="spair-what"></p>
+  <input id="spair-name" type="text" maxlength="60" placeholder="اسم الجهاز (اختياري)، مثل: شاشة المعرض" autocomplete="off" aria-label="اسم هذا الجهاز">
+  <b class="pcode" id="spair-code" dir="ltr" aria-live="polite" hidden></b>
+  <p class="pwait" id="spair-wait" hidden></p>
+  <p class="slerr" id="spair-err" hidden></p>
+  <button class="btn" type="submit" id="spair-btn"><span id="spair-ok">طلب التسجيل</span></button>
 </form></div>
 <div class="stoast" id="stoast" hidden></div>
 <script>
@@ -1144,9 +1163,48 @@ function applyStatus(map){let changed=false;UNITS.forEach(u=>{const ns=map[u.cod
 async function syncUnits(force){if(!API)return;try{const r=await fetch(API+'/units',{cache:'no-store'});const j=await r.json();if(force||j.v!==UV){UV=j.v;applyStatus(j.units||{});}}catch(e){}}
 /* sales screen: every sale or reservation is confirmed with the employee's personal 4-digit PIN; the system knows who from the PIN */
 let PINRUN=null;
-const corePost=(path,data)=>fetch(CORE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
-  .then(async r=>{const j=await r.json().catch(()=>({}));return r.ok?j:Object.assign({error:'error'},j);}).catch(()=>({error:'network'}));
-function askPin(what,run){PINRUN=run;document.getElementById('spin-what').textContent=what;document.getElementById('spin-err').hidden=true;
+const SDK='lc-scr-dev',SDQ='lc-scr-req';
+/* البند 4.11: الجهاز المسجل يحمل رمزاً سرياً في تخزين الجهاز (لا في الرابط) ويرسله في الترويسة مع كل فعل بالرمز، فيبقى يقبل رموز الموظفين
+   حين يستنفد غرباء على الشبكة نفسها حد العناوين. التسجيل بطلب من الجهاز: يظهر عليه رمز من 6 أحرف تطابقه الإدارة وتعتمده من مركز الأمان.
+   الرمز يخص الجهاز لا الموظف، ولا يحمل بيانات زبون */
+const jget=k=>{try{const o=JSON.parse(localStorage.getItem(k)||'null');return o&&/^[0-9a-f]{64}$/.test(o.t||'')?o:null}catch(x){return null}};
+const jset=(k,o)=>{try{o?localStorage.setItem(k,JSON.stringify(o)):localStorage.removeItem(k)}catch(x){}};
+const devGet=()=>jget(SDK),reqGet=()=>{const q=jget(SDQ);return q&&Date.parse(q.x)>Date.now()?q:null};
+const devSet=o=>{jset(SDK,o);if(o)jset(SDQ,null);devLine();};
+const corePost=(path,data,tok)=>{const d=tok?{t:tok}:devGet();return fetch(CORE+path,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},d?{'X-Screen-Device':d.t}:{}),body:JSON.stringify(data)})
+  .then(async r=>{const j=await r.json().catch(()=>({}));return r.ok?j:Object.assign({error:'error'},j);}).catch(()=>({error:'network'}));};
+function devLine(){const el=document.getElementById('spin-dev');if(!el)return;const d=devGet();
+  el.innerHTML='';if(d){const b=document.createElement('b');b.textContent=OFFT('جهاز مسجل: ','Registered device: ')+(d.n||'');el.appendChild(b);}
+  else{const b=document.createElement('button');b.type='button';b.textContent=OFFT('تسجيل هذا الجهاز','Register this device');b.onclick=pairOpen;el.appendChild(b);}}
+let PAIRT=0;
+function pairView(q,err){const $=id=>document.getElementById(id),c=$('spair-code'),n=$('spair-name'),bt=$('spair-btn'),er=$('spair-err');
+  $('spair-t').textContent=OFFT('تسجيل هذا الجهاز','Register this device');
+  if(q){c.textContent=q.c.slice(0,3)+' '+q.c.slice(3);c.hidden=false;n.hidden=true;bt.hidden=true;$('spair-wait').hidden=false;$('spair-wait').textContent=OFFT('ينتظر اعتماد الإدارة…','Waiting for approval…');
+    $('spair-what').textContent=OFFT('اعرض هذا الرمز على الإدارة لتعتمد الجهاز من مركز الأمان، وتُغلق النافذة وحدها حين يُعتمد.','Show this code to the administration to approve this device. This closes by itself once approved.');}
+  else{c.hidden=true;$('spair-wait').hidden=true;n.hidden=false;bt.hidden=false;$('spair-ok').textContent=OFFT('طلب التسجيل','Request registration');
+    $('spair-what').textContent=OFFT('يرسل هذا الجهاز طلب تسجيل، ويظهر عليه رمز تطابقه الإدارة وتعتمده من مركز الأمان.','This device sends a registration request and shows a code for the administration to approve.');}
+  er.hidden=!err;if(err)er.textContent=err;}
+/* سؤال الخادم عن الطلب كل أربع ثوانٍ ما دامت النافذة مفتوحة والطلب قائماً، ولا شيء بعد إغلاقها */
+async function pairPoll(){clearTimeout(PAIRT);const w=document.getElementById('spair'),q=reqGet();if(!w||w.hidden||!q)return;
+  const j=await corePost('/screen/device',{},q.t);if(w.hidden)return;
+  if(j&&j.registered){devSet({t:q.t,n:j.name||''});flash(OFFT('سُجّل هذا الجهاز باسم ','This device is registered as ')+(j.name||''));pairClose();return;}
+  if(j&&!j.error&&j.registered===false&&!j.pending){jset(SDQ,null);pairView(null,OFFT('رُفض الطلب أو انتهت مهلته. اطلب التسجيل من جديد.','The request was rejected or expired. Request again.'));return;}
+  if(!reqGet()){pairView(null,OFFT('انتهت مهلة الطلب. اطلب التسجيل من جديد.','The request expired. Request again.'));return;}
+  PAIRT=setTimeout(pairPoll,4000);}
+function pairOpen(){const w=document.getElementById('spair');if(!w)return;const q=reqGet();pairView(q);
+  const n=document.getElementById('spair-name');n.value='';const sp=document.getElementById('spin');if(sp)sp.hidden=true;w.hidden=false;if(q)pairPoll();else setTimeout(()=>n.focus(),60);}
+function pairClose(){clearTimeout(PAIRT);const w=document.getElementById('spair');if(w)w.hidden=true;if(PINRUN){const sp=document.getElementById('spin');if(sp){sp.hidden=false;const i=document.getElementById('spin-code');if(i)setTimeout(()=>i.focus(),60);}}}
+async function pairSubmit(e){e.preventDefault();const bt=document.getElementById('spair-btn');if(bt.hidden)return false;
+  bt.disabled=true;try{const j=await corePost('/screen/pair-request',{name:document.getElementById('spair-name').value.trim()},'');
+    if(j.error||!j.token){pairView(null,j.error==='network'?OFFT('لا يوجد اتصال الآن. التسجيل يحتاج اتصالاً.','No connection. Registering needs a connection.'):j.error==='too_many'?OFFT('طلبات كثيرة من هذه الشبكة، انتظر نصف ساعة ثم أعد المحاولة.','Too many requests. Wait half an hour.'):OFFT('تعذّر إرسال الطلب. أعد المحاولة بعد قليل.','Could not send the request. Try again shortly.'));return false;}
+    const q={t:j.token,c:String(j.code||''),x:j.expires_at};jset(SDQ,q);pairView(q);PAIRT=setTimeout(pairPoll,4000);}
+  finally{bt.disabled=false;}return false;}
+/* عند فتح الشاشة: الجهاز الذي ألغت الإدارة تسجيله ينسى رمزه، وطلب اعتُمد والنافذة مغلقة يصير جهازاً مسجلاً */
+if(SCREEN&&(devGet()||reqGet()))addEventListener('load',()=>{const d=devGet(),q=reqGet();corePost('/screen/device',{},d?d.t:q.t).then(j=>{
+  if(!j||j.error)return;   /* لا يُنسى الرمز إلا بجواب صريح من الخادم، لا بخطأ عابر أو انقطاع */
+  if(d){if(j.registered===false&&!j.pending)devSet(null);else if(j.registered&&j.name&&j.name!==d.n)devSet({t:d.t,n:j.name});}
+  else if(j.registered)devSet({t:q.t,n:j.name||''});else if(!j.pending)jset(SDQ,null);});});
+function askPin(what,run){PINRUN=run;document.getElementById('spin-what').textContent=what;document.getElementById('spin-err').hidden=true;devLine();
   const i=document.getElementById('spin-code');i.value='';document.getElementById('spin').hidden=false;setTimeout(()=>i.focus(),60);}
 /* دون اتصال (قرار المالك 2026-10-24): طلب الزبون يُحفظ على الشاشة برقم مؤقت ويُرسل حين يعود الاتصال طلباً للمبيعات.
    أما حجز الوحدة بالرمز فلا يتم دون اتصال، لأن الوحدة قد تُحجز في اللحظة نفسها من مكان آخر؛ يتابعه موظف المبيعات من الطلب. */

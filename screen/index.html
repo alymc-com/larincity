@@ -1308,7 +1308,9 @@ function renderTypes(){const tg=document.getElementById('tgrid');if(!tg)return;t
 function renderAvail(){if(typeof renderLive==='function')renderLive();const av=document.getElementById('avail');if(!av)return;av.innerHTML='';
   TYPES.forEach(t=>{const all=UNITS.filter(u=>u.type===t.code),a=all.filter(u=>u.status==='available').length;av.innerHTML+=`<div><b>${a}</b><span>${L.avail_of} ${all.length} · ${t.code}</span></div>`;});}
 function setLang(l){LANG=l;L=T[l];try{localStorage.setItem('lc-lang',l);}catch(e){}
-  document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr';document.body.classList.toggle('en',l==='en');renderStatic();}
+  document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr';document.body.classList.toggle('en',l==='en');renderStatic();
+  /* أزرار الوقت والطقس وقائمة الواقع الافتراضي تُبنى مرة واحدة داخل المشهد، فتُعاد كتابتها هنا بلغة الاختيار دون انتظار إعادة التحميل */
+  try{const c=T3&&T3.c3d;if(c){if(c.ui)c.ui();if(c.vrMenu)c.vrMenu();T3.dirty=true;}}catch(e){}}
 
 /* modal */
 function openModal(c){const t=TYPES.find(x=>x.code===c);

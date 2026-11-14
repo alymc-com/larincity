@@ -4,7 +4,7 @@
    وآخر حالة للوحدات، كلها تُحفظ على الجهاز حين تُفتح مع الاتصال، فتعمل الشاشة بعدها دون إنترنت. */
 const V = 'lc-202610241300';
 const THREE = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/', FONTS = /^https:\/\/fonts\.(googleapis|gstatic)\.com\//;
-const API_UNITS = 'https://larin-assistant.larin-assistant.workers.dev/units', CDN3 = 'https://cdn.jsdelivr.net/npm/three@0.128.0/';
+const API_UNITS = 'https://larin-assistant.eng1978hussam.workers.dev/units', CDN3 = 'https://cdn.jsdelivr.net/npm/three@0.128.0/';
 // المحفوظ أولاً لما لا يتغير (النموذج والجولات ومكتبة الرسم)، ويُحفظ أول مرة يُفتح فيها
 const keep = (r) => caches.match(r).then(m => m || fetch(r).then(res => { if (res.ok || res.type === 'opaque') { const cp = res.clone(); caches.open(V).then(c => c.put(r, cp)); } return res; }));
 self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.open(V).then(c => c.addAll(['/', '/homes/', '/map/', '/assets/app-icon-192.png']).catch(() => {}))); });

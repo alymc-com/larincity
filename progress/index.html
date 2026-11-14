@@ -1025,7 +1025,7 @@ function room(r){return LANG==='ar'?r:(T.en.rooms[r]||r)}
 
 /* demo status */
 function hash(s){let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h}
-const AI_ENDPOINT='https://larin-assistant.larin-assistant.workers.dev/chat';
+const AI_ENDPOINT='https://larin-assistant.eng1978hussam.workers.dev/chat';
 const API=(typeof AI_ENDPOINT==='string'&&AI_ENDPOINT)?AI_ENDPOINT.replace(/\/chat$/,''):'';
 const CORE='https://app.larincity.com'; /* the company system: staff confirm screen actions with their personal 4-digit PIN */
 let SCREEN=document.body.classList.contains('screen'),PIN='';window.__q0=location.search;
